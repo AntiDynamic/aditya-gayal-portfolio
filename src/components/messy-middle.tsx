@@ -1,4 +1,4 @@
-import { BuildSequence } from "@/components/build-sequence";
+import { DestructionLab } from "@/components/build-sequence";
 
 export function MessyMiddle() {
   return (
@@ -14,7 +14,8 @@ export function MessyMiddle() {
           <p data-enter="lift">The snag is annoying for a minute. Then it becomes a clue. I like staying with it until the idea holds up.</p>
         </div>
 
-        <BuildSequence />
+        <p className="messy-invitation" data-enter="notation">BREAK SOMETHING. SEE WHAT IT WAS HOLDING TOGETHER.</p>
+        <DestructionLab />
       </div>
     </section>
   );

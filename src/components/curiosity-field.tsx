@@ -15,11 +15,10 @@ export function CuriosityField() {
             <span>TOO MANY</span>
             <span>TABS OPEN.</span>
           </h2>
-          <p data-enter="lift">AI, agents, tools, browsers, cities. I keep wondering how technical systems meet the people using them.</p>
+          <p data-enter="lift">AI, agents, tools, browsers, cities. I keep wondering what happens when these systems bump into each other — and the people using them.</p>
         </div>
 
         <div data-enter="settle"><CuriosityConnections /></div>
-        <p className="curiosity-footnote">Pick a connection. The line follows the overlap.</p>
       </div>
     </section>
   );

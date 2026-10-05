@@ -1283,6 +1283,7 @@ button { font: inherit; }
 .messy-heading h2 { font-size: clamp(4.2rem, 7.7vw, 7.5rem); }
 .messy-heading h2 span { color: var(--project-tracepilot-crimson); }
 .messy-heading p { max-width: 26rem; margin: 0 0 .25rem; color: rgba(34, 33, 31, .9); font-size: clamp(1rem, 1.35vw, 1.18rem); line-height: 1.5; }
+.messy-invitation { margin: clamp(2.2rem, 4vw, 3.5rem) 0 -1.8rem; color: var(--project-tracepilot-crimson); font-family: var(--font-mono), ui-monospace, monospace; font-size: .74rem; font-weight: 700; letter-spacing: .07em; line-height: 1.4; }
 
 .build-sequence { margin-top: clamp(3rem, 5vw, 4.6rem); }
 .messy-board { position: relative; min-height: 390px; }

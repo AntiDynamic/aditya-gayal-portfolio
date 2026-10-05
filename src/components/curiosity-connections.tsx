@@ -1,72 +1,225 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from "react";
+import styles from "./curiosity-connections.module.css";
 
-const connections = [
-  {
-    id: "agents",
-    topics: ["AI SYSTEMS", "AGENTIC SYSTEMS", "DEVELOPER TOOLS"],
-    question: "How can people see what a system is doing?",
-    color: "cobalt",
-  },
-  {
-    id: "browser",
-    topics: ["BROWSERS", "SECURITY", "AUTOMATION"],
-    question: "What can a person inspect, change, and trust?",
-    color: "cyan",
-  },
-  {
-    id: "civic",
-    topics: ["CIVIC TECHNOLOGY", "VISUAL SYSTEMS / INTERACTION"],
-    question: "Who gets to read a city's signals?",
-    color: "sun",
-  },
-  {
-    id: "creative",
-    topics: ["CREATIVE SOFTWARE", "EXPERIMENTAL ENGINEERING"],
-    question: "Could the tool itself become part of the idea?",
-    color: "acid",
-  },
+const topics = [
+  { id: "ai", label: "AI SYSTEMS", x: 4, y: 13, w: 19, color: "blue", angle: -3 },
+  { id: "agents", label: "AGENTIC SYSTEMS", x: 32, y: 7, w: 27, color: "acid", angle: 2 },
+  { id: "creative", label: "CREATIVE SOFTWARE", x: 66, y: 14, w: 30, color: "cream", angle: -2 },
+  { id: "tools", label: "DEVELOPER TOOLS", x: 10, y: 39, w: 25, color: "sun", angle: 2 },
+  { id: "browser", label: "BROWSERS", x: 43, y: 35, w: 17, color: "cyan", angle: -1 },
+  { id: "security", label: "SECURITY", x: 75, y: 41, w: 17, color: "cream", angle: 3 },
+  { id: "civic", label: "CIVIC TECHNOLOGY", x: 2, y: 69, w: 29, color: "cream", angle: -2 },
+  { id: "experimental", label: "EXPERIMENTAL ENGINEERING", x: 37, y: 66, w: 39, color: "acid", angle: 1 },
+  { id: "automation", label: "AUTOMATION", x: 78, y: 72, w: 20, color: "sun", angle: -2 },
+  { id: "visual", label: "VISUAL SYSTEMS / INTERACTION", x: 24, y: 88, w: 44, color: "cyan", angle: 1 },
 ] as const;
 
+const relationships = [
+  { id: "agents", topics: ["ai", "agents"], note: "What is a system doing between steps?", color: "blue" },
+  { id: "tools", topics: ["agents", "tools"], note: "Can a tool make a system easier to inspect?", color: "acid" },
+  { id: "browser-security", topics: ["browser", "security"], note: "What should a browser notice before a person does?", color: "cyan" },
+  { id: "browser-automation", topics: ["browser", "automation"], note: "Where does helpful automation need a boundary?", color: "sun" },
+  { id: "civic-visual", topics: ["civic", "visual"], note: "How can a city's signal become easier to read?", color: "sun" },
+  { id: "creative-experimental", topics: ["creative", "experimental"], note: "Can the instrument change the idea?", color: "acid" },
+  { id: "visual-creative", topics: ["visual", "creative"], note: "What changes when the interface is part of the medium?", color: "cyan" },
+  { id: "automation-tools", topics: ["automation", "tools"], note: "Which small task is worth handing over?", color: "blue" },
+] as const;
+
+type TopicId = (typeof topics)[number]["id"];
+type Position = { x: number; y: number };
+type DragState = {
+  index: number;
+  field: DOMRect;
+  offsetX: number;
+  offsetY: number;
+  moved: boolean;
+};
+
+const initialPositions = Object.fromEntries(topics.map(({ id, x, y }) => [id, { x, y }])) as Record<TopicId, Position>;
+const findRelationship = (first: TopicId, second: TopicId) => relationships.find(({ topics: [a, b] }) =>
+  (a === first && b === second) || (a === second && b === first));
+
 export function CuriosityConnections() {
-  const [active, setActive] = useState(0);
+  const fieldRef = useRef<HTMLDivElement>(null);
+  const topicRefs = useRef<Array<HTMLButtonElement | null>>([]);
+  const dragRef = useRef<DragState | null>(null);
+  const skipClickRef = useRef(false);
+  const [positions, setPositions] = useState(initialPositions);
+  const [selected, setSelected] = useState<TopicId | null>(null);
+  const [activeRelationship, setActiveRelationship] = useState<(typeof relationships)[number] | null>(null);
+  const [discovered, setDiscovered] = useState<string[]>([]);
+  const [announcement, setAnnouncement] = useState("Choose two topics, or move one close to another.");
+
+  const connect = (first: TopicId, second: TopicId) => {
+    const relationship = findRelationship(first, second);
+    setSelected(null);
+    setActiveRelationship(relationship ?? null);
+    if (relationship) {
+      setDiscovered((previous) => previous.includes(relationship.id) ? previous : [...previous, relationship.id]);
+      setAnnouncement(relationship.note);
+    } else {
+      setAnnouncement("That collision has no note attached. Try another combination.");
+    }
+  };
+
+  const chooseTopic = (id: TopicId) => {
+    if (!selected || selected === id) {
+      setSelected(selected === id ? null : id);
+      setActiveRelationship(null);
+      setAnnouncement(selected === id ? "Choose two topics, or move one close to another." : "Now choose a second topic.");
+      return;
+    }
+    connect(selected, id);
+  };
+
+  const onPointerDown = (event: ReactPointerEvent<HTMLButtonElement>, index: number) => {
+    if (event.pointerType !== "mouse" || !window.matchMedia("(pointer: fine) and (min-width: 768px)").matches || event.button !== 0) return;
+    const button = event.currentTarget;
+    const field = fieldRef.current;
+    if (!field) return;
+    const buttonRect = button.getBoundingClientRect();
+    dragRef.current = {
+      index,
+      field: field.getBoundingClientRect(),
+      offsetX: event.clientX - buttonRect.left,
+      offsetY: event.clientY - buttonRect.top,
+      moved: false,
+    };
+    button.setPointerCapture(event.pointerId);
+  };
+
+  const onPointerMove = (event: ReactPointerEvent<HTMLButtonElement>) => {
+    const drag = dragRef.current;
+    if (!drag) return;
+    const dx = event.clientX - (drag.field.left + (positions[topics[drag.index].id].x / 100) * drag.field.width + drag.offsetX);
+    const dy = event.clientY - (drag.field.top + (positions[topics[drag.index].id].y / 100) * drag.field.height + drag.offsetY);
+    if (!drag.moved && Math.hypot(dx, dy) < 5) return;
+    drag.moved = true;
+    const x = Math.max(0, Math.min(100 - topics[drag.index].w, ((event.clientX - drag.field.left - drag.offsetX) / drag.field.width) * 100));
+    const y = Math.max(0, Math.min(88, ((event.clientY - drag.field.top - drag.offsetY) / drag.field.height) * 100));
+    event.currentTarget.style.setProperty("--x", `${x}%`);
+    event.currentTarget.style.setProperty("--y", `${y}%`);
+  };
+
+  const finishDrag = (event: ReactPointerEvent<HTMLButtonElement>, index: number) => {
+    const drag = dragRef.current;
+    if (!drag || drag.index !== index) return;
+    dragRef.current = null;
+    if (!drag.moved) return;
+
+    const button = event.currentTarget;
+    const xValue = Number.parseFloat(button.style.getPropertyValue("--x"));
+    const yValue = Number.parseFloat(button.style.getPropertyValue("--y"));
+    const x = Number.isFinite(xValue) ? xValue : positions[topics[index].id].x;
+    const y = Number.isFinite(yValue) ? yValue : positions[topics[index].id].y;
+    setPositions((previous) => ({ ...previous, [topics[index].id]: { x, y } }));
+
+    const draggedRect = button.getBoundingClientRect();
+    const centerX = draggedRect.left + draggedRect.width / 2;
+    const centerY = draggedRect.top + draggedRect.height / 2;
+    let nearest: { id: TopicId; distance: number } | undefined;
+    for (let candidateIndex = 0; candidateIndex < topicRefs.current.length; candidateIndex += 1) {
+      const candidate = topicRefs.current[candidateIndex];
+      if (!candidate || candidateIndex === index) continue;
+      const rect = candidate.getBoundingClientRect();
+      const distance = Math.hypot(centerX - (rect.left + rect.width / 2), centerY - (rect.top + rect.height / 2));
+      if (!nearest || distance < nearest.distance) nearest = { id: topics[candidateIndex].id, distance };
+    }
+    if (nearest && nearest.distance < Math.max(110, drag.field.width * 0.14)) {
+      connect(topics[index].id, nearest.id);
+    } else {
+      setSelected(topics[index].id);
+      setActiveRelationship(null);
+      setAnnouncement("A thought moved. Bring it close to another to see what connects.");
+    }
+
+    skipClickRef.current = true;
+    window.setTimeout(() => { skipClickRef.current = false; }, 0);
+  };
+
+  const activePath = activeRelationship && (() => {
+    const [firstId, secondId] = activeRelationship.topics;
+    const firstTopic = topics.find((topic) => topic.id === firstId)!;
+    const secondTopic = topics.find((topic) => topic.id === secondId)!;
+    const first = positions[firstId];
+    const second = positions[secondId];
+    const x1 = (first.x + firstTopic.w * 0.5) * 10;
+    const y1 = (first.y + 4) * 5.6;
+    const x2 = (second.x + secondTopic.w * 0.5) * 10;
+    const y2 = (second.y + 4) * 5.6;
+    const bend = Math.max(28, Math.abs(x2 - x1) * 0.2);
+    return `M ${x1} ${y1} C ${x1 + bend} ${y1 - 28}, ${x2 - bend} ${y2 + 28}, ${x2} ${y2}`;
+  })();
 
   return (
-    <div className="curiosity-field" data-active-connection={connections[active].id}>
-      <svg className="curiosity-routes" viewBox="0 0 1000 440" preserveAspectRatio="none" aria-hidden="true">
-        <path pathLength="1" className={active === 0 ? "is-active" : undefined} d="M106 100 C260 100 298 96 466 100 S730 104 900 100" />
-        <path pathLength="1" className={active === 1 ? "is-active" : undefined} d="M106 210 C294 210 330 206 518 210 S760 214 900 210" />
-        <path pathLength="1" className={active === 2 ? "is-active" : undefined} d="M106 320 C274 320 325 316 480 320 S727 324 900 320" />
-        <path pathLength="1" className={active === 3 ? "is-active" : undefined} d="M106 430 C278 430 338 426 504 430 S756 434 900 430" />
-      </svg>
+    <div className={styles.workbench}>
+      <div
+        className={styles.field}
+        ref={fieldRef}
+        data-active={activeRelationship?.id ?? "none"}
+        data-selected={selected ?? "none"}
+      >
+        <svg className={styles.routes} viewBox="0 0 1000 560" preserveAspectRatio="none" aria-hidden="true">
+          <path className={styles.routeGhost} d="M74 95 C225 86 269 236 470 218 S752 386 892 418" />
+          <path className={styles.routeMain} d={activePath ?? "M0 0"} data-visible={Boolean(activePath)} />
+          <circle className={styles.routePin} cx="74" cy="95" r="4" />
+          <circle className={styles.routePin} cx="892" cy="418" r="4" />
+        </svg>
 
-      <ol className="curiosity-links" aria-label="Ways these interests connect">
-        {connections.map((connection, index) => (
-          <li key={connection.id}>
-            <button
-              className={`curiosity-link curiosity-link-${connection.color}`}
-              type="button"
-              aria-pressed={active === index}
-              onClick={() => setActive(index)}
-            >
-              <span className="curiosity-link-number">0{index + 1}</span>
-              <span className="curiosity-link-content">
-                <span className="curiosity-topics">
-                  {connection.topics.map((topic, topicIndex) => (
-                    <span className="curiosity-topic" key={topic}>
-                      {topicIndex > 0 && <span className="curiosity-cross" aria-hidden="true">×</span>}
-                      {topic}
-                    </span>
-                  ))}
-                </span>
-                <span className="curiosity-question">{connection.question}</span>
-              </span>
-              <span className="curiosity-link-mark" aria-hidden="true">↗</span>
-            </button>
-          </li>
-        ))}
-      </ol>
+        <div className={styles.topics} role="group" aria-label="Areas that keep pulling my attention">
+          {topics.map((topic, index) => {
+            const position = positions[topic.id];
+            const isConnected = activeRelationship !== null && (activeRelationship.topics[0] === topic.id || activeRelationship.topics[1] === topic.id);
+            const partnerId = isConnected && activeRelationship
+              ? activeRelationship.topics[0] === topic.id ? activeRelationship.topics[1] : activeRelationship.topics[0]
+              : null;
+            const partner = partnerId ? topics.find((candidate) => candidate.id === partnerId) : null;
+            const partnerPosition = partnerId ? positions[partnerId] : null;
+            const pullX = partner && partnerPosition ? Math.sign(partnerPosition.x - position.x) * 11 : 0;
+            const pullY = partner && partnerPosition ? Math.sign(partnerPosition.y - position.y) * 7 : 0;
+            return (
+              <button
+                key={topic.id}
+                ref={(element) => { topicRefs.current[index] = element; }}
+                className={styles.topic}
+                type="button"
+                data-topic={topic.id}
+                data-tone={topic.color}
+                data-angle={topic.angle}
+                data-connected={isConnected}
+                data-current={selected === topic.id}
+                aria-pressed={selected === topic.id || isConnected}
+                style={{ "--x": `${position.x}%`, "--y": `${position.y}%`, "--w": `${topic.w}%`, "--angle": `${topic.angle}deg`, "--pull-x": `${pullX}px`, "--pull-y": `${pullY}px` } as CSSProperties}
+                onPointerDown={(event) => onPointerDown(event, index)}
+                onPointerMove={onPointerMove}
+                onPointerUp={(event) => finishDrag(event, index)}
+                onPointerCancel={(event) => finishDrag(event, index)}
+                onClick={() => {
+                  if (skipClickRef.current) return;
+                  chooseTopic(topic.id);
+                }}
+              >
+                <span>{topic.label}</span>
+                <span className={styles.topicCross} aria-hidden="true">×</span>
+              </button>
+            );
+          })}
+        </div>
+
+        <p className={styles.fieldTag} aria-hidden="true">AN OPEN FIELD OF ATTENTION</p>
+        {discovered.length >= 3 && <p className={styles.secretNote} aria-live="polite">okay, now you’re thinking like me.</p>}
+      </div>
+
+      <div className={styles.readout}>
+        <span className={styles.readoutMark} aria-hidden="true">↳</span>
+        <p aria-live="polite" aria-atomic="true">{activeRelationship?.note ?? announcement}</p>
+        <span className={styles.instruction}>Drag on desktop · choose two on touch or keyboard</span>
+      </div>
+      <p className={styles.relationshipList}>
+        These are real recurring interests: AI and agents, creative software, developer tools, browsers and security, civic technology, experimental engineering, automation, and visual interaction systems.
+      </p>
     </div>
   );
 }

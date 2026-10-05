@@ -12,7 +12,7 @@ This document is the governing design contract. Read it before every implementat
 
 ### Concept
 
-**The Folded Field** is a living editorial field where observations, ideas, and working systems overlap. A visitor moves a sculptural **Reveal Key** through that field and discovers how a strange question becomes a useful system.
+**The Folded Field** is a living editorial field where observations, ideas, and working systems overlap. The homepage works as **Aditya's Playable Notebook**: a visitor can handle small authored interactions that reveal how a strange question becomes a useful system. A sculptural **Reveal Key** remains the hero's signature object.
 
 The site brings together three qualities: the relational logic of connected signals, the vivid annotated perspective of a field study, and the tactile precision of objects that have been joined and made to work. It is its own identity; it is not a loom, an atlas, or a repair guide.
 
@@ -412,7 +412,7 @@ The homepage answers **who is Aditya?** before **what has he built?** Its order 
 
 Projects are evidence of Aditya's curiosity and engineering; they do not define the first impression. The expanded Continuum experience is preserved under a native disclosure in Work rather than leading the page.
 
-The first four interactive personal sections are part of the approved identity story. Keep their mechanisms distinct: choose a thought branch, select an authored curiosity relationship, advance a build sequence, and let another perspective reroute an idea. Shared linework, editorial type, solid color fields, and tactile settling create cohesion. Do not turn every section into a draggable object, card grid, or repeated reveal animation.
+The first four interactive personal sections are part of the approved identity story. Keep their mechanisms distinct: choose a thought branch, move or pair interests, break apart a layered construction and rebuild it, and let another perspective reroute an idea. Shared linework, editorial type, solid color fields, and tactile settling create cohesion. Each mechanic must make clear what the visitor does, what they feel, and what it shows about Aditya. Do not turn every section into a draggable object, card grid, or repeated reveal animation.
 
 Review at **320, 390, 768, 1024, and 1440px**. Check pointer, touch, keyboard, reduced motion, WebGL failure, native scrolling, direct project links, and the visual relationship between 3D and 2D/DOM layers. Fix meaningful design, UX, and engineering issues before moving to the later identity sections.
 
@@ -429,17 +429,17 @@ Review at **320, 390, 768, 1024, and 1440px**. Check pointer, touch, keyboard, r
 ### 16.2 What I’m Curious About — “My brain has too many tabs open.”
 
 - Use only established interests: AI systems, agentic systems, creative software, developer tools, browsers, security, civic technology, experimental engineering, automation, and visual systems / interaction ideas.
-- Show four authored relationships: AI / agents / tools; browsers / security / automation; civic technology / visual systems; creative software / experimental engineering.
-- Use tomato as the field with cobalt, cyan, saffron, and acid as relationship signals. These hues identify relationships, not importance; topic text and the active state remain explicit.
-- Select a relationship to draw its SVG route and update the connected question. Keep all topics and questions readable whether or not JavaScript runs.
+- Compose the interests as a large typographic workbench on charcoal set inside the tomato section. Use cobalt, cyan, saffron, acid, and paper-bright type as distinct visual voices; keep every label legible and never encode a relationship by color alone.
+- Let a visitor reposition topic words on desktop and select two in sequence on touch or keyboard. Eight authored pairings reveal a concise question and a connecting SVG route; arbitrary pairs stay quiet and receive a small, human response.
+- The workbench is DOM buttons plus one decorative SVG path. A mobile CSS layout replaces precision dragging with a two-column typographic composition and tap-to-pair behavior. Keep all interest names readable without interaction.
 - Do not add inferred hobbies, expertise, or claims about current work.
 
 ### 16.3 The Messy Middle — “I like the messy middle.”
 
-- Start with misaligned process fragments and broken/competing SVG routes; move through rough, finding, and settled states as the visitor uses Previous / Next.
-- The sequence is authored: question, try something, hmm, why, ask again, fix one thing, test again, refine, working for now.
-- Motion gradually reduces text displacement and joins the primary path. The last state is stable and complete; no timing or scroll completion is required.
-- Preserve normal page scrolling. Put the active step and explanation in an `aria-live` readout; represent the active list item using `aria-current="step"`.
+- Give this section the homepage's highest interaction intensity: a visitor taps one of fifteen authored pieces, holds for 500ms and releases for a heavier impact, and progressively opens the polished surface to reveal failed attempts, debugging notes, and another perspective.
+- Use five restrained material languages—paper, ceramic, metal, rubber, and acrylic—with three actual visual dependencies so damaged supports make connected pieces sag or slip. This is authored DOM/CSS behavior, not a general-purpose physics simulator.
+- After eight pieces have moved, offer a native **Put it back together** control. Pieces return with different material timing, paths rejoin, and the composition lands on **Break it. Understand it. Build it better.** The surface must never resemble a weapon interface: no gun silhouette, ammunition, score, timer, health bar, or HUD.
+- Preserve normal page scrolling. Every fragment is a native button; click or keyboard activation gives a light impact, while hold-and-release is an optional heavier interaction. Put progress and feedback in a polite live region. Sound stays absent unless a later approved design includes an explicit opt-in.
 
 ### 16.4 Building With People — another perspective changes the route
 
@@ -451,11 +451,11 @@ Review at **320, 390, 768, 1024, and 1440px**. Check pointer, touch, keyboard, r
 
 - Keep the four sections in this order between the hero and Work. Use warm paper for Thinking, tomato for Curiosity, sun yellow for the Messy Middle, and cobalt for Collaboration. Work remains on paper and Contact remains charcoal.
 - Desktop uses asymmetrical editorial headings and selective SVG paths. Tablet collapses the heading/copy grid before paths become cramped. Mobile is a new vertical composition: no precise pointer tracking, no route-dependent text, and controls stay at least 44px tall.
-- Question and Curiosity are native button groups with `aria-pressed`; the build sequence has explicit Previous / Next controls; collaboration has one native toggle. All are keyboard-operable and show `:focus-visible`.
+- Question, Curiosity, Destruction Lab, and Collaboration use native buttons with `aria-pressed` or direct action semantics. All are keyboard-operable and show `:focus-visible`.
 - Provide semantic reading order and the full copy without interaction. SVG is decorative (`aria-hidden="true"`); it never carries unique text or color-only meaning.
 - Under reduced motion, stop transitions and show a complete stable route/diagram. State controls may still update instantly. No interaction is required to read the story.
 - Scroll-triggered entrances are disabled for reduced motion. If a keyboard user reaches content before it enters the viewport, reveal it immediately; never leave focus on an invisible control.
-- Support touch through direct taps. The Messy Middle uses its explicit step controls; no drag, hover, or gesture is required.
+- Support touch through direct taps and explicit controls. Curiosity uses two taps rather than precise drag on phones; destruction uses tap and may optionally use a press-and-release. No hover or gesture gates content.
 
 ### Copy and engineering boundaries
 
