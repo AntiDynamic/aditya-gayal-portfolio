@@ -2,7 +2,7 @@
 
 **Status:** Approved creative direction; updated for identity-first homepage and personal interaction sections\
 **Owner:** Aditya Gayal\
-**Current scope:** Identity-first homepage plus Stage A of the approved **Break the Surface** entrance: a static sculptural composition only. Reveal Key and the personal sections are preserved. Destruction, pointer behavior, audio, physics, debris, and animated entry remain unapproved implementation stages.
+**Current scope:** Identity-first homepage plus Stage A.5 visual polish of the approved **Break the Surface** entrance: a static sculptural composition only. Reveal Key and the personal sections are preserved. Destruction, pointer behavior, audio, physics, debris, and animated entry remain unapproved implementation stages.
 
 This document is the governing design contract. Read it before every implementation phase. If an implementation choice conflicts with this document, change the implementation or update this document deliberately before proceeding.
 
@@ -36,6 +36,25 @@ This approved entrance exception overrides the single-scene restrictions below o
 - Engineering review: server-rendered portfolio children are preserved behind a narrow client gate. Exactly one canvas was observed before and after handoff. A settled scene produced **zero additional draw calls over a one-second idle check** in headless Chromium. No uncaught exceptions or horizontal overflow were observed at the five QA widths. This is a lifecycle check, not a hardware FPS benchmark.
 - Production build, TypeScript, and lint pass. All generated JavaScript chunks together grew by approximately **8 KB gzip** against the previous build; this is an aggregate artifact comparison, not the initial page payload. No dependencies changed.
 - Stage A is still a static visual study: no damage, charge, debris, audio, pointer response, or animated entry. The cavity is an authored interior color plane; progressive exposure of the actual HTML is reserved for the damage stage.
+
+#### Stage A.5 — material and composition refinement
+
+These rules refine the Stage A assembly and supersede its material/count notes above.
+
+- Read the assembly as **one folded paper mass and one dense enamel counterweight**, joined at a single cobalt opening. Seven authored entities remain: three printed faces and four construction supports. Internal entities must never read as equally weighted tiles.
+- Paper is warm, matte, softly fibrous, and thin: 4px desktop / 3px mobile authored thickness, a separate laminated backing, a small raised seam edge, and fine normal variation at low intensity. No aged, woven, distressed, or visibly noisy finish.
+- Enamel is smooth and rigid: 40px desktop / 29px mobile authored thickness, a clean bevel, roughness 0.43, and a shallow broad normal field receiving a restrained cool fill. Distinguish it through highlight and edge behavior; avoid glossy plastic.
+- Aluminum is a small structural bracket at the seam, with directional micro-normal variation and restrained metallic response. Rubber is the compressed light-absorbing support beneath it. Acrylic is one tiny translucent recessed insert, not a floating glass decoration.
+- The cobalt opening has three actual depth planes: bright lip, darker wall, and deep recessed floor. Authored holes in the lip and wall expose the floor. The slightly proud paper edge and compressed joint suggest a future weak point without a target or new stress/damage logic.
+- Common planar UV registration prints the headline across the physical faces. A seam interrupts the decorative print and the raised junction occludes it locally, while both complete headline lines remain immediately readable. Semantic HTML remains unchanged.
+- Broader upper-left lighting, restrained cool fill, and VSM shadows clarify contact and cast-shadow hierarchy. The folded paper return touches its main mass; the enamel edge has visibly greater depth. No new postprocessing chain or continuous rendering.
+- Remove the loose heel, side fragment, large cyan accent, floating annotation, and public staging labels. Prefer scale, form, negative space, and light over added objects or labels.
+- Mobile retains four large type lines, one reachable cobalt junction, and a separate calm caption area. It uses a dedicated manifest rather than a shrunken desktop scene.
+- DOM owns semantic text and Skip; SVG owns the immediate/failure assembly; WebGL enhances material response, edge depth, registered decorative print, and shadows. The SVG fallback preserves composition and readable type, not physically based shading.
+- Three generated 128×128 normal maps are shared and disposed with the scene. They require no fetched image assets. VSM increases shadow render-target cost; retain demand rendering, DPR caps, a single shadow-casting light, and sequential entrance/hero scene ownership.
+- Production build and lint pass. Browser QA at 1440, 1024, 768, 390, and 320 shows one canvas, no horizontal overflow, and no uncaught exceptions. Keyboard Skip, Escape, focus transfer, direct hashes, reduced motion, WebGL fallback, and JavaScript-disabled access pass. A settled scene adds zero draw calls in a one-second idle check; this does not establish hardware FPS.
+- Aggregate generated JS grew by **975 bytes gzip** against Stage A. No dependencies changed. Screenshots and before/after comparisons live in ignored `visual-qa/entrance-stage-a5/`.
+- Remain static: no pointer response, impact, damage, debris, sound, physics, or animated entrance handoff. Stage B requires a separate approval.
 
 ### Concept
 

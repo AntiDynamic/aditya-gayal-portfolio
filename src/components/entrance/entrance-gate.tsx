@@ -76,7 +76,7 @@ export function EntranceGate({ children }: { children: ReactNode }) {
       {active && (
         <section className={styles.entrance} id="entrance-surface" role="dialog" aria-modal="true" aria-labelledby="entrance-title" aria-describedby="entrance-description">
           <h1 id="entrance-title" className="sr-only">Aditya Gayal. Strange questions. Useful systems.</h1>
-          <p id="entrance-description" className="sr-only">A sculptural entrance to my portfolio. This is a static visual study. Skip the entrance to read about me, my interests, and my work. Escape also skips.</p>
+          <p id="entrance-description" className="sr-only">A sculptural entrance to my portfolio. Skip the entrance to read about me, my interests, and my work. Escape also skips.</p>
           <div className={styles.artwork} aria-hidden="true" data-renderer={ready && !failed ? "webgl" : "svg"}>
             <div className={styles.fallback} data-hidden={ready && !failed}><EntranceFallback /></div>
             {loadScene && !failed && <div className={styles.scene}><SurfaceBoundary onFail={onLost}><EntranceScene onReady={onReady} onLost={onLost} /></SurfaceBoundary></div>}
@@ -85,10 +85,8 @@ export function EntranceGate({ children }: { children: ReactNode }) {
             <p className={styles.name}>ADITYA<br />GAYAL<span>DEVELOPER / BUILDER</span></p>
             <a ref={skipRef} className={styles.skip} href="#top" onClick={complete}>Skip entrance <span aria-hidden="true">↗</span></a>
           </header>
-          <div className={styles.marginNote} aria-hidden="true"><span>THERE’S MORE</span><span>BENEATH THE SURFACE.</span></div>
           <footer className={styles.caption}>
             <p>Strange questions are where I start.<br />Making something real is why I stay.</p>
-            <span className={styles.stageNote}>01 / THE SURFACE<span>STATIC STUDY</span></span>
           </footer>
         </section>
       )}
