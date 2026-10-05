@@ -5,10 +5,11 @@ import { CuriosityField } from "@/components/curiosity-field";
 import { MessyMiddle } from "@/components/messy-middle";
 import { CollaborationField } from "@/components/collaboration-field";
 import { PageMotion } from "@/components/page-motion";
+import { EntranceGate } from "@/components/entrance/entrance-gate";
 
 export default function Home() {
   return (
-    <main className="portfolio-shell text-field-ink font-reading">
+    <EntranceGate><main className="portfolio-shell text-field-ink font-reading">
       <PageMotion />
       <header className="site-header">
         <a className="wordmark" href="#top" aria-label="Aditya Gayal — home">
@@ -31,7 +32,7 @@ export default function Home() {
               <span>STRANGE QUESTIONS.</span>
               <span>USEFUL SYSTEMS.</span>
             </div>
-            <h1 className="hero-title" id="hero-title">
+            <h1 className="hero-title" id="hero-title" tabIndex={-1}>
               <span className="title-line title-line-one">STRANGE QUESTIONS.</span>
               <span className="title-line title-line-two">USEFUL SYSTEMS.</span>
             </h1>
@@ -59,6 +60,6 @@ export default function Home() {
       <CollaborationField />
       <ProjectIndex />
       <ContactSection />
-    </main>
+    </main></EntranceGate>
   );
 }

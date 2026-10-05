@@ -2,13 +2,40 @@
 
 **Status:** Approved creative direction; updated for identity-first homepage and personal interaction sections\
 **Owner:** Aditya Gayal\
-**Current scope:** Identity-first homepage, approved Reveal Key hero, and four interactive personal sections. Project pages and later Work expansion remain future work.
+**Current scope:** Identity-first homepage plus Stage A of the approved **Break the Surface** entrance: a static sculptural composition only. Reveal Key and the personal sections are preserved. Destruction, pointer behavior, audio, physics, debris, and animated entry remain unapproved implementation stages.
 
 This document is the governing design contract. Read it before every implementation phase. If an implementation choice conflicts with this document, change the implementation or update this document deliberately before proceeding.
 
 ---
 
 ## 1. Creative identity
+
+### Approved entrance — Stage A
+
+The first frame is a **graphic poster made physical**: three dominant asymmetric warm paper/enamel forms, supported by a few meaningful metal joins, rubber supports, and one acrylic accent. Avoid exposing the entity architecture as a regular grid or material sampler. The composition reads first; materials read second.
+
+- Headline remains **STRANGE QUESTIONS. USEFUL SYSTEMS.** Printed decorative fragments belong to the physical faces and cross a narrow authored seam. Keep a semantic HTML equivalent.
+- A deep cobalt interior is visible through one restrained opening; saffron/cyan are secondary hints. The misaligned edge/strained join at that opening is the future Stage C weak point.
+- Near-frontal camera, visible sidewalls, clear overlap, broad upper-left light, controlled contact shadows. No bloom, chrome, fog, heavy texture, or postprocessing.
+- Desktop is composed for approximately 1440×1000; mobile is a separately authored 390×844 assembly. Verify 320, 768, and 1024 widths too.
+- SVG and R3F derive shapes and title placement from the same manifest. SVG renders immediately and remains the failure fallback. The real portfolio stays server-rendered behind the entrance.
+- **Sequential WebGL exception:** the entrance may use one lazy-loaded static R3F scene. While it is present, the Reveal Key does not load its scene or run its introduction. An immediate, always-available Skip removes the entrance; only then may the hero load. Never keep both scenes actively rendering.
+- Stage A uses demand rendering and DPR limits of 1.5 desktop / 1 mobile. No continuous animation, impacts, cracks, damage state, debris, sound, or entry choreography.
+- Skip and Escape provide access. Underlying content is inert only while the hydrated entrance is open; JavaScript disabled shows the ordinary portfolio. Direct section links bypass the entrance.
+
+This approved entrance exception overrides the single-scene restrictions below only for this scoped experience. All other homepage sections retain their existing DOM/SVG boundaries.
+
+#### Stage A implementation and review
+
+- The authored assembly has **three primary faces and six supports**. The metal clip sits at the focal seam; rubber and folded paper support the lower silhouette. The cyan acrylic insert is translucent. Desktop uses two headline lines; mobile uses four.
+- The decorative print uses one generated, font-ready canvas atlas mapped continuously across the physical faces. HTML owns the semantic headline, identity, instructions, and Skip. SVG uses the same manifest as the static failure rendering.
+- Texture width is capped at 2048 pixels. Shadow maps are 2048 desktop / 1024 mobile. No external models, texture files, dependencies, postprocessing, or continuous animation were added.
+- Production screenshots are stored locally in `visual-qa/entrance-stage-a/` at 1440, 1024, 768, 390, and 320 widths. The folder remains an ignored QA artifact, not a shipped asset.
+- Design review: no repeated tile grid; one dominant seam crosses registered headline fragments. Mobile preserves four large type lines and gives the caption a separate full-width rhythm. Texture remains restrained. Paper/enamel face differentiation is intentionally stylized and remains softer than the cut-edge depth.
+- UX review: Skip is a 44px target with visible focus; Tab reaches it and Enter activates it. Escape also exits. Focus transfers to the existing hero heading. Direct section hashes bypass the surface. The static scene respects reduced motion; WebGL failure retains SVG. With JavaScript disabled, the entrance is removed and paused hero animations are disabled so the full headline remains readable.
+- Engineering review: server-rendered portfolio children are preserved behind a narrow client gate. Exactly one canvas was observed before and after handoff. A settled scene produced **zero additional draw calls over a one-second idle check** in headless Chromium. No uncaught exceptions or horizontal overflow were observed at the five QA widths. This is a lifecycle check, not a hardware FPS benchmark.
+- Production build, TypeScript, and lint pass. All generated JavaScript chunks together grew by approximately **8 KB gzip** against the previous build; this is an aggregate artifact comparison, not the initial page payload. No dependencies changed.
+- Stage A is still a static visual study: no damage, charge, debris, audio, pointer response, or animated entry. The cavity is an authored interior color plane; progressive exposure of the actual HTML is reserved for the damage stage.
 
 ### Concept
 

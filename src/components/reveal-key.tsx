@@ -14,6 +14,7 @@ import {
   useState,
 } from "react";
 import { thoughtStates } from "./thought-states";
+import { useEntranceActive } from "./entrance/entrance-context";
 
 type MotionState = { progress: number; velocity: number };
 
@@ -42,6 +43,7 @@ const anchors = thoughtStates.map((_, index) => index / (thoughtStates.length - 
 const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value));
 
 export function RevealKey() {
+  const entranceActive = useEntranceActive();
   const stageRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLElement | null>(null);
   const apertureRef = useRef<SVGPathElement>(null);
@@ -162,6 +164,7 @@ export function RevealKey() {
 
   useEffect(() => {
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
+    if (entranceActive) return;
     reducedMotionRef.current = reduced.matches;
     const supportsWebgl = () => {
       try {
@@ -231,7 +234,7 @@ export function RevealKey() {
       document.removeEventListener("visibilitychange", onVisibility);
       reduced.removeEventListener("change", onMotionChange);
     };
-  }, [chooseThought, updateDOM]);
+  }, [chooseThought, updateDOM, entranceActive]);
 
   const progressFromPointer = useCallback((clientX: number) => {
     const stage = stageRef.current;

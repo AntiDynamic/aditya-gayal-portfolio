@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { useEntranceActive } from "./entrance/entrance-context";
 
 const sectionsForNavigation: Record<string, string> = {
   thinking: "thinking",
@@ -12,7 +13,9 @@ const sectionsForNavigation: Record<string, string> = {
 };
 
 export function PageMotion() {
+  const entranceActive = useEntranceActive();
   useEffect(() => {
+    if (entranceActive) return;
     const revealItems = Array.from(document.querySelectorAll<HTMLElement>("[data-enter]"));
     const motionPreference = window.matchMedia("(prefers-reduced-motion: reduce)");
     const alreadyRevealed = new WeakSet<HTMLElement>();
@@ -87,7 +90,7 @@ export function PageMotion() {
       motionPreference.removeEventListener("change", prepareReveals);
       document.documentElement.classList.remove("has-enter-motion");
     };
-  }, []);
+  }, [entranceActive]);
 
   return null;
 }
