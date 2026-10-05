@@ -69,9 +69,11 @@ export function RevealKey() {
     const stage = stageRef.current;
     if (!stage) return;
     const progress = motionRef.current.progress;
-    const mobile = stage.getBoundingClientRect().width < 640;
-    const x = mobile ? 24 + progress * 48 : 14 + progress * 68;
-    const y = 51 - Math.sin(progress * Math.PI) * 30;
+    const width = stage.getBoundingClientRect().width;
+    const mobile = width < 640;
+    const tablet = !mobile && width < 1200;
+    const x = mobile ? 24 + progress * 52 : tablet ? 14 + progress * 34 : 16 + progress * 68;
+    const y = mobile ? 58 - Math.sin(progress * Math.PI) * 10 : tablet ? 72 - Math.sin(progress * Math.PI) * 12 : 63 - Math.sin(progress * Math.PI) * 20;
     const velocity = motionRef.current.velocity;
     const layerShift = clamp(velocity * 28, -24, 24);
     const typePull = mobile
@@ -85,17 +87,24 @@ export function RevealKey() {
     stage.style.setProperty("--key-rotation", `${-13 + progress * 24 + clamp(velocity * 8, -12, 12)}deg`);
     stage.style.setProperty("--layer-shift", `${layerShift}px`);
     stage.style.setProperty("--thought-color", color);
-    mapRef.current?.setAttribute("transform", mobile ? "translate(180 0) scale(.6 1)" : "translate(55 0) scale(.85 1)");
+    const mapTransform = mobile
+      ? "translate(175 112) scale(.65 .5)"
+      : tablet
+        ? "translate(98 144) scale(.425 .6)"
+        : "translate(75 0) scale(.85 1)";
+    mapRef.current?.setAttribute("transform", mapTransform);
     if (heroRef.current) {
       heroRef.current.style.setProperty("--reveal-progress", `${progress}`);
       heroRef.current.style.setProperty("--thought-color", color);
+      heroRef.current.style.setProperty("--field-color", thoughtStates[selectedRef.current].fieldColor);
+      heroRef.current.style.setProperty("--field-ink", thoughtStates[selectedRef.current].fieldInk);
       heroRef.current.style.setProperty("--type-pull", `${typePull}px`);
       heroRef.current.style.setProperty("--type-lift", `${clamp(Math.abs(velocity) * -9, -9, 0)}px`);
     }
     if (apertureRef.current) {
       apertureRef.current.setAttribute("transform", `translate(${x * 10} ${y * 4.2}) rotate(${-13 + progress * 26}) scale(${mobile ? 1.2 : 1.7})`);
     }
-    if (fallbackRef.current) fallbackRef.current.style.setProperty("--key-color", color);
+    if (fallbackRef.current) fallbackRef.current.style.setProperty("--key-color", thoughtStates[selectedRef.current].artifactColor);
     if (visibleRef.current) invalidateRef.current?.();
   }, []);
 
@@ -230,8 +239,9 @@ export function RevealKey() {
     const bounds = stage.getBoundingClientRect();
     const position = clamp((clientX - bounds.left) / bounds.width, 0, 1);
     const mobile = bounds.width < 640;
-    const railStart = mobile ? .24 : .14;
-    const railSpan = mobile ? .48 : .68;
+    const tablet = !mobile && bounds.width < 1200;
+    const railStart = mobile ? .24 : tablet ? .14 : .16;
+    const railSpan = mobile ? .52 : tablet ? .34 : .68;
     const next = clamp((position - railStart) / railSpan, 0, 1);
     const now = performance.now();
     const elapsed = Math.max(12, now - velocityRef.current.time);
@@ -302,7 +312,8 @@ export function RevealKey() {
   const thought = thoughtStates[selected];
 
   return (
-    <div className="reveal-system" style={{ "--thought-color": thought.color } as CSSProperties}>
+    <div className="reveal-system" style={{ "--thought-color": thought.color, "--field-color": thought.fieldColor, "--field-ink": thought.fieldInk } as CSSProperties}>
+      <div className="hero-field" aria-hidden="true" style={{ backgroundColor: thought.fieldColor }} />
       <div
         className="reveal-key"
         ref={stageRef}
@@ -330,34 +341,34 @@ export function RevealKey() {
                 className="aperture-mask-path"
                 d="M0 -42 C32 -61 68 -35 76 -7 L53 46 C37 61 10 54 -2 34 L-28 3 C-39 -13 -25 -36 0 -42Z"
                 fill="white"
-                transform="translate(100 214) scale(1.7)"
+                transform="translate(100 264) scale(2.2)"
               />
             </mask>
           </defs>
           <g ref={mapRef} className="thought-map" transform="translate(55 0) scale(.85 1)">
-          <path className="thought-rail" d="M100 214 C174 197 224 139 300 125 S425 92 500 88 S625 96 700 125 S826 198 900 214" />
-          <path className="thought-rail-echo" d="M100 222 C174 205 224 147 300 133 S425 100 500 96 S625 104 700 133 S826 206 900 222" />
+          <path className="thought-rail" d="M100 264 C174 244 224 212 300 205 S425 182 500 180 S625 182 700 205 S826 244 900 264" />
+          <path className="thought-rail-echo" d="M100 273 C174 253 224 221 300 214 S425 191 500 189 S625 191 700 214 S826 253 900 273" />
           <g className="thought-branches">
-            <path d="M205 187 L168 148 L132 148" />
-            <path d="M300 125 L324 82 L370 70" />
-            <path d="M500 88 L516 43 L568 33" />
-            <path d="M700 125 L726 82 L774 70" />
-            <path d="M900 214 L861 253 L824 253" />
+            <path d="M205 242 L168 208 L132 208" />
+            <path d="M300 205 L324 164 L370 152" />
+            <path d="M500 180 L516 135 L568 125" />
+            <path d="M700 205 L726 164 L774 152" />
+            <path d="M900 264 L861 298 L824 298" />
           </g>
           <g className="thought-stations">
-            <path className={selected === 0 ? "is-active" : undefined} d="M92 214 L100 210 L108 214 L100 218 Z" />
-            <path className={selected === 1 ? "is-active" : undefined} d="M292 125 L300 121 L308 125 L300 129 Z" />
-            <path className={selected === 2 ? "is-active" : undefined} d="M492 88 L500 84 L508 88 L500 92 Z" />
-            <path className={selected === 3 ? "is-active" : undefined} d="M692 125 L700 121 L708 125 L700 129 Z" />
-            <path className={selected === 4 ? "is-active" : undefined} d="M892 214 L900 210 L908 214 L900 218 Z" />
+            <path className={selected === 0 ? "is-active" : undefined} d="M92 264 L100 260 L108 264 L100 268 Z" />
+            <path className={selected === 1 ? "is-active" : undefined} d="M292 205 L300 201 L308 205 L300 209 Z" />
+            <path className={selected === 2 ? "is-active" : undefined} d="M492 180 L500 176 L508 180 L500 184 Z" />
+            <path className={selected === 3 ? "is-active" : undefined} d="M692 205 L700 201 L708 205 L700 209 Z" />
+            <path className={selected === 4 ? "is-active" : undefined} d="M892 264 L900 260 L908 264 L900 268 Z" />
           </g>
           <g className="revealed-fragments" mask="url(#reveal-window)">
-            <path d="M100 214 C174 197 224 139 300 125 S425 92 500 88 S625 96 700 125 S826 198 900 214" />
-            <text x="122" y="128">WHAT IF?</text>
-            <text x="430" y="282">TRY A VERSION</text>
-            <text x="703" y="320">LOOK AGAIN</text>
+            <path d="M100 264 C174 244 224 212 300 205 S425 182 500 180 S625 182 700 205 S826 244 900 264" />
+            <text x="122" y="190">WHAT IF?</text>
+            <text x="430" y="316">TRY A VERSION</text>
+            <text x="703" y="343">LOOK AGAIN</text>
           </g>
-          <path className="registration-mark" d="M85 304h34m-17-17v34M880 304h34m-17-17v34" />
+          <path className="registration-mark" d="M85 340h34m-17-17v34M880 340h34m-17-17v34" />
           </g>
         </svg>
 
@@ -392,6 +403,7 @@ export function RevealKey() {
             </SceneBoundary>
           </div>
         )}
+        <span className="thought-monument" aria-hidden="true">{thought.stageWord}</span>
         <span className="key-focus-ring" aria-hidden="true" />
       </div>
 

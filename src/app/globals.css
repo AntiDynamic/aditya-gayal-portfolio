@@ -918,6 +918,115 @@ button { font: inherit; }
 .key-instruction { position: absolute; z-index: 4; left: 0; bottom: 124px; margin: 0; color: var(--color-ink-soft); font-size: .75rem; pointer-events: none; }
 .key-instruction::before { content: "↳ "; color: var(--thought-color); }
 
+/* The hero becomes a changing visual field, not a small object floating in paper space. */
+.site-header {
+  position: sticky;
+  top: 0;
+  background: var(--color-paper);
+}
+
+.hero-field {
+  position: absolute;
+  z-index: 0;
+  top: 52%;
+  right: calc(-1 * var(--shell-gutter));
+  bottom: 0;
+  left: calc(-1 * var(--shell-gutter));
+  background-color: var(--field-color, var(--project-continuum-deep));
+  clip-path: polygon(0 9%, 58% 0, 100% 8%, 100% 100%, 0 100%);
+  transition: background-color 420ms var(--ease-settle);
+  pointer-events: none;
+}
+
+.thought-monument {
+  position: absolute;
+  z-index: 0;
+  top: 58%;
+  left: 2%;
+  max-width: 90%;
+  color: color-mix(in srgb, var(--field-ink, #fbf7ef) 18%, transparent);
+  font-family: var(--font-display), Arial, sans-serif;
+  font-size: clamp(5rem, 14vw, 13rem);
+  font-weight: 800;
+  letter-spacing: -.095em;
+  line-height: .72;
+  white-space: nowrap;
+  pointer-events: none;
+  transform: translate3d(calc(var(--type-pull, 0px) * -.18), calc(var(--type-lift, 0px) * .35), 0) rotate(-2deg);
+  transition: color 680ms var(--ease-settle), transform 140ms linear;
+}
+.fallback-key { width: clamp(240px, 29vw, 400px); }
+.key-focus-ring {
+  width: clamp(220px, 29vw, 400px);
+  height: clamp(165px, 21vw, 285px);
+}
+@media (min-width: 768px) and (max-width: 1199px) {
+  .fallback-key { width: clamp(180px, 23vw, 260px); }
+  .key-focus-ring { width: clamp(190px, 23vw, 260px); height: clamp(145px, 18vw, 210px); }
+}
+
+.thought-readout,
+.key-instruction,
+.thought-controls,
+.hero-footer {
+  color: var(--field-ink, var(--color-paper-bright));
+}
+
+.thought-title { color: var(--field-ink, var(--color-paper-bright)); }
+.thought-number,
+.thought-note,
+.key-instruction { color: color-mix(in srgb, var(--field-ink, var(--color-paper-bright)) 82%, transparent); }
+.thought-controls { border-color: color-mix(in srgb, var(--field-ink, var(--color-paper-bright)) 42%, transparent); }
+.thought-control { color: color-mix(in srgb, var(--field-ink, var(--color-paper-bright)) 80%, transparent); }
+.thought-control > span:first-child,
+.thought-control:nth-child(n) > span:first-child { color: var(--field-ink, var(--color-paper-bright)); }
+.thought-control[aria-pressed="true"] { color: var(--field-ink, var(--color-paper-bright)); }
+.thought-control[aria-pressed="true"] > span:first-child { color: var(--field-ink, var(--color-paper-bright)); }
+.thought-control[aria-pressed="true"] { border-color: var(--field-ink, var(--color-paper-bright)); }
+.thought-rail { stroke: color-mix(in srgb, var(--field-ink, #fbf7ef) 70%, transparent); }
+.thought-rail-echo,
+.thought-branches path,
+.revealed-fragments path { stroke: color-mix(in srgb, var(--field-ink, #fbf7ef) 54%, transparent); }
+.revealed-fragments text { fill: var(--field-ink, #fbf7ef); }
+.registration-mark { stroke: color-mix(in srgb, var(--field-ink, #fbf7ef) 54%, transparent); }
+.thought-stations path { fill: var(--field-color, var(--project-continuum-deep)); stroke: var(--field-ink, var(--color-paper-bright)); }
+.thought-stations path.is-active { fill: var(--field-ink, var(--color-paper-bright)); stroke: var(--field-color, var(--project-continuum-deep)); }
+.key-focus-ring { border-color: var(--field-ink, var(--color-paper-bright)); }
+.hero-footer { border-top-color: color-mix(in srgb, var(--field-ink, var(--color-paper-bright)) 42%, transparent); }
+.hero-next b { color: var(--field-ink, var(--color-paper-bright)); }
+.hero .eyebrow-dot { background: var(--thought-color, var(--project-continuum-deep)); box-shadow: none; }
+.field-notes,
+.note { color: var(--field-ink, var(--color-ink)); }
+.note-rule { background: var(--field-ink, var(--thought-color)); }
+
+@media (max-width: 767px) {
+  .site-header { z-index: 20; }
+  .hero-field {
+    top: 0;
+    bottom: -58px;
+    clip-path: polygon(0 5%, 64% 0, 100% 5%, 100% 100%, 0 100%);
+  }
+  .thought-monument {
+    top: 42%;
+    left: 1%;
+    max-width: 100%;
+    font-size: clamp(3.5rem, 18vw, 5.5rem);
+    white-space: normal;
+  }
+  .fallback-key { width: clamp(144px, 42vw, 185px); }
+  .key-focus-ring { width: 156px; height: 118px; }
+  .thought-readout,
+  .key-instruction,
+  .thought-controls,
+  .hero-footer { color: var(--field-ink, var(--color-paper-bright)); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-field,
+  .thought-monument { transition: none; }
+  .thought-monument { transform: none; }
+}
+
 .hero-footer {
   position: absolute;
   z-index: 6;

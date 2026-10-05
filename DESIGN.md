@@ -201,16 +201,15 @@ Use a 4px base with named tokens:
 
 ### Object identity
 
-An elegant, asymmetric aperture instrument: two offset enamel/ceramic petals meet at a compact brushed-aluminum pivot; one narrow sliding blade and a short dark rubber contact pad define an irregular kite-like opening. A small linen tension line may connect the pivot to a trailing piece. The silhouette is recognizable at icon scale and does not resemble a boxy frame, loupe, camera, weapon, gear assembly, or workshop tool.
+An elegant, asymmetric aperture sculpture: two offset enamel/ceramic petals meet at a compact brushed-aluminum pivot; a soft folded plate defines an irregular opening, and one fine tension line trails from the join. It should read as a designed object with mechanical logic, not as a literal inspection tool. The silhouette is recognizable at icon scale and does not resemble a boxy frame, loupe, camera, weapon, gear assembly, or workshop tool.
 
 The object belongs to the page composition. It rides a visible constrained path, overlaps the display typography, casts a small contact shadow, and changes what the SVG field reveals. No free-floating idle pose.
 
 ### Materials
 
-- Main surfaces: matte enamel in a warm neutral with one saturated personal-color plane.
+- Main surfaces: matte enamel in a warm neutral with one saturated personal-color plane. The accent plane separates slightly under pointer velocity, then settles back into the shell.
 - Pivot: restrained brushed aluminum, not mirror chrome.
-- Contact: charcoal rubber, soft edge, no branding.
-- Optional tension detail: one fine linen strand, used once and kept legible.
+- Join: one small metal torus and an understated curved tension line; avoid exposed screws, rubber grips, or workshop detailing.
 - Lighting is broad and studio-soft. The artifact must read without bloom, glare, or postprocessing.
 
 ### States
@@ -218,7 +217,7 @@ The object belongs to the page composition. It rides a visible constrained path,
 1. **At rest / incomplete registration:** readable headline with some secondary line fragments offset; object rests at the start stop.
 2. **Searching:** artifact follows pointer/keyboard/touch along a bounded curve; aperture reveals hidden words, color blocks, and paths.
 3. **Tension:** velocity creates bounded lag in the blade, slight layer separation, and modest glyph displacement. The main headline stays readable.
-4. **Connected:** at an anchor the object settles; one specific thought resolves into a short personal note and a color enters an editorial strip. The state describes Aditya, never a project.
+4. **Connected:** at an anchor the object settles; one specific thought resolves into a short personal note and the lower hero becomes a full-width color field. The stage color, large background word, linework, artifact accent, and text contrast change as one composition. The state describes Aditya, never a project.
 5. **Reset:** return to the first thought state with one deliberate keyboard or visible control action.
 
 The five thought stops and their current notes are:
@@ -229,12 +228,14 @@ The five thought stops and their current notes are:
 4. **Make it together** — “Someone else’s perspective can change the shape of the idea.”
 5. **Look again** — “The last pass is where small details start to matter.”
 
-### Travel and anchors
+### Travel, color, and anchors
 
-- Use a normalized path from `0..1`, with five thought anchors. Its arch crosses a decorative duplicate of the headline, then leaves the copy clear and settles into open space.
+- Use a normalized path from `0..1`, with five thought anchors. It passes close to the headline, then crosses the upper edge of the large color field. Keep the semantic headline clear and keep the object visually large enough to read as the hero's main artifact.
 - On first load, run one short, interruptible sweep from the first thought toward the hard-bit state so visitors see the object, color, and type layer connect. Any pointer, touch, keyboard, or thought-button input cancels the introduction and belongs to the visitor. Skip it entirely for reduced motion.
 - Mouse movement/drag may guide the object. Keyboard arrows, Home/End, touch, and five visible thought controls provide the same outcome.
-- Maximum motion range: object stays inside its reserved composition; SVG/color layers may separate by up to 24px; only the decorative headline duplicate may shift by up to 44px. The semantic headline remains still, fully readable, and high contrast, above the 3D object in the visual stack.
+- Each thought has a distinct solid field and a tested foreground pairing: cobalt and crimson use paper-white; saffron, acid green, and cyan use charcoal. Do not use hue alone: the selected thought label and background word also change.
+- At tablet widths, compact the object rail into the left half and reduce the object scale so the thought readout remains clear on the right. Mobile becomes a short, vertical stage with the same five direct thought controls.
+- Maximum motion range: object stays inside its reserved composition; the two enamel layers may separate by up to 24px; only the decorative headline duplicate may shift by up to 44px. The semantic headline remains still, fully readable, and high contrast, above the 3D object in the visual stack.
 - Snap to the nearest thought anchor after deliberate release or keyboard/touch selection. The readout, decorative type layer, aperture reveal, and artifact material share one state.
 - Project links live in the later Work section and never depend on moving the Reveal Key.
 

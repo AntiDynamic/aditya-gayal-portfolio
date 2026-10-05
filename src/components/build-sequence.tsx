@@ -103,18 +103,18 @@ export function DestructionLab() {
   };
 
   const onPiecePointerDown = (event: ReactPointerEvent<HTMLButtonElement>, index: number) => {
-    pressStartRef.current = performance.now();
+    pressStartRef.current = event.timeStamp;
     pressedIndexRef.current = index;
     skipClickRef.current = false;
     setPressedPiece(index);
     event.currentTarget.setPointerCapture(event.pointerId);
   };
 
-  const onPiecePointerUp = (index: number) => {
+  const onPiecePointerUp = (event: ReactPointerEvent<HTMLButtonElement>, index: number) => {
     if (pressedIndexRef.current !== index) return;
     pressedIndexRef.current = null;
     setPressedPiece(null);
-    if (performance.now() - pressStartRef.current >= 500) {
+    if (event.timeStamp - pressStartRef.current >= 500) {
       skipClickRef.current = true;
       impactPiece(index, "heavy");
     }
@@ -201,7 +201,7 @@ export function DestructionLab() {
                   "--repair-y": `${piece.repairY}px`,
                 } as CSSProperties}
                 onPointerDown={(event) => onPiecePointerDown(event, index)}
-                onPointerUp={() => onPiecePointerUp(index)}
+                onPointerUp={(event) => onPiecePointerUp(event, index)}
                 onPointerCancel={() => { pressedIndexRef.current = null; setPressedPiece(null); }}
                 onClick={() => onPieceClick(index)}
               >

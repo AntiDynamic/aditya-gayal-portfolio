@@ -6,6 +6,10 @@ export const thoughtStates = [
     note: "Sometimes the side path is the one I want to follow.",
     reveal: "What if?",
     color: "#173fb8",
+    fieldColor: "#173fb8",
+    fieldInk: "#fbf7ef",
+    stageWord: "WHAT IF?",
+    artifactColor: "#c5e53c",
   },
   {
     number: "02",
@@ -14,6 +18,10 @@ export const thoughtStates = [
     note: "An idea changes once I can try it for real.",
     reveal: "Try it.",
     color: "#c62942",
+    fieldColor: "#c62942",
+    fieldInk: "#fbf7ef",
+    stageWord: "TRY IT.",
+    artifactColor: "#f3cc4c",
   },
   {
     number: "03",
@@ -22,6 +30,10 @@ export const thoughtStates = [
     note: "I like tracing the snag until I understand why it happened.",
     reveal: "Why did it break?",
     color: "#bd641c",
+    fieldColor: "#f3cc4c",
+    fieldInk: "#22211f",
+    stageWord: "TRACE IT.",
+    artifactColor: "#173fb8",
   },
   {
     number: "04",
@@ -30,6 +42,10 @@ export const thoughtStates = [
     note: "Someone else’s perspective can change the shape of the idea.",
     reveal: "Look from here.",
     color: "#627b10",
+    fieldColor: "#c5e53c",
+    fieldInk: "#22211f",
+    stageWord: "WITH OTHERS.",
+    artifactColor: "#c62942",
   },
   {
     number: "05",
@@ -38,5 +54,9 @@ export const thoughtStates = [
     note: "The last pass is where small details start to matter.",
     reveal: "One more pass.",
     color: "#087b87",
+    fieldColor: "#20bed0",
+    fieldInk: "#22211f",
+    stageWord: "LOOK AGAIN.",
+    artifactColor: "#c62942",
   },
 ] as const;
