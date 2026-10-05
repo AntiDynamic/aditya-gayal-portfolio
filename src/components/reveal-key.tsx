@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import {
   Component,
   type ErrorInfo,
+  type CSSProperties,
   type KeyboardEvent as ReactKeyboardEvent,
   type PointerEvent as ReactPointerEvent,
   type ReactNode,
@@ -12,8 +13,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { PROJECT_RESET_EVENT, PROJECT_SELECT_EVENT, resetProject, selectProject } from "./project-events";
-import { projects } from "./projects";
+import { thoughtStates } from "./thought-states";
 
 type MotionState = { progress: number; velocity: number };
 
@@ -38,23 +38,28 @@ class SceneBoundary extends Component<{ children: ReactNode }, { failed: boolean
   }
 }
 
-const anchors = projects.map((project) => project.index / (projects.length - 1));
+const anchors = thoughtStates.map((_, index) => index / (thoughtStates.length - 1));
+const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value));
 
 export function RevealKey() {
   const stageRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLElement | null>(null);
   const apertureRef = useRef<SVGPathElement>(null);
+  const mapRef = useRef<SVGGElement>(null);
   const fallbackRef = useRef<SVGSVGElement>(null);
   const motionRef = useRef<MotionState>({ progress: 0, velocity: 0 });
-  const selectedRef = useRef<number | null>(null);
+  const selectedRef = useRef(0);
   const visibleRef = useRef(true);
   const targetRef = useRef(0);
+  const springVelocityRef = useRef(0);
   const velocityRef = useRef({ x: 0, time: 0 });
   const frameRef = useRef<number | null>(null);
   const invalidateRef = useRef<(() => void) | null>(null);
   const pointerDownRef = useRef(false);
   const reducedMotionRef = useRef(false);
-  const [selected, setSelected] = useState<number | null>(null);
+  const introTimerRef = useRef<number | null>(null);
+  const interactionStartedRef = useRef(false);
+  const [selected, setSelected] = useState(0);
   const [webgl, setWebgl] = useState(false);
   const [loadScene, setLoadScene] = useState(false);
   const [sceneReady, setSceneReady] = useState(false);
@@ -65,27 +70,37 @@ export function RevealKey() {
     if (!stage) return;
     const progress = motionRef.current.progress;
     const mobile = stage.getBoundingClientRect().width < 640;
-    const x = mobile ? 24 + progress * 52 : 13 + progress * 74;
-    const y = 56 - Math.sin(progress * Math.PI) * (mobile ? 15 : 23);
-    const layerShift = Math.max(-12, Math.min(12, motionRef.current.velocity * 10));
+    const x = mobile ? 24 + progress * 48 : 14 + progress * 68;
+    const y = 51 - Math.sin(progress * Math.PI) * 30;
+    const velocity = motionRef.current.velocity;
+    const layerShift = clamp(velocity * 28, -24, 24);
+    const typePull = mobile
+      ? clamp(velocity * 15 + progress * 16, -16, 16)
+      : clamp(velocity * 44 + progress * 62, -44, 44);
+    const color = thoughtStates[selectedRef.current].color;
+
     stage.style.setProperty("--reveal-progress", `${progress}`);
     stage.style.setProperty("--key-x", `${x}%`);
     stage.style.setProperty("--key-y", `${y}%`);
-    stage.style.setProperty("--key-rotation", `${-10 + progress * 20 + layerShift * .12}deg`);
+    stage.style.setProperty("--key-rotation", `${-13 + progress * 24 + clamp(velocity * 8, -12, 12)}deg`);
     stage.style.setProperty("--layer-shift", `${layerShift}px`);
-    if (heroRef.current) heroRef.current.style.setProperty("--type-pull", `${Math.max(-7, Math.min(7, layerShift * .5))}px`);
-
+    stage.style.setProperty("--thought-color", color);
+    mapRef.current?.setAttribute("transform", mobile ? "translate(180 0) scale(.6 1)" : "translate(55 0) scale(.85 1)");
+    if (heroRef.current) {
+      heroRef.current.style.setProperty("--reveal-progress", `${progress}`);
+      heroRef.current.style.setProperty("--thought-color", color);
+      heroRef.current.style.setProperty("--type-pull", `${typePull}px`);
+      heroRef.current.style.setProperty("--type-lift", `${clamp(Math.abs(velocity) * -9, -9, 0)}px`);
+    }
     if (apertureRef.current) {
-      apertureRef.current.setAttribute("transform", `translate(${x * 10} ${y * 4.2}) scale(${mobile ? 1.05 : 1.5})`);
+      apertureRef.current.setAttribute("transform", `translate(${x * 10} ${y * 4.2}) rotate(${-13 + progress * 26}) scale(${mobile ? 1.2 : 1.7})`);
     }
-    if (fallbackRef.current) {
-      fallbackRef.current.style.setProperty("--key-color", selectedRef.current === null ? "#173fb8" : projects[selectedRef.current].color);
-    }
+    if (fallbackRef.current) fallbackRef.current.style.setProperty("--key-color", color);
     if (visibleRef.current) invalidateRef.current?.();
   }, []);
 
   const animateTo = useCallback((next: number, settle = false) => {
-    targetRef.current = Math.max(0, Math.min(1, next));
+    targetRef.current = clamp(next, 0, 1);
     if (frameRef.current !== null) cancelAnimationFrame(frameRef.current);
     if (reducedMotionRef.current) {
       motionRef.current.progress = targetRef.current;
@@ -93,22 +108,27 @@ export function RevealKey() {
       updateDOM();
       return;
     }
+    springVelocityRef.current = 0;
     let previous = performance.now();
     const tick = (time: number) => {
       const delta = Math.min((time - previous) / 1000, .04);
       previous = time;
       const current = motionRef.current.progress;
       const destination = targetRef.current;
-      const stiffness = settle ? 15 : 11;
-      const nextProgress = current + (destination - current) * (1 - Math.exp(-stiffness * delta));
-      motionRef.current.velocity = delta > 0 ? (nextProgress - current) / delta : 0;
+      const stiffness = settle ? 190 : 145;
+      const damping = settle ? 25 : 22;
+      const acceleration = (destination - current) * stiffness - springVelocityRef.current * damping;
+      springVelocityRef.current += acceleration * delta;
+      const nextProgress = current + springVelocityRef.current * delta;
+      motionRef.current.velocity = springVelocityRef.current;
       motionRef.current.progress = nextProgress;
       updateDOM();
 
-      if (Math.abs(destination - nextProgress) > .001) frameRef.current = requestAnimationFrame(tick);
+      if (Math.abs(destination - nextProgress) > .001 || Math.abs(springVelocityRef.current) > .008) frameRef.current = requestAnimationFrame(tick);
       else {
         motionRef.current.progress = destination;
         motionRef.current.velocity = 0;
+        springVelocityRef.current = 0;
         updateDOM();
         frameRef.current = null;
       }
@@ -116,25 +136,22 @@ export function RevealKey() {
     frameRef.current = requestAnimationFrame(tick);
   }, [updateDOM]);
 
-  const chooseProject = useCallback((index: number) => {
-    selectedRef.current = index;
-    setSelected(index);
-    animateTo(anchors[index], true);
+  const chooseThought = useCallback((index: number) => {
+    const safeIndex = clamp(index, 0, thoughtStates.length - 1);
+    selectedRef.current = safeIndex;
+    setSelected(safeIndex);
+    animateTo(anchors[safeIndex], true);
   }, [animateTo]);
 
-  useEffect(() => {
-    const onSelect = (event: Event) => {
-      const index = (event as CustomEvent<{ index: number }>).detail?.index;
-      if (Number.isInteger(index) && index >= 0 && index < projects.length) chooseProject(index);
-    };
-    const onReset = () => {
-      selectedRef.current = null;
-      setSelected(null);
-      animateTo(0, true);
-    };
-    window.addEventListener(PROJECT_SELECT_EVENT, onSelect);
-    window.addEventListener(PROJECT_RESET_EVENT, onReset);
+  const markInteraction = useCallback(() => {
+    interactionStartedRef.current = true;
+    if (introTimerRef.current !== null) {
+      window.clearTimeout(introTimerRef.current);
+      introTimerRef.current = null;
+    }
+  }, []);
 
+  useEffect(() => {
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
     reducedMotionRef.current = reduced.matches;
     const supportsWebgl = () => {
@@ -152,7 +169,7 @@ export function RevealKey() {
       const available = supportsWebgl() && !reduced.matches;
       setWebgl(available);
       setLoadScene(available);
-    }, 900);
+    }, 650);
     const onMotionChange = () => {
       reducedMotionRef.current = reduced.matches;
       if (reduced.matches) {
@@ -180,37 +197,47 @@ export function RevealKey() {
         }, { threshold: 0.01 });
     if (stage) observer?.observe(stage);
     const onVisibility = () => {
-      visibleRef.current = document.visibilityState === "visible" && (!stage || stage.getBoundingClientRect().bottom > 0 && stage.getBoundingClientRect().top < window.innerHeight);
+      const bounds = stage?.getBoundingClientRect();
+      visibleRef.current = document.visibilityState === "visible" && (!bounds || (bounds.bottom > 0 && bounds.top < window.innerHeight));
       if (visibleRef.current) invalidateRef.current?.();
     };
     document.addEventListener("visibilitychange", onVisibility);
     heroRef.current = stageRef.current?.closest(".hero") ?? null;
     updateDOM();
+    if (!reduced.matches) {
+      introTimerRef.current = window.setTimeout(() => {
+        introTimerRef.current = null;
+        if (!interactionStartedRef.current && visibleRef.current && !reducedMotionRef.current) {
+          // One authored sweep makes the hero demonstrate its reveal before asking the visitor to interact.
+          chooseThought(2);
+        }
+      }, 1050);
+    }
     return () => {
       window.clearTimeout(idle);
+      if (introTimerRef.current !== null) window.clearTimeout(introTimerRef.current);
       if (frameRef.current !== null) cancelAnimationFrame(frameRef.current);
-      window.removeEventListener(PROJECT_SELECT_EVENT, onSelect);
-      window.removeEventListener(PROJECT_RESET_EVENT, onReset);
       window.removeEventListener("resize", setRatio);
       observer?.disconnect();
       document.removeEventListener("visibilitychange", onVisibility);
       reduced.removeEventListener("change", onMotionChange);
     };
-  }, [animateTo, chooseProject, updateDOM]);
+  }, [chooseThought, updateDOM]);
 
-  const progressFromPointer = useCallback((clientX: number, pointerType: string) => {
+  const progressFromPointer = useCallback((clientX: number) => {
     const stage = stageRef.current;
     if (!stage) return;
     const bounds = stage.getBoundingClientRect();
-    const position = Math.max(0, Math.min(1, (clientX - bounds.left) / bounds.width));
+    const position = clamp((clientX - bounds.left) / bounds.width, 0, 1);
     const mobile = bounds.width < 640;
-    const railStart = mobile ? .24 : .13;
-    const railSpan = mobile ? .52 : .74;
-    const next = Math.max(0, Math.min(1, (position - railStart) / railSpan));
+    const railStart = mobile ? .24 : .14;
+    const railSpan = mobile ? .48 : .68;
+    const next = clamp((position - railStart) / railSpan, 0, 1);
     const now = performance.now();
     const elapsed = Math.max(12, now - velocityRef.current.time);
-    motionRef.current.velocity = Math.max(-1, Math.min(1, (clientX - velocityRef.current.x) / elapsed));
+    motionRef.current.velocity = clamp((clientX - velocityRef.current.x) / elapsed, -1, 1);
     velocityRef.current = { x: clientX, time: now };
+    springVelocityRef.current = 0;
     targetRef.current = next;
     if (frameRef.current !== null) cancelAnimationFrame(frameRef.current);
     if (reducedMotionRef.current) {
@@ -221,7 +248,7 @@ export function RevealKey() {
     const start = motionRef.current.progress;
     const startTime = now;
     const tick = (time: number) => {
-      const amount = Math.min(1, (time - startTime) / 95);
+      const amount = Math.min(1, (time - startTime) / 145);
       const eased = 1 - Math.pow(1 - amount, 3);
       motionRef.current.progress = start + (next - start) * eased;
       updateDOM();
@@ -230,22 +257,27 @@ export function RevealKey() {
     };
     frameRef.current = requestAnimationFrame(tick);
 
-    if (pointerType === "mouse" && !pointerDownRef.current) {
+    if (!pointerDownRef.current) {
       const nearest = anchors.reduce((best, anchor, index) => Math.abs(anchor - next) < Math.abs(anchors[best] - next) ? index : best, 0);
-      if (Math.abs(anchors[nearest] - next) < .055 && selectedRef.current !== nearest) selectProject(nearest);
+      if (Math.abs(anchors[nearest] - next) < .055 && selectedRef.current !== nearest) {
+        selectedRef.current = nearest;
+        setSelected(nearest);
+      }
     }
   }, [updateDOM]);
 
   const onPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
+    markInteraction();
     pointerDownRef.current = true;
     event.currentTarget.setPointerCapture(event.pointerId);
-    progressFromPointer(event.clientX, event.pointerType);
+    progressFromPointer(event.clientX);
   };
 
   const onPointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
     if (reducedMotionRef.current) return;
     if (event.pointerType !== "mouse" && !pointerDownRef.current) return;
-    progressFromPointer(event.clientX, event.pointerType);
+    markInteraction();
+    progressFromPointer(event.clientX);
   };
 
   const onPointerUp = () => {
@@ -254,107 +286,137 @@ export function RevealKey() {
     if (!wasDragging) return;
     const progress = targetRef.current;
     const nearest = anchors.reduce((best, anchor, index) => Math.abs(anchor - progress) < Math.abs(anchors[best] - progress) ? index : best, 0);
-    selectedRef.current = nearest;
-    setSelected(nearest);
-    animateTo(anchors[nearest], true);
-    selectProject(nearest);
+    chooseThought(nearest);
   };
 
   const onKeyDown = (event: ReactKeyboardEvent<HTMLDivElement>) => {
     if (["ArrowRight", "ArrowDown", "ArrowLeft", "ArrowUp", "Home", "End", "Enter", "Escape"].includes(event.key)) event.preventDefault();
-    if (event.key === "Escape") {
-      selectedRef.current = null;
-      setSelected(null);
-      resetProject();
-    } else if (event.key === "Home") selectProject(0);
-    else if (event.key === "End") selectProject(projects.length - 1);
-    else if (event.key === "ArrowRight" || event.key === "ArrowDown") selectProject(Math.min(projects.length - 1, (selectedRef.current ?? -1) + 1));
-    else if (event.key === "ArrowLeft" || event.key === "ArrowUp") selectProject(Math.max(0, (selectedRef.current ?? 1) - 1));
-    else if (event.key === "Enter" && selected !== null) window.open(projects[selected].href, "_blank", "noopener,noreferrer");
+    if (["ArrowRight", "ArrowDown", "ArrowLeft", "ArrowUp", "Home", "End", "Enter", "Escape"].includes(event.key)) markInteraction();
+    if (event.key === "Escape") chooseThought(0);
+    else if (event.key === "Home") chooseThought(0);
+    else if (event.key === "End") chooseThought(thoughtStates.length - 1);
+    else if (event.key === "ArrowRight" || event.key === "ArrowDown") chooseThought(Math.min(thoughtStates.length - 1, selectedRef.current + 1));
+    else if (event.key === "ArrowLeft" || event.key === "ArrowUp") chooseThought(Math.max(0, selectedRef.current - 1));
   };
 
-  const label = selected === null ? "Searching for a signal" : `${projects[selected].name} selected`;
+  const thought = thoughtStates[selected];
 
   return (
-    <div
-      className="reveal-key"
-      ref={stageRef}
-      role="slider"
-      tabIndex={0}
-      aria-label="Reveal Key — choose a project signal"
-      aria-valuemin={1}
-      aria-valuemax={projects.length}
-      aria-valuenow={(selected ?? 0) + 1}
-      aria-valuetext={label}
-      aria-describedby="key-help"
-      onPointerDown={onPointerDown}
-      onPointerMove={onPointerMove}
-      onPointerUp={onPointerUp}
-      onPointerCancel={() => { pointerDownRef.current = false; }}
-      onKeyDown={onKeyDown}
-    >
-      <span className="sr-only" id="key-help">Move the pointer across this area or use the arrow keys to reveal project signals. Press Enter to open the selected project or Escape to reset.</span>
-      <svg className="signal-overlay" viewBox="0 0 1000 420" preserveAspectRatio="none" aria-hidden="true">
-        <defs>
-          <mask id="reveal-window" maskUnits="userSpaceOnUse" x="0" y="0" width="1000" height="420">
-            <rect width="1000" height="420" fill="black" />
-            <path
-              ref={apertureRef}
-              className="aperture-mask-path"
-              d="M0 -42 C32 -61 68 -35 76 -7 L53 46 C37 61 10 54 -2 34 L-28 3 C-39 -13 -25 -36 0 -42Z"
-              fill="white"
-              transform="translate(130 235) scale(1.5)"
-            />
-          </mask>
-        </defs>
-        <path className="guide-path" d="M130 235 C287 147 380 168 500 235 S721 306 870 139" fill="none" />
-        <g className="signal-underlay">
-          <path className="continuum" pathLength="1" d="M145 271 C263 105 373 137 483 219 S694 324 846 187" />
-          <path className="tracepilot" pathLength="1" d="M148 285 L292 173 L374 190 M425 218 L539 267 L630 223 M685 201 L800 128 L852 163" />
-          <path className="netranagar" pathLength="1" d="M160 220 L262 220 L301 190 L353 190 M463 258 L522 258 L558 222 L628 222 M721 154 L802 154 L830 183 L863 183" />
-          <path className="video" pathLength="1" d="M138 329 H267 V293 H342 V268 H430 V297 H557 V251 H644 V218 H761 V240 H860" />
-          <path className="browser" pathLength="1" d="M138 191 H264 V221 H363 V181 H470 V202 H595 V153 H708 V176 H807 V132 H858" />
-        </g>
-        <g className="revealed-fragments" mask="url(#reveal-window)">
-            <path d="M145 269 C266 105 378 125 486 218 S700 323 852 166" fill="none" stroke="#173fb8" strokeWidth="4" />
-          <text className="fragment-label" x="294" y="104">SIGNAL FOUND / 03</text>
-          <text className="fragment-word" x="536" y="316">MAKE</text>
-        </g>
-      </svg>
-
-      {!sceneReady && (
-        <svg ref={fallbackRef} className="fallback-key" viewBox="0 0 180 144" aria-hidden="true">
-          <path className="key-thread" d="M96 73 C131 81 137 100 165 105" />
-          <path className="key-shell" d="M17 79 C24 47 47 25 75 25 C92 25 103 33 111 45 L88 61 C77 53 66 57 60 67 C53 79 59 90 73 92 L86 103 C66 115 39 108 25 94 C20 89 18 84 17 79Z" />
-          <path className="key-color" d="M78 43 C94 42 112 52 120 68 L104 96 C90 100 77 92 71 81 C68 70 72 56 78 43Z" />
-          <path className="key-aperture" d="M68 65 C78 59 91 60 98 67 L82 85 C74 83 68 75 68 65Z" />
-          <path className="key-blade" d="M83 56 L151 40 L115 82 L87 92 L98 73Z" />
-          <path className="key-rubber" d="M118 82 L138 56 L151 52 L136 86Z" />
-          <circle className="key-pivot" cx="93" cy="74" r="8" />
+    <div className="reveal-system" style={{ "--thought-color": thought.color } as CSSProperties}>
+      <div
+        className="reveal-key"
+        ref={stageRef}
+        role="slider"
+        tabIndex={0}
+        aria-label="Reveal Key — explore how I think"
+        aria-valuemin={1}
+        aria-valuemax={thoughtStates.length}
+        aria-valuenow={selected + 1}
+        aria-valuetext={`${thought.title}. ${thought.note}`}
+        aria-describedby="key-help"
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp}
+        onPointerCancel={() => { pointerDownRef.current = false; }}
+        onKeyDown={onKeyDown}
+      >
+        <span className="sr-only" id="key-help">Move the pointer or drag the Reveal Key. Use the arrow keys, Home, or End to explore five thoughts. The buttons below provide a direct alternative.</span>
+        <svg className="signal-overlay" viewBox="0 0 1000 420" preserveAspectRatio="none" aria-hidden="true">
+          <defs>
+            <mask id="reveal-window" maskUnits="userSpaceOnUse" x="0" y="0" width="1000" height="420">
+              <rect width="1000" height="420" fill="black" />
+              <path
+                ref={apertureRef}
+                className="aperture-mask-path"
+                d="M0 -42 C32 -61 68 -35 76 -7 L53 46 C37 61 10 54 -2 34 L-28 3 C-39 -13 -25 -36 0 -42Z"
+                fill="white"
+                transform="translate(100 214) scale(1.7)"
+              />
+            </mask>
+          </defs>
+          <g ref={mapRef} className="thought-map" transform="translate(55 0) scale(.85 1)">
+          <path className="thought-rail" d="M100 214 C174 197 224 139 300 125 S425 92 500 88 S625 96 700 125 S826 198 900 214" />
+          <path className="thought-rail-echo" d="M100 222 C174 205 224 147 300 133 S425 100 500 96 S625 104 700 133 S826 206 900 222" />
+          <g className="thought-branches">
+            <path d="M205 187 L168 148 L132 148" />
+            <path d="M300 125 L324 82 L370 70" />
+            <path d="M500 88 L516 43 L568 33" />
+            <path d="M700 125 L726 82 L774 70" />
+            <path d="M900 214 L861 253 L824 253" />
+          </g>
+          <g className="thought-stations">
+            <path className={selected === 0 ? "is-active" : undefined} d="M92 214 L100 210 L108 214 L100 218 Z" />
+            <path className={selected === 1 ? "is-active" : undefined} d="M292 125 L300 121 L308 125 L300 129 Z" />
+            <path className={selected === 2 ? "is-active" : undefined} d="M492 88 L500 84 L508 88 L500 92 Z" />
+            <path className={selected === 3 ? "is-active" : undefined} d="M692 125 L700 121 L708 125 L700 129 Z" />
+            <path className={selected === 4 ? "is-active" : undefined} d="M892 214 L900 210 L908 214 L900 218 Z" />
+          </g>
+          <g className="revealed-fragments" mask="url(#reveal-window)">
+            <path d="M100 214 C174 197 224 139 300 125 S425 92 500 88 S625 96 700 125 S826 198 900 214" />
+            <text x="122" y="128">WHAT IF?</text>
+            <text x="430" y="282">TRY A VERSION</text>
+            <text x="703" y="320">LOOK AGAIN</text>
+          </g>
+          <path className="registration-mark" d="M85 304h34m-17-17v34M880 304h34m-17-17v34" />
+          </g>
         </svg>
-      )}
 
-      {webgl && loadScene && (
-        <div className="scene-host" aria-hidden="true">
-          <SceneBoundary>
-            <RevealScene
-              motionRef={motionRef}
-              visibleRef={visibleRef}
-              selected={selected}
-              dpr={dpr}
-              onInvalidate={(invalidate) => { invalidateRef.current = invalidate; }}
-              onReady={() => setSceneReady(true)}
-              onLost={() => {
-                setSceneReady(false);
-                setWebgl(false);
-                setLoadScene(false);
-              }}
-            />
-          </SceneBoundary>
-        </div>
-      )}
-      <span className="key-focus-ring" aria-hidden="true" />
-      <span className="key-instruction" aria-hidden="true">Move the key to find a signal</span>
+        {!sceneReady && (
+          <svg ref={fallbackRef} className="fallback-key" viewBox="0 0 180 144" aria-hidden="true">
+            <path className="fallback-shadow" d="M25 108 C54 120 105 122 151 105" />
+            <path className="key-shell" d="M19 74 C23 44 46 23 72 24 C93 24 106 38 111 54 C97 51 86 56 79 68 C72 80 76 94 88 103 C65 117 35 106 23 88 C20 83 18 78 19 74Z" />
+            <path className="key-color" d="M68 41 C86 33 108 45 116 63 C121 76 114 91 102 99 C88 98 76 88 71 76 C67 66 67 53 68 41Z" />
+            <path className="key-aperture" d="M69 62 C79 53 94 55 101 65 L84 83 C75 80 69 72 69 62Z" />
+            <path className="key-blade" d="M83 57 C103 48 122 40 147 37 C136 56 122 74 101 88 L88 91 L99 70Z" />
+            <circle className="key-pivot" cx="91" cy="70" r="8" />
+            <path className="key-thread" d="M98 76 C120 80 136 93 151 96" />
+          </svg>
+        )}
+
+        {webgl && loadScene && (
+          <div className="scene-host" aria-hidden="true">
+            <SceneBoundary>
+              <RevealScene
+                motionRef={motionRef}
+                visibleRef={visibleRef}
+                selected={selected}
+                dpr={dpr}
+                onInvalidate={(invalidate) => { invalidateRef.current = invalidate; }}
+                onReady={() => setSceneReady(true)}
+                onLost={() => {
+                  setSceneReady(false);
+                  setWebgl(false);
+                  setLoadScene(false);
+                }}
+              />
+            </SceneBoundary>
+          </div>
+        )}
+        <span className="key-focus-ring" aria-hidden="true" />
+      </div>
+
+      <div className="thought-readout">
+        <span className="thought-number">{thought.number} / A THOUGHT I RETURN TO</span>
+        <p className="thought-title">{thought.title}</p>
+        <p className="thought-note">{thought.note}</p>
+      </div>
+
+      <nav className="thought-controls" aria-label="Explore five thoughts">
+        {thoughtStates.map((item, index) => (
+          <button
+            className="thought-control"
+            type="button"
+            key={item.number}
+            aria-pressed={selected === index}
+            aria-label={`Thought ${index + 1}: ${item.title}`}
+            onClick={() => { markInteraction(); chooseThought(index); }}
+          >
+            <span>{item.number}</span>
+            <span>{item.control}</span>
+          </button>
+        ))}
+      </nav>
+      <p className="key-instruction">Drag the shape, use ← →, or pick a thought.</p>
     </div>
   );
 }

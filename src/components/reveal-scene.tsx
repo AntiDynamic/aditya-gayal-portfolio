@@ -4,12 +4,12 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useMemo, useRef } from "react";
 import { ExtrudeGeometry, Group, Mesh, Shape, Vector3 } from "three";
 import type { MutableRefObject } from "react";
-import { projects } from "./projects";
+import { thoughtStates } from "./thought-states";
 
 type MotionState = { progress: number; velocity: number };
 
-const ivory = "#f7f1e6";
-const metals = "#aaa79e";
+const ivory = "#f1e8d8";
+const metals = "#aaa69d";
 
 function petalShape() {
   const shape = new Shape();
@@ -45,7 +45,7 @@ function bladeShape() {
 function RevealArtifact({ motionRef, visibleRef, selected, onInvalidate }: {
   motionRef: MutableRefObject<MotionState>;
   visibleRef: MutableRefObject<boolean>;
-  selected: number | null;
+  selected: number;
   onInvalidate: (invalidate: () => void) => void;
 }) {
   const groupRef = useRef<Group>(null);
@@ -53,7 +53,7 @@ function RevealArtifact({ motionRef, visibleRef, selected, onInvalidate }: {
   const shadowRef = useRef<Mesh>(null);
   const viewport = useThree((state) => state.viewport);
   const mobile = viewport.width < 9;
-  const color = selected === null ? "#173fb8" : projects[selected].color;
+  const color = thoughtStates[selected].color;
   const petal = useMemo(() => new ExtrudeGeometry(petalShape(), { depth: 0.14, bevelEnabled: true, bevelSegments: 2, steps: 1, bevelSize: 0.035, bevelThickness: 0.035, curveSegments: 9 }), []);
   const accent = useMemo(() => new ExtrudeGeometry(accentShape(), { depth: 0.11, bevelEnabled: true, bevelSegments: 2, steps: 1, bevelSize: 0.025, bevelThickness: 0.025, curveSegments: 7 }), []);
   const blade = useMemo(() => new ExtrudeGeometry(bladeShape(), { depth: 0.075, bevelEnabled: true, bevelSegments: 1, steps: 1, bevelSize: 0.018, bevelThickness: 0.018, curveSegments: 3 }), []);
@@ -63,18 +63,21 @@ function RevealArtifact({ motionRef, visibleRef, selected, onInvalidate }: {
     onInvalidate(invalidate);
     if (!visibleRef.current) return;
     const progress = motionRef.current.progress;
-    const xPercent = mobile ? 24 + progress * 52 : 13 + progress * 74;
-    const yPercent = 56 - Math.sin(Math.PI * progress) * (mobile ? 15 : 23);
+    const xPercent = mobile ? 24 + progress * 48 : 14 + progress * 68;
+    const yPercent = 51 - Math.sin(Math.PI * progress) * 30;
     const desiredX = (xPercent / 100 - 0.5) * viewport.width;
     const desiredY = (0.5 - yPercent / 100) * viewport.height;
     if (!groupRef.current) return;
     target.set(desiredX, desiredY, 0);
     groupRef.current.position.lerp(target, 1 - Math.exp(-delta * 13));
-    const targetRotation = .1 - progress * .2;
+    const targetRotation = .1 - progress * .2 + motionRef.current.velocity * .12;
     groupRef.current.rotation.z += (targetRotation - groupRef.current.rotation.z) * (1 - Math.exp(-delta * 10));
-    const targetBladeRotation = -.18 + motionRef.current.velocity * .015;
+    const targetBladeRotation = -.18 + motionRef.current.velocity * .21;
     if (bladeRef.current) bladeRef.current.rotation.z += (targetBladeRotation - bladeRef.current.rotation.z) * (1 - Math.exp(-delta * 12));
-    if (shadowRef.current) shadowRef.current.position.x = groupRef.current.position.x;
+    if (shadowRef.current) {
+      shadowRef.current.position.x = groupRef.current.position.x;
+      shadowRef.current.position.y = groupRef.current.position.y - 1.45;
+    }
 
     const distance = groupRef.current.position.distanceTo(target);
     const rotationDistance = Math.abs(targetRotation - groupRef.current.rotation.z);
@@ -91,7 +94,7 @@ function RevealArtifact({ motionRef, visibleRef, selected, onInvalidate }: {
         <circleGeometry args={[1, 32]} />
         <meshBasicMaterial color="#494236" transparent opacity={.13} depthWrite={false} />
       </mesh>
-      <group ref={groupRef} scale={mobile ? .9 : 1.05}>
+      <group ref={groupRef} scale={mobile ? (viewport.width < 6.5 ? .82 : .92) : 1.35}>
         <mesh geometry={petal} position={[-.04, 0, 0]} rotation={[0, 0, -.12]}>
           <meshStandardMaterial color={ivory} roughness={.67} metalness={.02} />
         </mesh>
@@ -110,8 +113,8 @@ function RevealArtifact({ motionRef, visibleRef, selected, onInvalidate }: {
           <meshStandardMaterial color="#f6f0e6" roughness={.45} />
         </mesh>
         <mesh position={[.83, -.28, .23]} rotation={[0, 0, -.38]}>
-          <boxGeometry args={[.22, .09, .09]} />
-          <meshStandardMaterial color="#373633" roughness={.9} />
+          <boxGeometry args={[.2, .075, .065]} />
+          <meshStandardMaterial color="#4a4742" roughness={.94} />
         </mesh>
         <mesh position={[-.52, .4, .12]} rotation={[0, 0, .36]}>
           <boxGeometry args={[.55, .018, .012]} />
@@ -125,7 +128,7 @@ function RevealArtifact({ motionRef, visibleRef, selected, onInvalidate }: {
 export function RevealScene({ motionRef, visibleRef, selected, dpr, onInvalidate, onReady, onLost }: {
   motionRef: MutableRefObject<MotionState>;
   visibleRef: MutableRefObject<boolean>;
-  selected: number | null;
+  selected: number;
   dpr: number;
   onInvalidate: (invalidate: () => void) => void;
   onReady: () => void;

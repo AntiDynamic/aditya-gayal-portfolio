@@ -1,8 +1,8 @@
 # The Folded Field — Design System
 
-**Status:** Approved creative direction; source of truth through Phase 3 (Continuum)\
+**Status:** Approved creative direction; updated for identity-first homepage and personal interaction sections\
 **Owner:** Aditya Gayal\
-**Current scope:** Home shell, hero, About, collaboration story, contact, and the first inline project experience for Continuum. Other project experiences remain future work.
+**Current scope:** Identity-first homepage, approved Reveal Key hero, and four interactive personal sections. Project pages and later Work expansion remain future work.
 
 This document is the governing design contract. Read it before every implementation phase. If an implementation choice conflicts with this document, change the implementation or update this document deliberately before proceeding.
 
@@ -18,6 +18,8 @@ The site brings together three qualities: the relational logic of connected sign
 
 ### Philosophy
 
+- Make Aditya, his curiosity, craft, persistence, and collaborative way of working the first story visitors meet.
+- Use projects as evidence of that identity, not as the homepage's organizing principle.
 - Show how Aditya thinks by letting people explore and connect things.
 - Make engineering feel physical, curious, and human without hiding the real work.
 - Treat interaction as an editorial tool: it reveals, aligns, connects, or changes state.
@@ -37,7 +39,7 @@ Curious, capable, observant, experimental, direct, lightly playful. The site pre
 **STRANGE QUESTIONS.**\
 **USEFUL SYSTEMS.**
 
-Supporting line: “Developer / builder / experimenter working across AI systems, creative software, and the odd ideas between them.” Keep the wording human and concise. Do not add generic job-title claims.
+Supporting line: “Curiosity gets me started. I stay for the strange details, the hard debugging, and the moment it finally works.” Keep the wording human and concise. Collaboration is visible in the following section; do not add generic job-title claims.
 
 ---
 
@@ -149,9 +151,9 @@ Use licensed, optimized font files through `next/font` or locally hosted subsets
 
 ### Grid
 
-- Desktop (`≥1200px`): 12 columns, 24px gutters, 56–80px outer margins. Hero uses asymmetrical spans: display on the left (7–8 columns), Reveal Key through the lower center (5–6 columns), project index at the right edge (3 columns). Overlap is intentional and must not compromise reading.
-- Tablet (`768–1199px`): 8 columns, 20px gutters, 32–48px margins. Keep the heading and index in separate regions; let the object occupy the lower third.
-- Mobile (`≤767px`): compose on 4 columns with 20–24px side margins and 12–16px gutters. Stack the name/navigation, headline, interaction, and index. Do not scale or crop the desktop arrangement.
+- Desktop (`≥1200px`): 12 columns, 24px gutters, 56–80px outer margins. Hero uses asymmetrical spans: display on the left (7–9 columns), Reveal Key sweeps across the title and lower center, and a thought readout occupies the open right/lower area. There is no project list in the hero.
+- Tablet (`768–1199px`): 8 columns, 20px gutters, 32–48px margins. Keep the heading and thought readout legible; let the object cross a decorative title layer without blocking semantic text, navigation, or controls.
+- Mobile (`≤767px`): compose on 4 columns with 20–24px side margins and 12–16px gutters. Recompose the name/navigation, headline, interaction, and thought controls into a purposeful vertical rhythm. Do not scale or crop the desktop arrangement.
 
 ### Spacing tokens
 
@@ -205,7 +207,7 @@ The object belongs to the page composition. It rides a visible constrained path,
 
 ### Materials
 
-- Main surfaces: matte enamel in a warm neutral with one saturated project-color plane.
+- Main surfaces: matte enamel in a warm neutral with one saturated personal-color plane.
 - Pivot: restrained brushed aluminum, not mirror chrome.
 - Contact: charcoal rubber, soft edge, no branding.
 - Optional tension detail: one fine linen strand, used once and kept legible.
@@ -216,16 +218,25 @@ The object belongs to the page composition. It rides a visible constrained path,
 1. **At rest / incomplete registration:** readable headline with some secondary line fragments offset; object rests at the start stop.
 2. **Searching:** artifact follows pointer/keyboard/touch along a bounded curve; aperture reveals hidden words, color blocks, and paths.
 3. **Tension:** velocity creates bounded lag in the blade, slight layer separation, and modest glyph displacement. The main headline stays readable.
-4. **Connected:** at an anchor the object settles; one project signal completes; its color enters an editorial strip; project index selection and direct link update.
-5. **Reset:** return to the incomplete registration state with one deliberate keyboard/visible control action.
+4. **Connected:** at an anchor the object settles; one specific thought resolves into a short personal note and a color enters an editorial strip. The state describes Aditya, never a project.
+5. **Reset:** return to the first thought state with one deliberate keyboard or visible control action.
+
+The five thought stops and their current notes are:
+
+1. **Follow the odd question** — “Sometimes the side path is the one I want to follow.”
+2. **Make a rough version** — “An idea changes once I can try it for real.”
+3. **Stay with the hard bit** — “I like tracing the snag until I understand why it happened.”
+4. **Make it together** — “Someone else’s perspective can change the shape of the idea.”
+5. **Look again** — “The last pass is where small details start to matter.”
 
 ### Travel and anchors
 
-- Use a normalized path from `0..1`, with five meaningful anchor positions. The exact rail can curve around the headline and end near the project index; do not cross body copy or block controls.
-- Mouse drag may guide the object, but keyboard/touch controls and the project list provide the same outcome.
-- Maximum motion range: object stays inside its reserved composition, SVG layer separation ≤16px, text decoration/glyph shadow displacement ≤8px. No content clips or overlaps in a way that harms reading.
-- Snap to the nearest anchor after deliberate release or after keyboard selection. The active project is synchronized with its label and link.
-- Each project link remains directly usable whether or not the object has moved.
+- Use a normalized path from `0..1`, with five thought anchors. Its arch crosses a decorative duplicate of the headline, then leaves the copy clear and settles into open space.
+- On first load, run one short, interruptible sweep from the first thought toward the hard-bit state so visitors see the object, color, and type layer connect. Any pointer, touch, keyboard, or thought-button input cancels the introduction and belongs to the visitor. Skip it entirely for reduced motion.
+- Mouse movement/drag may guide the object. Keyboard arrows, Home/End, touch, and five visible thought controls provide the same outcome.
+- Maximum motion range: object stays inside its reserved composition; SVG/color layers may separate by up to 24px; only the decorative headline duplicate may shift by up to 44px. The semantic headline remains still, fully readable, and high contrast, above the 3D object in the visual stack.
+- Snap to the nearest thought anchor after deliberate release or keyboard/touch selection. The readout, decorative type layer, aperture reveal, and artifact material share one state.
+- Project links live in the later Work section and never depend on moving the Reveal Key.
 
 ---
 
@@ -251,13 +262,15 @@ Motion has mass, friction, and consequence. It should communicate searching, joi
 ```
 
 - **Micro (80–160ms):** focus, label, pressed, and small feedback states.
-- **UI (220–420ms):** project selection, menu state, path reveal. Favor transforms/opacity and SVG stroke-dashoffset.
+- **UI (220–420ms):** thought selection, menu state, path reveal. Favor transforms/opacity and SVG stroke-dashoffset.
 - **Section (450–750ms):** only when moving between meaningful hero states or large composition groups.
 - **Discovery (1.2–1.8s):** one initial reveal sequence at most; no repeated cinematic choreography.
 - Pointer response is immediate but damped. Use velocity only within bounded resistance; never create uncontrolled fling.
 - Object inertia settles in about 280–520ms with a critically damped feel; spring token is the starting point, not a reason to overshoot past anchors.
 - Typography displacement eases with the artifact but returns first, so the headline remains stable.
-- Section entry uses small position/clip changes and opacity only when it explains hierarchy. No repeated fade-up stack.
+- Section entry uses a small set of distinct, one-time moves: a note settles, a heading is unmasked, a paragraph arrives from the side, a diagram draws, or a group settles into place. Keep travel to 18–28px and timing to 620–760ms. Do not reveal every child or repeat the same fade-up stack.
+- Use one IntersectionObserver for section arrival and unobserve each item after it enters. Initial viewport content stays visible; if JavaScript or IntersectionObserver is unavailable, all content remains visible. Scroll position and user input stay native and interruptible.
+- Vary the editorial structure between sections. Some place the title before the note, others reverse it or let a drawing lead. Shared type, color, and linework provide continuity without repeating one title/copy template.
 - Native scroll remains in charge. No wheel interception or smooth-scroll hijack.
 
 ### Reduced motion
@@ -265,8 +278,8 @@ Motion has mass, friction, and consequence. It should communicate searching, joi
 When `prefers-reduced-motion: reduce` is active:
 
 - Stop pointer tracking, inertia, looping, parallax, and reveal choreography.
-- Show all words and project links in a stable composition; preserve the meaningful project-color state using direct controls.
-- Replace drag with five explicit, keyboard-operable project buttons.
+- Show all words and project links in a stable composition; the complete personal story stays visible.
+- Replace dragging with five explicit, keyboard-operable thought buttons.
 - Use immediate state changes or a subtle ≤100ms opacity change; preserve focus indication.
 - Keep object silhouette or the SVG fallback static. No information may depend on movement.
 
@@ -284,18 +297,19 @@ Each project has a distinct color and graphic grammar within shared typography, 
 | **AI Video Editor** | Acid green, black, pale green | Timeline strips, clip boundaries, trim handles, sequence cuts | A scrub/cut gesture reorders or joins visual beats; primary language stays 2D |
 | **AI4Browser** | Cyan, cold blue, pale cyan | Nested page layers, inspection windows, contextual highlights | A revealed layer clarifies a page/security state; do not imitate Chrome or browser chrome |
 
-The hero interaction may preview each visual grammar in a compact SVG layer; detailed worlds belong to future approved project experiences.
+The shared identity may reuse paths and cut layers across the site, but the hero reveals personal thought fragments rather than project-specific previews. Detailed project grammars belong to Work.
 
 ---
 
 ## 10. Navigation and links
 
-- Keep the header direct and light: **ADITYA GAYAL**, **About**, **Work**, **GitHub**, **LinkedIn**.
-- `Work` jumps to the project index in the same page. GitHub and LinkedIn open in a new tab with `rel="noopener noreferrer"` and a screen-reader indication that they open externally.
+- Keep the header direct and light: **ADITYA GAYAL**, **Thinking**, **Work**, **Now**, and **Contact**.
+- Thinking, Work, Now, and Contact jump to real sections in the same page. GitHub and LinkedIn appear as plain text links in Contact and open in a new tab with `rel="noopener noreferrer"` and a screen-reader indication that they open externally.
 - Social links are present as plain, understandable text. Do not hide them in an unlabeled icon-only control.
 - Public profiles: [GitHub](https://github.com/AntiDynamic) and [LinkedIn](https://in.linkedin.com/in/adityagayal).
-- The About section contains a prominent direct email link to `gayaladitya9@gmail.com` and repeats both social links in its contact ending.
-- Project links: Continuum `https://github.com/AntiDynamic/Continuum`; TracePilot `https://github.com/priyanshuchawda/tracepilot-gemini-cli`; NetraNagar `https://github.com/AntiDynamic/NetraNagar-public`; AI Video Editor `https://github.com/AntiDynamic/video`; AI4Browser `https://github.com/AntiDynamic/browser4all`. The Continuum hero action enters its inline experience; the index's per-project arrow remains a direct repository link.
+- The Contact section contains a prominent direct email link to `gayaladitya9@gmail.com` and repeats both social links in its ending.
+- Work starts after the identity story and a short curiosity section. Show five concise project links as examples of ideas that became real systems.
+- Project links: Continuum `https://github.com/AntiDynamic/Continuum`; TracePilot `https://github.com/priyanshuchawda/tracepilot-gemini-cli`; NetraNagar `https://github.com/AntiDynamic/NetraNagar-public`; AI Video Editor `https://github.com/AntiDynamic/video`; AI4Browser `https://github.com/AntiDynamic/browser4all`. Keep the Continuum field as a deeper optional Work experience, not as a hero action.
 - Keep every in-page link connected to an existing section. Do not add empty links for future project pages.
 
 ---
@@ -306,21 +320,21 @@ Mobile is an intentional alternate composition, not a smaller desktop.
 
 ### Desktop
 
-- At approximately 1440×1000: name upper-left, direct nav upper-right, headline upper-left/mid, Reveal Key occupies lower-center and makes real contact with path/layers, project index sits in a narrow right-side rail, concise personal line near the headline, annotations sparse. Keep enough negative space to distinguish the object from the typography.
+- At approximately 1440×1000: name upper-left, direct nav upper-right, headline upper-left/mid, Reveal Key sweeps through a decorative headline layer and reveals personal thought fragments. The thought readout and five anchor controls sit in lower/right negative space. No project index appears above the fold.
 - Interaction prompt is visible but quiet (“Move the key to find a signal” or equivalent). The words communicate the action; do not require guessing.
 
 ### Tablet
 
-- At approximately 768px wide: reduce headline size and side margins, move project index below or beside the art only when 8-column space supports clear reading. No overlap with nav or interactive targets.
+- At approximately 768px wide: reduce headline size and side margins; keep the path and thought readout in a clear second region. No overlap with navigation or interaction targets.
 - Reduce path travel and artifact scale before removing meaning.
 
 ### Mobile
 
-- At approximately 390×844: 4-column vertical editorial sequence. Header/social navigation; 44–58px headline over 2–3 lines; personal line; small artifact/path module; explicit “Explore a project” step/selection controls; then complete vertical project index.
-- Replace precise pointer drag with tap-to-select and optional touch drag inside a generously sized area. Every project can be activated with a 44px minimum target.
+- At approximately 390×844: 4-column vertical editorial sequence. Header; headline and Reveal Key; then the four personal sections in their own stacked compositions. Work stays after the identity story.
+- Replace precise pointer tracking with direct tap controls. Thought stops, section choices, and project links have 44px minimum targets; the build sequence uses Previous / Next controls.
 - Simplify 3D geometry, shadows, and tracking; clamp DPR. If the 3D is not ready, show the SVG artifact in the same area.
 - Avoid a sticky full-screen hero, clipped headline, horizontal-only project index, or tiny side labels.
-- About is an intentional second act: oversized statement first, readable first-person copy next, then open connected notes for curiosity, teamwork, and follow-through. Stack those notes on mobile instead of shrinking the desktop columns.
+- Give each personal section a distinct mobile behavior: question choices become a simple branch list, curiosity connections become selectable rows, the build sequence keeps explicit step controls, and collaboration uses one clear toggle. Do not shrink desktop diagrams to fit.
 
 ---
 
@@ -345,7 +359,7 @@ Mobile is an intentional alternate composition, not a smaller desktop.
 
 ### Canvas 2D
 
-- Not needed for Phase 1. Add only if a specific visual cannot be delivered efficiently with SVG/DOM, and update this design contract before using it.
+- Not needed in the current identity-first pass. Add only if a specific visual cannot be delivered efficiently with SVG/DOM, and update this design contract before using it.
 
 ### R3F / WebGL
 
@@ -359,10 +373,10 @@ Mobile is an intentional alternate composition, not a smaller desktop.
 ## 13. Accessibility
 
 - Maintain semantic heading order, landmarks, descriptive links, button semantics, and screen-reader-readable project content.
-- All navigation and project selection work from keyboard. Provide a visible focus state on every interactive element; do not rely on hover.
-- Provide an interaction instruction and a non-drag route. Keyboard: focus the selector, use Left/Right (or Up/Down on vertical mobile list) to change project, Enter to open, Escape or a visible reset control to return to the unselected state.
-- Touch receives direct project-selection controls and optional touch drag. Nothing essential depends on hover, pointer precision, or 3D readiness.
-- Announce selected project changes politely with a small `aria-live="polite"` status. Do not announce pointer movement continuously.
+- All navigation and thought selection work from keyboard. Provide a visible focus state on every interactive element; do not rely on hover.
+- Provide an interaction instruction and a non-drag route. Keyboard: focus the Reveal Key slider, use Left/Right or Up/Down to change thought state, Home/End to jump to the first/last thought, and Escape to return to the first state.
+- Touch receives direct thought controls and optional touch drag. Nothing essential depends on hover, pointer precision, or 3D readiness.
+- Announce keyboard and direct-control thought changes politely; do not announce pointer movement continuously.
 - Respect reduced motion. Controls have at least 44×44 CSS-pixel touch area.
 - Provide contrast requirements from the color section and non-color signals for selected/focused states.
 - Mark decorative canvas/SVG `aria-hidden`; provide equivalent text and links outside them. Do not duplicate the full content in a noisy accessible tree.
@@ -373,7 +387,7 @@ Mobile is an intentional alternate composition, not a smaller desktop.
 ## 14. Performance and resilience
 
 - Server-render the shell and all essential copy/links. The first paint should communicate the portfolio before any Three.js code loads.
-- Lazy-load the single R3F scene. Do not put Three.js in the initial route chunk. Avoid postprocessing, Rapier, physics simulation, large images, and video in Phase 1.
+- Lazy-load the single R3F scene. Do not put Three.js in the initial route chunk. Avoid postprocessing, Rapier, physics simulation, large images, and video in Phases A–B.
 - Prefer generated low-poly geometry and solid materials; no external model/texture requests are needed for the hero object.
 - Aim for the lazy 3D chunk to remain below roughly **250 KB gzip** where practical; record actual bundle output and split further if this is exceeded. Keep initial route JS lean and measure production output rather than promising an unverified size.
 - Cap device pixel ratio at **1.5 desktop** and **1.2 mobile**. Use the lowest sufficient geometry detail and minimal lights/materials.
@@ -384,44 +398,74 @@ Mobile is an intentional alternate composition, not a smaller desktop.
 
 ---
 
-## 15. Phase 1 boundary and review gate
+## 15. Identity-first homepage order and interaction language
 
-Phase 1 is complete: it includes the project scaffold, global tokens/styles, typography, homepage shell, direct navigation, hero composition, Reveal Key, project index and links, mobile composition, reduced-motion behavior, and WebGL-disabled fallback. Phase 2 is complete: it includes the About / collaboration story and contact ending.
+The homepage answers **who is Aditya?** before **what has he built?** Its order is:
 
-Phase 3 adds only the inline Continuum experience defined below. Other project experiences, site-wide transitions, and additional Easter eggs remain future work. Review design, UX, engineering, and real renders at **390, 768, 1024, and 1440px**, fix meaningful problems, and confirm the production build passes before moving to another project world.
+1. Hero: identity statement and Reveal Key thought states.
+2. How I Think: an authored branching question.
+3. What I’m Curious About / Now: recurring interests and the relationships Aditya sees between them.
+4. The Messy Middle / How I Build: a rough idea settling into a working system.
+5. Building With People / Collaboration: another perspective changes the path.
+6. Work: five concise project links followed by the optional deeper Continuum experience.
+7. Contact: direct email, GitHub, and LinkedIn.
+
+Projects are evidence of Aditya's curiosity and engineering; they do not define the first impression. The expanded Continuum experience is preserved under a native disclosure in Work rather than leading the page.
+
+The first four interactive personal sections are part of the approved identity story. Keep their mechanisms distinct: choose a thought branch, select an authored curiosity relationship, advance a build sequence, and let another perspective reroute an idea. Shared linework, editorial type, solid color fields, and tactile settling create cohesion. Do not turn every section into a draggable object, card grid, or repeated reveal animation.
+
+Review at **320, 390, 768, 1024, and 1440px**. Check pointer, touch, keyboard, reduced motion, WebGL failure, native scrolling, direct project links, and the visual relationship between 3D and 2D/DOM layers. Fix meaningful design, UX, and engineering issues before moving to the later identity sections.
 
 ---
 
-## 16. Phase 2: About, collaboration, and contact
+## 16. Personal section specifications
 
-### Purpose and voice
+### 16.1 How I Think — “I follow the question.”
 
-- Make Aditya the subject of this section: a developer who loves technology and coding, follows unusual questions with creativity, works well with other people, and puts in the patient effort to finish.
-- Write in a direct first-person voice. Sound curious, warm, and specific; avoid résumé claims, inflated adjectives, generic “team player” language, or unsupported career history.
-- The approved copy direction is: **“I love the part between ‘what if?’ and ‘it works.’”** Supporting copy should explain why coding is fun, how shared perspectives improve a build, and how Aditya stays with difficult work through debugging and refinement.
-- Do not invent collaborator names, team sizes, outcomes, awards, or project contributions. Show collaboration as a working value unless verified stories are supplied.
+- Start with the small friction “Why did it behave that way?” and let visitors choose to trace a change, try an unlikely route, or bring in another view.
+- Each choice has a distinct authored SVG path and a short follow-up thought. The paths are intentional branches, not generated graphs.
+- Keep every branch label and prompt visible in DOM. Selection may emphasize its path and update one polite live readout; it must not reveal essential copy.
 
-### Composition and visual language
+### 16.2 What I’m Curious About — “My brain has too many tabs open.”
 
-- Place About directly after the hero. Make it a clear second act, not a bio card or photo-and-copy split.
-- Use a large expressive statement on one side and readable short paragraphs on the other. Leave generous paper space; let one cobalt/red/orange connection line move between the ideas.
-- Follow with three open editorial notes: **Curiosity**, **Better together**, and **Follow through**. Use rules, alignment, and a shared path; do not turn them into rounded cards, résumé skill tiles, or statistic counters.
-- Keep the copy as real DOM text. Use SVG only for the connection path, and keep the path decorative with `aria-hidden="true"`.
-- A restrained solid charcoal contact field may close the page. Use a short human invitation, a large direct `mailto:` link, and plain text GitHub / LinkedIn links. Avoid a generic form until one is needed.
-- Keep texture at the same subtle level as the hero. Use color, scale, cut alignment, and a small reactive/hover response to keep the section contemporary and alive.
+- Use only established interests: AI systems, agentic systems, creative software, developer tools, browsers, security, civic technology, experimental engineering, automation, and visual systems / interaction ideas.
+- Show four authored relationships: AI / agents / tools; browsers / security / automation; civic technology / visual systems; creative software / experimental engineering.
+- Use tomato as the field with cobalt, cyan, saffron, and acid as relationship signals. These hues identify relationships, not importance; topic text and the active state remain explicit.
+- Select a relationship to draw its SVG route and update the connected question. Keep all topics and questions readable whether or not JavaScript runs.
+- Do not add inferred hobbies, expertise, or claims about current work.
 
-### Mobile and accessibility
+### 16.3 The Messy Middle — “I like the messy middle.”
 
-- At mobile widths, stack heading, personal copy, the three notes, and contact in that order. Keep long email text wrapping safely and all links at least 44px high.
-- Preserve semantic `h2` / `h3` hierarchy, visible keyboard focus, high contrast, and the exact email/social destinations. Contact must work without hover or animation.
-- Reduced motion shows the full connected composition statically. No paragraph or social link is revealed only by interaction.
+- Start with misaligned process fragments and broken/competing SVG routes; move through rough, finding, and settled states as the visitor uses Previous / Next.
+- The sequence is authored: question, try something, hmm, why, ask again, fix one thing, test again, refine, working for now.
+- Motion gradually reduces text displacement and joins the primary path. The last state is stable and complete; no timing or scroll completion is required.
+- Preserve normal page scrolling. Put the active step and explanation in an `aria-live` readout; represent the active list item using `aria-current="step"`.
 
-### Engineering boundary
+### 16.4 Building With People — another perspective changes the route
 
-- Keep About and contact in Server Components with static semantic text. Use CSS/SVG for the graphic relationship; do not add a new animation dependency or another canvas.
-- No new imagery or font weights are needed. Keep the hero's existing R3F scene isolated and lazy-loaded.
+- Keep the diagram abstract. A first path reaches a dead end; the control lets a second perspective join and redraws the route around the obstacle.
+- Use no collaborator names, faces, quotes, contribution counts, or project roles unless verified from real evidence and explicitly approved.
+- The interaction demonstrates changed work, not a graph of people. State the result in DOM copy and expose toggle state with `aria-pressed`.
 
-## 17. Phase 3: Continuum project experience
+### Shared responsive and accessibility rules
+
+- Keep the four sections in this order between the hero and Work. Use warm paper for Thinking, tomato for Curiosity, sun yellow for the Messy Middle, and cobalt for Collaboration. Work remains on paper and Contact remains charcoal.
+- Desktop uses asymmetrical editorial headings and selective SVG paths. Tablet collapses the heading/copy grid before paths become cramped. Mobile is a new vertical composition: no precise pointer tracking, no route-dependent text, and controls stay at least 44px tall.
+- Question and Curiosity are native button groups with `aria-pressed`; the build sequence has explicit Previous / Next controls; collaboration has one native toggle. All are keyboard-operable and show `:focus-visible`.
+- Provide semantic reading order and the full copy without interaction. SVG is decorative (`aria-hidden="true"`); it never carries unique text or color-only meaning.
+- Under reduced motion, stop transitions and show a complete stable route/diagram. State controls may still update instantly. No interaction is required to read the story.
+- Scroll-triggered entrances are disabled for reduced motion. If a keyboard user reaches content before it enters the viewport, reveal it immediately; never leave focus on an invisible control.
+- Support touch through direct taps. The Messy Middle uses its explicit step controls; no drag, hover, or gesture is required.
+
+### Copy and engineering boundaries
+
+- Write in a direct first-person voice: specific, curious, warm, lightly playful. Avoid résumé language and unsupported claims. Aditya loves technology and coding, explores unusual questions, persists through debugging/refinement, and values how other perspectives change an idea.
+- Keep each section's descriptive copy in a Server Component. Isolate only the state controls in small Client Components; do not promote the homepage shell to a client tree.
+- Implement these interactions with HTML, CSS, and SVG. The Reveal Key remains the single WebGL scene. Do not add Canvas, another R3F scene, a physics package, or a motion dependency for these sections.
+- Animate SVG strokes and bounded transforms. Avoid continuous loops, per-frame React state, long pinned scroll sequences, layout reads during motion, and effects while the sections are offscreen.
+- Keep texture restrained. Use color, scale, path shape, overlap, and movement for personality; do not make these fields resemble aged print, cards, bubbles, or dashboards.
+
+## 17. Continuum's deeper Work experience
 
 ### Product story and claims
 
@@ -432,7 +476,7 @@ Phase 3 adds only the inline Continuum experience defined below. Other project e
 
 ### Composition and graphic behavior
 
-- Place the Continuum field directly after the hero, before About. Its entry continues the cobalt signal from the selected Continuum state, so the first project entry feels like a path resolving rather than a separate landing page.
+- Preserve the Continuum field as an optional deeper experience inside the later Work section. It must not precede Aditya's identity story or take over the first impression.
 - Use a full-bleed deep-cobalt field with paper-bright typography, electric-blue signal marks, and pale-blue evidence layers. Keep it typographic and editorial: no dashboard, metric cards, terminal imitation, or generic product screenshot.
 - Lead with a short project statement such as **“THE CODE IS ONLY PART OF THE STORY.”** Supporting copy explains context delivery and observable run evidence in plain language. Include a direct repository link in the project field.
 - Show three stages as one connected SVG time-trace: repository/context, agent-run evidence, human outcome. Use short accurate labels such as `REPOSITORY SNAPSHOT`, `RUN EVIDENCE`, and `HUMAN OUTCOME`; do not fabricate timestamps, metrics, success rates, or benchmark results.
@@ -442,7 +486,7 @@ Phase 3 adds only the inline Continuum experience defined below. Other project e
 
 ### Motion, mobile, and accessibility
 
-- Keep the scroll native. The hero's internal **Enter Continuum** action targets this section; the row arrow still opens the public repository.
+- Keep scrolling native. The Continuum experience opens through a native `<details>` / `<summary>` control in Work; its repository link remains direct.
 - During range input, move the marker and reveal/strengthen a path with transforms or SVG stroke changes over 220–420ms. While the pointer is held, shorten settling to about 90ms so direct scrubbing follows promptly; keyboard changes settle within 180–300ms. Do not add perpetual motion or a cinematic interstitial.
 - On mobile, recompose into a vertical editorial stack: section mark and title, concise explanation, a tall/simple trace with three clearly labeled stops, a full-width range control, scope note, repository link. Keep the stages understandable without dragging.
 - Use a real `<input type="range">` with an accessible name, three keyboard stops, visible focus, and a 44px minimum interaction band. Expose the selected stage through its value text; do not announce each pointer pixel. The SVG is decorative and hidden from assistive technology because the same information is in DOM.

@@ -1,0 +1,42 @@
+export const thoughtStates = [
+  {
+    number: "01",
+    title: "FOLLOW THE ODD QUESTION",
+    control: "FOLLOW",
+    note: "Sometimes the side path is the one I want to follow.",
+    reveal: "What if?",
+    color: "#173fb8",
+  },
+  {
+    number: "02",
+    title: "MAKE A ROUGH VERSION",
+    control: "TRY IT",
+    note: "An idea changes once I can try it for real.",
+    reveal: "Try it.",
+    color: "#c62942",
+  },
+  {
+    number: "03",
+    title: "STAY WITH THE HARD BIT",
+    control: "TRACE IT",
+    note: "I like tracing the snag until I understand why it happened.",
+    reveal: "Why did it break?",
+    color: "#bd641c",
+  },
+  {
+    number: "04",
+    title: "MAKE IT TOGETHER",
+    control: "WITH OTHERS",
+    note: "Someone else’s perspective can change the shape of the idea.",
+    reveal: "Look from here.",
+    color: "#627b10",
+  },
+  {
+    number: "05",
+    title: "LOOK AGAIN",
+    control: "LOOK AGAIN",
+    note: "The last pass is where small details start to matter.",
+    reveal: "One more pass.",
+    color: "#087b87",
+  },
+] as const;

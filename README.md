@@ -2,7 +2,7 @@
 
 An in-progress personal portfolio built around **The Folded Field**, a vivid editorial identity with tactile interaction and connected visual systems.
 
-The current site includes a responsive homepage, the interactive Reveal Key, a Continuum project experience, an About section centered on how Aditya thinks and collaborates, and direct contact links. `DESIGN.md` documents the approved visual system and implementation boundaries.
+The identity-first homepage opens with the Reveal Key exploring five thought states, followed by Aditya’s approach to coding and collaboration, recurring curiosities, concise project links, and direct contact details. Continuum’s deeper experience remains available in an expandable section under Work. `DESIGN.md` documents the approved visual system and implementation boundaries.
 
 ## Run locally
 
