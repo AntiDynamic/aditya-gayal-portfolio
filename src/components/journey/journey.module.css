@@ -12,6 +12,12 @@
 .fallback { position: absolute; right: -10%; top: 0; width: 85%; height: 100svh; opacity: .9; pointer-events: none; }
 .motionLayer { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
 .canvas { position: absolute; inset: 0; }
+.motionControl { position: absolute; top: 108px; right: var(--shell-gutter); z-index: 5; display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+.motionControl button { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 12px; border: 0; background: #101a35; color: #f2ebdd; font: 10px/1.4 var(--font-mono); cursor: pointer; }
+.motionControl button > span { color: #f5cd50; font-size: 16px; }
+.motionControl button:hover { color: #f5cd50; }
+.motionControl button:focus-visible { outline: 2px solid #f5cd50; outline-offset: 4px; }
+.motionControl > span { color: #bec8e0; font: 9px/1.4 var(--font-mono); }
 .chapters { position: relative; z-index: 3; pointer-events: none; }
 .journey[data-enhanced] .chapters { mix-blend-mode: difference; }
 .journey[data-enhanced] .caption, .journey[data-enhanced] .kicker, .journey[data-enhanced] .kicker span, .journey[data-enhanced] .interests { color: #fff; }
@@ -51,8 +57,16 @@
 .journey[data-enhanced] .interests { margin-top: 32px; max-width: 470px; }
 .journey[data-ready] .fallback { opacity: 0; transition: opacity 600ms ease; }
 .journey[data-enhanced] .people h2 { font-size: clamp(68px, 7.5vw, 126px); }
+.journey[data-motion="off"] .fallback { opacity: .24; }
+.journey[data-motion="off"] .underType, .journey[data-motion="off"] .scrollCue { display: none; }
+.journey[data-motion="off"] .chapter { min-height: 0; padding-block: 70px; }
+.journey[data-motion="off"] .first { padding-top: 135px; min-height: 88svh; }
+.journey[data-motion="off"] .chapter h1, .journey[data-motion="off"] .chapter h2 { max-width: 100%; }
+.journey[data-motion="off"] .skip, .journey[data-motion="off"] .edgeNotes { display: none; }
 
 @media (max-width: 767px) {
+  .motionControl { top: 77px; }
+  .motionControl > span { font-size: 8px; }
   .journey[data-enhanced] { height: 580svh; }
   .chapter, .first, .journey[data-enhanced] .chapter { padding-top: 122px; padding-bottom: 50px; }
   .chapter h1, .chapter h2 { font-size: clamp(54px, 17.7vw, 108px); max-width: 100%; line-height: .91; }
@@ -85,11 +99,10 @@
   .journey[data-enhanced] .caption { bottom: 115px; font-size: 13px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .fallback { position: absolute; opacity: .24; }
-  .underType, .scrollCue { display: none; }
-  .chapter { min-height: 0; padding-block: 70px; }
-  .first { padding-top: 135px; min-height: 88svh; }
-  .chapter h1, .chapter h2 { max-width: 100%; }
-  .skip { display: none; }
-  .edgeNotes { display: none; }
+  .journey:not([data-motion="on"]) .fallback { position: absolute; opacity: .24; }
+  .journey:not([data-motion="on"]) .underType, .journey:not([data-motion="on"]) .scrollCue { display: none; }
+  .journey:not([data-motion="on"]) .chapter { min-height: 0; padding-block: 70px; }
+  .journey:not([data-motion="on"]) .first { padding-top: 135px; min-height: 88svh; }
+  .journey:not([data-motion="on"]) .chapter h1, .journey:not([data-motion="on"]) .chapter h2 { max-width: 100%; }
+  .journey:not([data-motion="on"]) .skip, .journey:not([data-motion="on"]) .edgeNotes { display: none; }
 }

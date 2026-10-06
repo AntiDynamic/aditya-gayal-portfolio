@@ -1,5 +1,17 @@
 # Continuous identity journey — build and review
 
+## Motion-mode discoverability fix
+
+The supplied screenshot matched the reduced-motion chapter stack, including the dim SVG illustration and inline intro caption. Browser emulation reproduced this presentation; the screenshot alone does not prove the original browser's preference value.
+
+The journey now explains the active reduced-motion setting and offers **Enable animation**. This explicit choice enables both CSS sticky choreography and the lazy WebGL scene, while **Pause animation** restores readable chapters and releases the scene. System preferences remain the initial default. The current-page override survives subsequent media-query changes; it is deliberately not persisted across visits. Lenis still honors the system preference separately. Controls remain outside `aria-hidden` decoration, with 44px targets and visible keyboard focus; no-JavaScript output has no inert toggle.
+
+Production-browser checks cover default reduced motion, explicit opt-in under that same preference, native PageDown progress, keyboard pause, preference changes, and renders at 320/390/768/1024/1440. All widths retain readable controls without horizontal overflow. QA captures live in `visual-qa/spatial-journey/motion-choice-*.png`; detailed results are in `motion-choice-qa.json`. This is a discoverability fix, not a new art-direction pass.
+
+Three repeated pause/enable cycles produced no uncaught exceptions or console errors. The sampled idle draw counter stayed at 38 across a 600ms interval. No-JavaScript output retained all five readable chapters with no canvas or toggle. Build, TypeScript and lint passed. A solid midnight button surface protects control contrast when bright geometry crosses behind it. No dependencies were added.
+
+Final checks confirmed native touch activation at 390px, a 44px control height, solid saffron keyboard focus, and readable fallback/status when WebGL creation fails. These checks are recorded in `motion-choice-final.json`; expected caught WebGL initialization errors are separate from uncaught runtime exceptions.
+
 ## Visible result
 
 The default homepage is now a single scroll-driven personal journey before Work. It replaces the separate entrance, hero Key selector, branching buttons, draggable curiosity labels, destruction demo and collaboration toggle. Their source remains available; none of those widgets is mounted by `page.tsx`.

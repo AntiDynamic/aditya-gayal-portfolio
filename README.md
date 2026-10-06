@@ -25,6 +25,8 @@ pnpm dev
 
 Open `http://localhost:3000`.
 
+If you see a still illustration and stacked chapters, your browser may be requesting reduced motion. Use **Enable animation** above the headline to opt into the 3D scroll journey. **Pause animation** returns to the reading view. The website respects the system preference by default; no system setting needs to change.
+
 ## Checks
 
 ```bash

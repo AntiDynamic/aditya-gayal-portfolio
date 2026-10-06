@@ -3,10 +3,18 @@
 import dynamic from "next/dynamic";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { Component, useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { Component, useCallback, useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import styles from "./journey.module.css";
 
 const SpatialJourney = dynamic(() => import("./spatial-journey").then(m => m.SpatialJourney), { ssr: false });
+const motionQuery = "(prefers-reduced-motion: reduce)";
+function subscribeMotionPreference(notify: () => void) {
+  const preference = matchMedia(motionQuery);
+  preference.addEventListener("change", notify);
+  return () => preference.removeEventListener("change", notify);
+}
+const readMotionPreference = () => matchMedia(motionQuery).matches;
+const serverMotionPreference = () => null;
 export type JourneyRuntime = { progress: number; intro: number; pointerX: number; pointerY: number; visible: boolean; invalidate: (() => void) | null };
 class SceneBoundary extends Component<{ children: ReactNode; failed: () => void }, { failed: boolean }> {
   state = { failed: false };
@@ -20,17 +28,20 @@ export function JourneyMotion() {
   const runtime = useRef<JourneyRuntime>({ progress: 0, intro: 0, pointerX: 0, pointerY: 0, visible: true, invalidate: null });
   const [load, setLoad] = useState(false);
   const [failed, setFailed] = useState(false);
+  const reducedMotion = useSyncExternalStore<boolean | null>(subscribeMotionPreference, readMotionPreference, serverMotionPreference);
+  const [motionOverride, setMotionOverride] = useState<boolean | null>(null);
+  const enabled = reducedMotion !== null && (motionOverride ?? !reducedMotion);
   const bindInvalidate = useCallback((fn: (()=>void)|null)=>{runtime.current.invalidate=fn;},[]);
   useEffect(() => {
     const root = host.current?.closest<HTMLElement>("[data-identity-journey]");
     if (!root) return;
-      const preference = matchMedia("(prefers-reduced-motion: reduce)");
     let cleanup: (() => void) | undefined;
     let timer = 0;
     const configure = () => {
       cleanup?.();
       clearTimeout(timer);
-      if (preference.matches) { setLoad(false); root.removeAttribute("data-ready"); return; }
+      root.dataset.motion = enabled ? "on" : "off";
+      if (!enabled) { setLoad(false); root.removeAttribute("data-ready"); return; }
       gsap.registerPlugin(ScrollTrigger);
       root.setAttribute("data-enhanced", "true");
       const chapters = Array.from(root.querySelectorAll<HTMLElement>("[data-journey-chapter]"));
@@ -97,11 +108,26 @@ export function JourneyMotion() {
         word?.removeAttribute("style");field?.removeAttribute("style");cue?.removeAttribute("style");
       };
     };
-    configure(); preference.addEventListener("change",configure);
-    return ()=>{preference.removeEventListener("change",configure); clearTimeout(timer); cleanup?.();};
+    configure();
+    return ()=>{clearTimeout(timer); cleanup?.(); root.removeAttribute("data-motion");};
+  }, [enabled]);
+  const markFailed = useCallback(() => { setFailed(true); host.current?.closest("[data-identity-journey]")?.removeAttribute("data-ready"); }, []);
+  const markReady = useCallback(() => {
+    const root = host.current?.closest<HTMLElement>("[data-identity-journey]");
+    // A shader compile may finish while the visitor switches back to reading.
+    if (root?.dataset.motion === "on") root.setAttribute("data-ready", "true");
   }, []);
-  const markFailed = () => { setFailed(true); host.current?.closest("[data-identity-journey]")?.removeAttribute("data-ready"); };
-  return <div ref={host} className={styles.motionLayer} aria-hidden="true">
-    {load && !failed && <SceneBoundary failed={markFailed}><SpatialJourney runtime={runtime} onInvalidate={bindInvalidate} onReady={()=>host.current?.closest("[data-identity-journey]")?.setAttribute("data-ready","true")} onLost={markFailed}/></SceneBoundary>}
-  </div>;
+  return <>
+    {reducedMotion !== null && <div className={styles.motionControl}>
+      <button type="button" onClick={() => setMotionOverride(!enabled)} aria-describedby={!enabled && reducedMotion ? "journey-motion-note" : undefined}>
+        <span aria-hidden="true">{enabled ? "Ⅱ" : "↗"}</span>
+        {enabled ? "Pause animation" : "Enable animation"}
+      </button>
+      {!enabled && reducedMotion && <span id="journey-motion-note">Your reduced-motion setting is on.</span>}
+      {failed && <span role="status">3D unavailable. The story is still here.</span>}
+    </div>}
+    <div ref={host} className={styles.motionLayer} aria-hidden="true">
+    {load && !failed && <SceneBoundary failed={markFailed}><SpatialJourney runtime={runtime} onInvalidate={bindInvalidate} onReady={markReady} onLost={markFailed}/></SceneBoundary>}
+    </div>
+  </>;
 }
