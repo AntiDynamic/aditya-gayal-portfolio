@@ -5,11 +5,13 @@ import { CuriosityField } from "@/components/curiosity-field";
 import { MessyMiddle } from "@/components/messy-middle";
 import { CollaborationField } from "@/components/collaboration-field";
 import { PageMotion } from "@/components/page-motion";
+import { NowNotes } from "@/components/now-notes";
+import experience from "./experience.module.css";
 import { EntranceGate } from "@/components/entrance/entrance-gate";
 
 export default function Home() {
   return (
-    <EntranceGate><main className="portfolio-shell text-field-ink font-reading">
+    <EntranceGate><main className={`portfolio-shell text-field-ink font-reading ${experience.page}`}>
       <PageMotion />
       <header className="site-header">
         <a className="wordmark" href="#top" aria-label="Aditya Gayal — home">
@@ -59,6 +61,7 @@ export default function Home() {
       <MessyMiddle />
       <CollaborationField />
       <ProjectIndex />
+      <NowNotes />
       <ContactSection />
     </main></EntranceGate>
   );

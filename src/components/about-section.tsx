@@ -48,7 +48,8 @@ export function ContactSection() {
             <h2 id="contact-title">Have a good “what if?”</h2>
             <p>Tell me what you’re curious about. I’m always up for talking technology, code, and ideas that might turn into something real.</p>
           </div>
-          <div className="contact-links" data-enter="lift">
+          <div className="contact-links">
+            <svg className="contact-trace" viewBox="0 0 500 180" aria-hidden="true"><path pathLength="1" d="M10 25 C110 5 85 135 180 115 S340 45 435 125 L476 150 M465 132L476 150 450 155"/></svg>
             <a className="contact-email" href={`mailto:${email}`}>
               {email}<span aria-hidden="true">↗</span>
             </a>

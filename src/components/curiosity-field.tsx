@@ -2,7 +2,7 @@ import { CuriosityConnections } from "@/components/curiosity-connections";
 
 export function CuriosityField() {
   return (
-    <section className="curiosity-section" id="now" aria-labelledby="curiosity-title">
+    <section className="curiosity-section" id="curiosity" aria-labelledby="curiosity-title">
       <div className="curiosity-inner">
         <div className="curiosity-mark" data-enter="notation">
           <span>OPEN TABS — NOT ALL OF THEM STAY OPEN</span>

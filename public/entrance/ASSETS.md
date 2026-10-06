@@ -99,3 +99,16 @@ Comparison images remain in ignored `visual-qa/entrance-stage-c5/`.
 
 Future `textures/` or `generated/` folders should be created only when
 an actual asset is used and documented here.
+
+## Experience V2 generated geometry / graphics
+
+No new external files were downloaded for the full homepage build. No additional GLB, HDRI, texture pack, or audio file was shipped.
+
+| Resource | Source / generation | Use |
+| --- | --- | --- |
+| Articulated Reveal Key | `src/components/reveal-instrument.tsx`; original extruded Bézier shapes with a real aperture, bevels, pivot, rubber foot | One shared object from the entrance cavity into the hero |
+| Physical build assembly | `src/components/build-scene.tsx`; original small bevelled extrusions, shared authored data and poses | Fifteen material pieces with persistent damage and support response |
+| Build print | Same file; twelve generated 512×128 transparent label atlases and three 128×128 support marks | Labels remain attached to moving material faces |
+| Authored work / curiosity / collaboration graphics | Their local TSX/SVG components | Project-specific worlds and relationship/perspective responses |
+
+These are original repository-native graphics; they do not embed downloaded component source. The 21st.dev proximity implementation informed a rewrite using cached whole-word bounds and existing browser APIs. Existing Kenney Foley remains unloaded and sound stays off.

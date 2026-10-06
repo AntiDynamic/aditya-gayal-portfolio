@@ -2,7 +2,7 @@
 
 **Status:** Approved creative direction; updated for identity-first homepage and personal interaction sections\
 **Owner:** Aditya Gayal\
-**Current scope:** Stage C.5: physical readability, signature geometry, and rendering refinement of one enamel-corner break in the approved **Break the Surface** entrance. Preserve Stage A.5's framing and Stage B's demand rendering. All-material destruction, sound playback, physics packages, entry transitions, and changes to later sections remain outside this phase.
+**Current scope:** Full Experience Architecture V2 implementation, approved by the owner’s “build everything” instruction. Preserve the existing single enamel break; connect entrance and hero, rebuild the personal scenes, add a shared Work stage and honest open-question notes, and finish the contact endpoint. No project case-study expansion, full-material destruction, paid generation, physics package, or autoplay audio.
 
 This document is the governing design contract. Read it before every implementation phase. If an implementation choice conflicts with this document, change the implementation or update this document deliberately before proceeding.
 
@@ -606,3 +606,20 @@ Review at **320, 390, 768, 1024, and 1440px**. Check pointer, touch, keyboard, r
 - SVG owns the evidence path, stops, marker, and short diagram labels only when labels are also available as DOM text. CSS owns the cobalt field, layout, responsive stacking, focus, and state transitions.
 - No R3F, WebGL, external assets, video, or new dependencies in this phase. The experience must remain clear with JavaScript disabled; the SVG shows a stable complete trace and the repository link remains a regular anchor.
 - Pause decorative transition work when the section is offscreen if any ongoing animation is later introduced. No ongoing animation is expected in this phase.
+
+
+## 18. Experience Architecture V2 — approved execution contract
+
+[Experience Architecture V2](docs/experience-architecture-v2.md) governs the new scene responsibilities. This section supersedes historical phase restrictions where the approved full build requires changes.
+
+- Retain server-rendered headings, descriptions, direct links, and native scrolling. Isolate interaction state in local client components.
+- Entrance and hero share the Reveal Key geometry and one scoped renderer. The cavity contains the destination object; passing through preserves its identity. Skip and reduced motion bypass camera choreography.
+- The Trace is scene-local SVG/Three geometry with shared visual grammar, never an expensive page-wide pointer loop or progression requirement.
+- Thinking uses authored dead ends, loops and a discovered change. Curiosity preserves the ten established topics and eight pairings, with whole-word proximity and distinct SVG relationship motifs. Collaboration introduces a tracing overlay that changes an assumption.
+- Messy Middle may use a separately lazy-loaded R3F physical assembly driven by the existing damage/support model. Restore must reveal a different route. Rebuild is always available; visual progress counters are removed. DOM controls and fallback remain.
+- Work uses one reusable SVG stage with five states and direct existing repository links. No additional project pages.
+- Now contains established recurring questions, explicitly presented as open questions; no fabricated current learning dates, projects or hobbies. Contact retains email, GitHub and LinkedIn.
+- Use component CSS modules. Preserve warm paper/ink, saturated personal fields, subtle material texture, large authored typography, asymmetry, and calm intervals. Avoid boxes framing every interaction.
+- No new runtime dependency is justified. Use the 21st proximity falloff/magnetic principles reviewed in V2, rewritten with cached bounds and bounded motion; do not import its per-letter measurement loop.
+- Demand-render WebGL, cap DPR at 1.5 desktop / 1 mobile, stop when settled, pause when offscreen/hidden, and release resources at actual ownership boundaries. No per-frame React state.
+- Every scene supports keyboard/touch and readable content without interaction. Reduced motion uses immediate authored states, no camera flight. Validate real renders at 320, 390, 768, 1024, 1440 before final push.

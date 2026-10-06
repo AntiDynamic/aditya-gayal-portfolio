@@ -1,10 +1,10 @@
 # Experience Architecture V2 — Under the Surface
 
 **Date:** 2026-10-06  
-**Status:** Proposal for review; implementation has not started.  
+**Status:** Approved by “build everything”; implemented homepage experiences. See [build review](experience-v2-build.md).
 **Identity:** Aditya Gayal. Layered · tactile · vivid · observant · connected.
 
-`DESIGN.md` remains the approved implementation contract. This proposal changes several of its current medium and handoff rules; those changes must be approved and deliberately recorded there before building. It does not authorize rebuilding every scene in one pass.
+`DESIGN.md` remains the approved implementation contract. The audit and selection reasoning below are preserved from the checkpoint. The subsequently approved medium and handoff changes are recorded in DESIGN.md §18.
 
 ## Evidence and reference standard
 

@@ -1,70 +1,123 @@
 "use client";
-
 import { useState } from "react";
-
-const branches = [
+import s from "./personal-scenes.module.css";
+const routes = [
   {
-    id: "trace",
-    number: "01",
-    label: "Trace the change",
-    question: "What happened just before?",
-    next: "follow the first thing that moved.",
+    name: "The visible symptom",
+    end: "Nope. That’s the result, not the cause.",
+    path: "M90 270 C190 270 200 90 340 90 L460 90",
+    label: "A DEAD END",
+    color: "#c62942",
   },
   {
-    id: "try",
-    number: "02",
-    label: "Try the unlikely route",
-    question: "Which assumption could loosen?",
-    next: "make a version that tests the assumption.",
+    name: "My first assumption",
+    end: "Back where I started. Try loosening the assumption.",
+    path: "M90 270 C190 270 220 140 360 140 C560 140 560 360 390 360 C280 360 290 240 370 240",
+    label: "LOOK AGAIN",
+    color: "#b26717",
   },
   {
-    id: "share",
-    number: "03",
-    label: "Bring in another view",
-    question: "What am I too close to notice?",
-    next: "leave room for someone else to move the frame.",
+    name: "What changed just before?",
+    end: "I usually follow the thing that changed first.",
+    path: "M90 270 C260 270 230 410 420 410 S560 215 720 215 L880 215",
+    label: "TRACE THE CHANGE.",
+    color: "#173fb8",
   },
-] as const;
-
+];
 export function QuestionBranches() {
-  const [active, setActive] = useState(0);
-  const selected = branches[active];
-
+  const [selected, setSelected] = useState<number | null>(null);
+  const [followed, setFollowed] = useState(false);
   return (
-    <div className="question-field" data-branch={selected.id} data-enter="trace">
-      <div className="question-seed">
-        <span className="question-overline">A SMALL FRICTION</span>
-        <p>Why did it behave that way?</p>
-        <span className="question-seed-mark" aria-hidden="true">↘</span>
+    <div className={s.investigation} data-route={selected ?? "none"}>
+      <div className={s.question}>
+        <span className={s.micro}>A SMALL FRICTION / FOLLOW IT</span>
+        <h3>
+          Why did it
+          <br />
+          behave
+          <br />
+          <em>that way?</em>
+        </h3>
       </div>
-
-      <svg className="question-routes" viewBox="0 0 1000 420" preserveAspectRatio="none" aria-hidden="true">
-        <path pathLength="1" className={active === 0 ? "is-active" : undefined} d="M312 315 C370 286 390 106 500 106" />
-        <path pathLength="1" className={active === 1 ? "is-active" : undefined} d="M312 315 C385 315 405 198 500 198" />
-        <path pathLength="1" className={active === 2 ? "is-active" : undefined} d="M312 315 C370 335 410 289 500 289" />
+      <svg
+        className={s.questionDrawing}
+        viewBox="0 0 1000 500"
+        aria-hidden="true"
+      >
+        <path
+          d="M90 270 C200 270 270 80 480 80 M90 270 C240 270 200 410 440 410 M90 270 C300 270 330 240 650 240"
+          stroke="#c9c2b5"
+          fill="none"
+        />
+        {selected !== null && (
+          <g key={selected} style={{ color: routes[selected].color }}>
+            <path
+              className={s.selectedRoute}
+              pathLength="1"
+              d={routes[selected].path}
+            />
+            <circle
+              cx={selected === 2 ? 880 : selected === 1 ? 370 : 460}
+              cy={selected === 2 ? 215 : selected === 1 ? 240 : 90}
+              r="10"
+              fill="currentColor"
+            />
+            {selected === 0 && (
+              <path
+                d="M440 65l40 50m0-50l-40 50"
+                stroke="currentColor"
+                strokeWidth="3"
+              />
+            )}
+            <text x="520" y="470">
+              {followed
+                ? "THE THING THAT CHANGED FIRST."
+                : routes[selected].label}
+            </text>
+          </g>
+        )}
+        <circle cx="90" cy="270" r="9" fill="#22211f" />
       </svg>
-
-      <div className="question-choices" role="group" aria-label="Choose where to follow the question">
-        {branches.map((branch, index) => (
+      <div className={s.routeChoices}>
+        {routes.map((r, i) => (
           <button
-            className="question-choice"
             type="button"
-            key={branch.id}
-            aria-pressed={active === index}
-            aria-controls="question-followup"
-            onClick={() => setActive(index)}
+            key={r.name}
+            aria-pressed={selected === i}
+            onClick={() => {
+              setSelected(i);
+              setFollowed(false);
+            }}
           >
-            <span className="question-choice-index">{branch.number}</span>
-            <span className="question-choice-copy">
-              <span className="question-choice-label">{branch.label}</span>
-              <span className="question-choice-prompt">{branch.question}</span>
-            </span>
-            <span className="question-choice-arrow" aria-hidden="true">↗</span>
+            <span>0{i + 1}</span>
+            {r.name}
+            <b aria-hidden="true">↗</b>
           </button>
         ))}
-        <p className="question-followup" id="question-followup" aria-live="polite" aria-atomic="true">
-          <span>SO I</span> {selected.next}
-        </p>
+      </div>
+      <p className={s.routeOutcome} aria-live="polite">
+        {selected === null
+          ? "Pick a route. There isn’t a straight line to the answer."
+          : followed
+            ? "The first change becomes the next question. Now I can test something specific."
+            : routes[selected].end}
+      </p>
+      {selected !== null && (
+        <button
+          className={s.followRoute}
+          type="button"
+          onClick={() => {
+            if (selected !== 2) setSelected(2);
+            setFollowed(true);
+          }}
+        >
+          {followed ? "A clue, not a conclusion" : "Follow it upstream"}{" "}
+          <span aria-hidden="true">↗</span>
+        </button>
+      )}
+      <div className={s.routeNotes}>
+        <span>follow the odd bit ↗</span>
+        <span>wrong turns count, too.</span>
       </div>
     </div>
   );
