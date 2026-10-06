@@ -3,6 +3,7 @@ import { ContactSection } from "@/components/about-section";
 import { IdentityJourney } from "@/components/journey/identity-journey";
 import { PageMotion } from "@/components/page-motion";
 import { NowNotes } from "@/components/now-notes";
+import { SoundtrackControl } from "@/components/soundtrack/soundtrack-player";
 import experience from "./experience.module.css";
 
 export default function Home() {
@@ -19,6 +20,7 @@ export default function Home() {
           <a className="nav-link work-link" href="#work">Work <span aria-hidden="true">↘</span></a>
           <a className="nav-link" href="#now">Now <span aria-hidden="true">↘</span></a>
           <a className="nav-link" href="#contact">Contact <span aria-hidden="true">↘</span></a>
+          <SoundtrackControl variant="site" />
         </nav>
       </header>
 

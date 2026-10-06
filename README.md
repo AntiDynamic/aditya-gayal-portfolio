@@ -27,6 +27,8 @@ Open `http://localhost:3000`.
 
 The isolated **Event Horizon of a Question** prototype is at `http://localhost:3000/lab/event-horizon`. Scroll through the black-hole approach, collapsing typography, white point and identity reveal. Skip intro/Escape or `#identity` goes directly to the final frame. Its renderer and reference attribution are documented in [event-horizon references](docs/event-horizon-references.md). It has not replaced the homepage.
 
+Optional music is off by default. The Event Horizon score builds with the plunge, then gives way to a quieter portfolio loop at the white point. Track sources and CC0 licensing are listed in [public/audio/ASSETS.md](public/audio/ASSETS.md).
+
 If you see a still illustration and stacked chapters, your browser may be requesting reduced motion. Use **Enable animation** above the headline to opt into the 3D scroll journey. **Pause animation** returns to the reading view. The website respects the system preference by default; no system setting needs to change.
 
 ## Checks

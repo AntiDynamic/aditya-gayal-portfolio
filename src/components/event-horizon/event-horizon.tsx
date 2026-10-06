@@ -1,4 +1,5 @@
 import { EventHorizonScroll } from "./event-horizon-scroll";
+import { SoundtrackControl } from "@/components/soundtrack/soundtrack-player";
 import Link from "next/link";
 import styles from "./event-horizon.module.css";
 
@@ -7,6 +8,7 @@ export function EventHorizon(){return <main className={styles.experience} data-e
     <div className={styles.visual} aria-hidden="true"><EventHorizonScroll /></div>
     <nav className={styles.controls} aria-label="Introduction">
       <Link href="/" prefetch={false}>AG<span> / ADITYA GAYAL</span></Link>
+      <SoundtrackControl variant="threshold" className={styles.soundtrackControl} />
       <button type="button" data-motion-choice hidden>Reduce motion</button>
       <a href="#identity" data-skip-intro>Skip intro <span aria-hidden="true">↗</span></a>
     </nav>

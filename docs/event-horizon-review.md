@@ -32,6 +32,7 @@ Semantic text, navigation, skip control, focus target, and identity remain in DO
 - Shader work uses 224 maximum steps on desktop and 144 on mobile. Sustained slow frames can step the active scale down once; it does not continuously oscillate.
 - Rendering pauses when the document/experience is hidden and stops after the identity handoff settles.
 - Reduced motion uses a shorter semantic route without rapid plunge, tidal stretching, or camera impulse.
+- Optional music starts only on explicit activation. The space score rises through approach, fades during collapse, and hands off to the calmer portfolio loop at the white point. The control is part of the intro navigation. Both local CC0 tracks are listed in `public/audio/ASSETS.md`.
 
 ## QA record
 

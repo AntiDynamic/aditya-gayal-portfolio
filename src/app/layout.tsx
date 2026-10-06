@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Bricolage_Grotesque, DM_Sans, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 import "lenis/dist/lenis.css";
+import { SoundtrackProvider } from "@/components/soundtrack/soundtrack-player";
 
 const display = Bricolage_Grotesque({
   variable: "--font-display",
@@ -36,7 +37,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={`${display.variable} ${body.variable} ${mono.variable}`}>
-      <body>{children}</body>
+      <body><SoundtrackProvider>{children}</SoundtrackProvider></body>
     </html>
   );
 }

@@ -45,7 +45,7 @@ Our response: one optical phenomenon, sparse type, peripheral disk passages, dim
 - GSAP/Lenis: retained elsewhere; unnecessary for this one scalar controller. No second smoothing loop.
 - Blender: inspected existing pipeline, not used; mathematical lensing does not benefit from a mesh asset.
 - 21st.dev: existing project reference audit was inspected. No component solves geodesic rendering or improves this simple scroll/controller boundary; no new templates or packages imported.
-- No new dependencies, physics engine, environment download, background video or audio.
+- No new dependencies, physics engine, environment download or background video. Opt-in music uses two locally hosted CC0 tracks; provenance and processing are in `public/audio/ASSETS.md`.
 
 ## Scope of physical correctness
 
