@@ -1,0 +1,95 @@
+.journey {
+  position: relative;
+  margin-inline: calc(-1 * var(--shell-gutter));
+  background: #101a35;
+  color: #f2ebdd;
+  isolation: isolate;
+  --journey-progress: 0;
+}
+.viewport { position: relative; overflow: clip; }
+.colorField { position: absolute; inset: 0; background: #173fb8; clip-path: inset(100% 0 0); pointer-events: none; }
+.underType { position: absolute; left: 35%; top: 56%; color: #6883bb; opacity: .17; font: 650 clamp(150px, 23vw, 400px)/.8 var(--font-display); letter-spacing: -.075em; white-space: nowrap; pointer-events: none; }
+.fallback { position: absolute; right: -10%; top: 0; width: 85%; height: 100svh; opacity: .9; pointer-events: none; }
+.motionLayer { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
+.canvas { position: absolute; inset: 0; }
+.chapters { position: relative; z-index: 3; pointer-events: none; }
+.journey[data-enhanced] .chapters { mix-blend-mode: difference; }
+.journey[data-enhanced] .caption, .journey[data-enhanced] .kicker, .journey[data-enhanced] .kicker span, .journey[data-enhanced] .interests { color: #fff; }
+.chapter { min-height: 80svh; position: relative; padding: 100px var(--shell-gutter) 80px; }
+.first { min-height: 100svh; padding-top: max(145px, 17svh); }
+.kicker { font: 10px/1.7 var(--font-mono); letter-spacing: .045em; display: flex; gap: 32px; align-items: baseline; margin: 0 0 30px; }
+.kicker span { color: #bdc6db; font-size: 9px; }
+.chapter h1, .chapter h2 { font-family: var(--font-display); font-weight: 650; letter-spacing: -.068em; line-height: .86; margin: 0; max-width: 72%; font-size: clamp(74px, 9.5vw, 158px); }
+.chapter h2 > span, .chapter h2 > em, .typeLine { display: block; }
+.chapter h2 em { font-style: normal; color: #f5cd50; }
+.typeLine { overflow: clip; padding: .035em .1em .08em 0; margin-bottom: -.08em; }
+.typeLine > span { display: block; }
+.smallLine { font-size: .5em; letter-spacing: -.055em; margin-top: .22em; }
+.caption { max-width: 420px; font-size: clamp(15px, 1.2vw, 18px); line-height: 1.5; letter-spacing: -.02em; margin: 36px 0 0; text-wrap: pretty; }
+.interests { list-style: none; margin: 32px 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px 22px; max-width: 520px; }
+.interests li { font-size: 14px; line-height: 1.4; border-bottom: 1px solid #f2ebdd55; padding-bottom: 4px; }
+.edgeNotes, .skip, .scrollCue { position: absolute; z-index: 4; font: 10px/1.4 var(--font-mono); }
+.edgeNotes { right: var(--shell-gutter); bottom: 105px; display: flex; flex-direction: column; gap: 8px; color: #bec8e0; text-align: right; }
+.skip { right: var(--shell-gutter); bottom: 35px; min-height: 44px; display: inline-flex; align-items: center; gap: 14px; text-decoration: none; }
+.skip span { font-size: 20px; transition: transform 180ms ease; }
+.skip:hover span { transform: translate(3px,-3px); }
+.skip:focus-visible { outline: 2px solid #f5cd50; outline-offset: 6px; }
+.scrollCue { left: var(--shell-gutter); bottom: 48px; display: flex; gap: 14px; align-items: center; color: #bec8e0; }
+.scrollLine { width: 50px; height: 1px; background: #f2ebdd; transform-origin: left; }
+.anchor { position: absolute; top: 21%; scroll-margin-top: 0; }
+.curiosityAnchor { top: 41%; }.buildingAnchor { top: 61%; }.peopleAnchor { top: 81%; }
+
+/* The readable document is the default. Sticky choreography is an enhancement. */
+.journey[data-enhanced] { height: 620svh; }
+.journey[data-enhanced] .viewport { position: sticky; top: 0; height: 100svh; }
+.journey[data-enhanced] .chapters { position: absolute; inset: 0; }
+.journey[data-enhanced] .chapter { position: absolute; inset: 0; min-height: 0; opacity: 0; padding-top: max(145px, 18svh); transform-origin: left center; }
+.journey[data-enhanced] .first { opacity: 1; }
+.journey[data-enhanced] .caption { position: absolute; bottom: max(110px, 14svh); left: var(--shell-gutter); margin: 0; }
+.journey[data-enhanced] .connections .caption { bottom: 100px; }
+.journey[data-enhanced] .connections h2 { font-size: clamp(70px, 8.6vw, 142px); }
+.journey[data-enhanced] .interests { margin-top: 32px; max-width: 470px; }
+.journey[data-ready] .fallback { opacity: 0; transition: opacity 600ms ease; }
+.journey[data-enhanced] .people h2 { font-size: clamp(68px, 7.5vw, 126px); }
+
+@media (max-width: 767px) {
+  .journey[data-enhanced] { height: 580svh; }
+  .chapter, .first, .journey[data-enhanced] .chapter { padding-top: 122px; padding-bottom: 50px; }
+  .chapter h1, .chapter h2 { font-size: clamp(54px, 17.7vw, 108px); max-width: 100%; line-height: .91; }
+  .smallLine { font-size: .52em; margin-top: .18em; }
+  .kicker { font-size: 9px; gap: 6px; flex-direction: column; margin-bottom: 20px; }
+  .kicker span { font-size: 8px; max-width: 90%; }
+  .caption { max-width: 280px; font-size: 15px; }
+  .journey[data-enhanced] .caption, .journey[data-enhanced] .connections .caption { bottom: 120px; }
+  .edgeNotes { top: auto; bottom: 200px; font-size: 8px; }
+  .edgeNotes > span:first-child { display: none; }
+  .skip { font-size: 9px; bottom: 30px; }
+  .scrollCue { bottom: 89px; font-size: 8px; }
+  .scrollLine { width: 28px; }
+  .fallback { width: 155%; right: -46%; top: 22%; height: 70svh; }
+  .underType { top: 55%; left: -5%; font-size: 52vw; }
+  .journey[data-enhanced] .connections h2, .journey[data-enhanced] .people h2 { font-size: clamp(48px, 14.6vw, 83px); }
+  .interests { max-width: 290px; gap: 6px 14px; }
+  .interests li { font-size: 11px; }
+  .desktopBreak { display: none; }
+}
+@media (max-height: 700px) and (min-width: 768px) {
+  .journey[data-enhanced] .chapter { padding-top: 115px; }
+  .chapter h1, .chapter h2 { font-size: min(8.5vw, 16vh); }
+  .journey[data-enhanced] .caption { bottom: 100px; }
+  .kicker { margin-bottom: 20px; }
+}
+@media (max-height: 700px) and (max-width: 767px) {
+  .journey[data-enhanced] .chapter { padding-top: 95px; }
+  .chapter h1, .chapter h2 { font-size: 15vw; }
+  .journey[data-enhanced] .caption { bottom: 115px; font-size: 13px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fallback { position: absolute; opacity: .24; }
+  .underType, .scrollCue { display: none; }
+  .chapter { min-height: 0; padding-block: 70px; }
+  .first { padding-top: 135px; min-height: 88svh; }
+  .chapter h1, .chapter h2 { max-width: 100%; }
+  .skip { display: none; }
+  .edgeNotes { display: none; }
+}

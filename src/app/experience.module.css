@@ -5,9 +5,21 @@
   .page > section { scroll-margin-top: 74px; }
 }
 .page :global(.site-header) {
+  position: fixed;
+  top: 0;
+  left: var(--shell-gutter);
+  right: var(--shell-gutter);
   z-index: 20;
-  background: #f2ebdd;
+  color: #f2ebdd;
+  background: transparent;
+  border-color: #f2ebdd30;
+  isolation: isolate;
 }
+.page :global(.site-header)::before { content: ""; position: absolute; inset: 0 calc(-1 * var(--shell-gutter)); background: #101a35; z-index: -1; }
+.page :global(.site-header .nav-link:hover) { color: #f5cd50; }
+.page :global(.site-header .nav-link[aria-current="location"]) { color: #f5cd50; }
+.page :global(.site-header a:focus-visible) { outline-color: #f5cd50; }
+.page :global(.site-header .wordmark) { min-height: 44px; justify-content: center; }
 .page :global(.thinking-section) {
   padding-block: 100px 60px;
 }

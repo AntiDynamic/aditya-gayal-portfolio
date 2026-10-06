@@ -2,24 +2,20 @@
 
 A personal portfolio built around **The Folded Field**, a vivid editorial identity with tactile interaction and connected visual systems.
 
-The skippable **Unfold the Surface** entrance opens through native scrolling. Printed paper curls around a hinge, the thick enamel counterweight swings aside, and a restrained camera approach exposes a deeper cobalt space. Typography and shadows follow the actual deformed geometry. Wheel, touch swipes and keyboard scrolling share the same reversible passage; the opening control can play it automatically. No impact targets or repeated clicking are required. Sound is not enabled.
+The homepage now begins with one **continuous identity journey**: question → observation → connections → persistence → another perspective. A perspective camera travels through four physical stations. Thick Blender-authored ribbon forms separate, rearrange and align; physical print belongs to their UVs. Large HTML typography moves from the same scroll value. Wheel, touch and keyboard scrolling are enough; direct navigation to Work is always available.
 
-The same Reveal Key lives inside the opening and travels into the hero without creating a second renderer. Returning visits bypass the threshold during the session; append `?entrance=1` to replay it. Direct section links and reduced motion go straight to readable content. Behind the entrance, the identity-first homepage opens with the Reveal Key exploring five thought states, followed by Aditya’s approach to coding and collaboration, recurring curiosities, concise project links, and direct contact details. Continuum’s deeper experience remains available in an expandable section under Work. `DESIGN.md` documents the approved visual system and implementation boundaries. [Scroll-opening review](docs/unfold-passage.md) records this pass. The [Stage C.5 review](docs/entrance-stage-c5.md) and [Stage C review](docs/entrance-stage-c.md) preserve the earlier prototype and geometry pipeline.
+There is no default click/destruction gate. Work, recurring questions, email, GitHub and LinkedIn follow the personal story. Reduced motion and no JavaScript receive a normal chapter stack; WebGL failure retains the authored SVG illustration. Sound remains off. The former entrance, Reveal Key and personal widgets are preserved in source, but not mounted on the default homepage. Historical `?entrance=1` no longer selects the archived gate.
 
 ## The playable notebook
 
-The approved [Experience Architecture V2](docs/experience-architecture-v2.md) is implemented across the homepage:
+The earlier [Experience Architecture V2](docs/experience-architecture-v2.md) remains a record of the previous pass. The current direction and remaining work are documented in:
 
-- **Reveal:** an articulated aperture changes thought states, color, and typography.
-- **Trace:** authored wrong turns and clues in a branching question.
-- **Connect:** ten interests, eight authored relationships, magnetic words, and distinct inspection/city/agent graphics.
-- **Break / rebuild:** a lazy physical assembly with fifteen material pieces, three supports, registered print, persistent damage, and a different repaired arrangement.
-- **Change:** another perspective enters as a tracing overlay and reroutes the idea.
-- **Open:** five projects share one graphic stage; GitHub links remain direct.
-- **Move:** recurring questions on notes that can be arranged and turned over.
-- **Send:** the final trace resolves toward email, with GitHub and LinkedIn alongside.
+- [Current problems](docs/CURRENT_PROBLEMS.md): recording-grounded audit and reference comparison.
+- [Resource map](docs/RESOURCE_MAP.md): tools, source references and ownership.
+- [Experience roadmap](docs/EXPERIENCE_ROADMAP.md): scene storyboards and future work.
+- [Journey build/review](docs/JOURNEY_REVIEW.md): actual desktop/mobile images, motion sequence and measured performance.
 
-`DESIGN.md` is the implementation contract. [Build and review](docs/experience-v2-build.md) records visual QA, accessibility, performance measurements, and limits. Current questions are presented as recurring interests, not invented live activity. Sound stays off. The [motion refinement](docs/motion-libraries.md) adds GSAP choreography, Lenis wheel scrolling and a bounded Vanta surface that responds to curiosity pairings.
+`DESIGN.md` §21 is the current implementation contract. Historical [build and review](docs/experience-v2-build.md), [scroll-opening review](docs/unfold-passage.md), and [Stage C.5](docs/entrance-stage-c5.md) preserve earlier work. Current questions remain recurring interests, not invented live activity.
 
 ## Run locally
 
@@ -38,14 +34,14 @@ pnpm build
 
 ## Stack
 
-Next.js App Router, React, TypeScript, Tailwind CSS v4, and React Three Fiber for a scoped entrance/hero world and a separate lazy build assembly. GSAP orchestrates structural motion and passage; Lenis smooths wheel input after entry; Vanta WAVES supplies one bounded, lazily loaded curiosity surface. Essential copy and project links remain in HTML; WebGL is a lazy enhancement with HTML/SVG fallbacks. Entrance geometry is removed after passage while the Key and renderer persist. The build assembly mounts near its section and is disposed offscreen.
+Next.js App Router, React, TypeScript, Tailwind CSS v4 and one lazy React Three Fiber identity world. GSAP/ScrollTrigger orchestrate numeric motion; CSS sticky supplies the bounded stage without scroll interception. Lenis smooths wheel input, with native touch/anchors. Essential copy and links remain server-rendered HTML. Vanta and old build scenes remain installed/in source but are not mounted by this homepage. Rendering sleeps after motion settles.
 
 ## Signature geometry
 
-Blender CLI authors only the enamel fragment, folded bracket, and rubber restraint. The rest remains procedural. With Blender 4.5 LTS installed locally, regenerate both responsive GLBs with:
+Blender CLI authors the three named curved parts of the Question Relay. Regenerate with:
 
 ```bash
-blender -b --factory-startup --python scripts/blender/build-entrance-break.py
+blender -b --factory-startup --python scripts/blender/build-question-relay.py
 ```
 
-Append `-- --preview` for a neutral CPU render. Asset provenance and output sizes are recorded in [ASSETS.md](public/entrance/ASSETS.md). Blender is an authoring tool, not a website dependency.
+Provenance and geometry sizes are recorded in [model assets](public/models/ASSETS.md). The historical break script and [entrance assets](public/entrance/ASSETS.md) remain reproducible. Blender is an authoring tool, not a website dependency.
