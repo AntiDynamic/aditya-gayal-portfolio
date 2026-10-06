@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { CanvasTexture, ExtrudeGeometry, Float32BufferAttribute, OrthographicCamera, VSMShadowMap, Shape, SRGBColorSpace } from "three";
 import { getEntranceComposition, getEntranceInterior, type EntranceComposition, type EntrancePiece } from "./entrance-manifest";
 import { MATERIAL_FINISH, useSurfaceTextures } from "./entrance-materials";
+import { useEntrancePresence } from "./entrance-presence";
 
 export type EntranceSceneProps = {
   onReady: () => void;
@@ -73,6 +74,7 @@ function Field({ onReady, onLost }: EntranceSceneProps) {
   const { size, get, gl, invalidate } = useThree();
   const mobile = size.width < 768;
   const composition = useMemo(() => getEntranceComposition(mobile), [mobile]);
+  const sculpture = useEntrancePresence(composition);
   const textures = useSurfaceTextures(composition.width, composition.height);
   const [atlas, setAtlas] = useState<CanvasTexture | null>(null);
   const notified = useRef(false);
@@ -163,8 +165,10 @@ function Field({ onReady, onLost }: EntranceSceneProps) {
         <planeGeometry args={[30, 24]} />
         <shadowMaterial transparent opacity={0.18} />
       </mesh>
-      {interior.map((layer) => <mesh key={layer.id} geometry={layer.geometry} position={[0, 0, layer.z / 100]} receiveShadow><meshStandardMaterial color={layer.color} roughness={.8} /></mesh>)}
-      {composition.pieces.map((piece) => <Surface key={piece.id} piece={piece} composition={composition} atlas={atlas} textures={textures} />)}
+      <group ref={sculpture}>
+        <group>{interior.map((layer) => <mesh key={layer.id} geometry={layer.geometry} position={[0, 0, layer.z / 100]} receiveShadow><meshStandardMaterial color={layer.color} roughness={.8} /></mesh>)}</group>
+        {composition.pieces.map((piece) => <group key={piece.id} name={piece.id}><Surface piece={piece} composition={composition} atlas={atlas} textures={textures} /></group>)}
+      </group>
     </>
   );
 }

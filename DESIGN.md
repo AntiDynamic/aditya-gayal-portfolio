@@ -2,7 +2,7 @@
 
 **Status:** Approved creative direction; updated for identity-first homepage and personal interaction sections\
 **Owner:** Aditya Gayal\
-**Current scope:** Identity-first homepage plus Stage A.5 visual polish of the approved **Break the Surface** entrance: a static sculptural composition only. Reveal Key and the personal sections are preserved. Destruction, pointer behavior, audio, physics, debris, and animated entry remain unapproved implementation stages.
+**Current scope:** Identity-first homepage plus Stage B pointer presence of the approved **Break the Surface** entrance. Preserve Stage A.5's static sculpture. Reveal Key and the personal sections remain unchanged. Destruction, audio, physics, debris, and animated entry remain unapproved implementation stages.
 
 This document is the governing design contract. Read it before every implementation phase. If an implementation choice conflicts with this document, change the implementation or update this document deliberately before proceeding.
 
@@ -55,6 +55,18 @@ These rules refine the Stage A assembly and supersede its material/count notes a
 - Production build and lint pass. Browser QA at 1440, 1024, 768, 390, and 320 shows one canvas, no horizontal overflow, and no uncaught exceptions. Keyboard Skip, Escape, focus transfer, direct hashes, reduced motion, WebGL fallback, and JavaScript-disabled access pass. A settled scene adds zero draw calls in a one-second idle check; this does not establish hardware FPS.
 - Aggregate generated JS grew by **975 bytes gzip** against Stage A. No dependencies changed. Screenshots and before/after comparisons live in ignored `visual-qa/entrance-stage-a5/`.
 - Remain static: no pointer response, impact, damage, debris, sound, physics, or animated entrance handoff. Stage B requires a separate approval.
+
+#### Stage B — approach and resistance only
+
+- A pointer approaching an authored face turns the assembly toward it. Proximity to the cobalt joint lifts the paper slightly, turns the bracket, and compresses the rubber support. Enamel remains resistant. Printed typography follows its physical face; do not animate independent letter layers.
+- Keep the Stage A.5 composition and lighting. No new objects, reticle, target, labels, click reward, impact, damage, or progression. A touch contact previews the same presence; release restores the neutral pose.
+- Whole-assembly rotation is capped at 0.016 radians desktop / 0.009 mobile. Near the joint, upper paper lift is capped at 10 logical pixels, lower paper at 5.5px, backing at 2px; bracket rotation at 0.023 radians; rubber depth compression at 6%. These are visual tensions, not fracture or physics simulation.
+- Use a frame-rate-independent exponential response with a 120ms time constant and 50ms maximum timestep. Quick approaches reduce local yield by up to 30%. After 800ms without input, settle exactly on the next available frame so a slow GPU cannot extend the render tail indefinitely. No idle loop.
+- Mouse hover follows the surface silhouette and seam proximity. Leave, window blur, or control focus returns the sculpture to rest. Touch uses passive pointer input without capture or suppressed native gestures. Unmodified arrow keys move an invisible inspection point in 24px steps; modified browser shortcuts remain untouched. Tab and Escape retain their existing Skip behavior.
+- Transient targets and current pose belong in refs, not React state. R3F demand rendering requests frames only during response and settling. Clean up every native listener. Hidden tabs and reduced-motion preference disable response and restore the neutral pose. Reduced motion remains static, including keyboard preview.
+- The immediate SVG fallback remains still. Pointer behavior carries no information and gates no content. Semantic text, identity, and Skip remain DOM. No new dependencies or WebGL scene; entrance/hero ownership stays sequential.
+- Stage B must be reviewed at the five established widths, plus mouse approach/release, touch release, keyboard preview, reduced motion, fallback, and settled idle rendering. Do not proceed to Stage C without review of pointer feel.
+- Review results: resting captures match Stage A.5; mouse, touch, and arrow preview request frames, then idle checks report zero additional draws. Reduced motion requests no response frames. Skip, Escape, focus transfer, direct hashes, and SVG fallback pass; no overflow or uncaught exceptions at the five widths. Build and lint pass. No dependencies changed; aggregate generated JavaScript increased approximately 1.2 KB gzip. These draw checks validate lifecycle, not hardware frame rate. QA captures are in ignored `visual-qa/entrance-stage-b/`.
 
 ### Concept
 

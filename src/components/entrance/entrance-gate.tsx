@@ -76,7 +76,7 @@ export function EntranceGate({ children }: { children: ReactNode }) {
       {active && (
         <section className={styles.entrance} id="entrance-surface" role="dialog" aria-modal="true" aria-labelledby="entrance-title" aria-describedby="entrance-description">
           <h1 id="entrance-title" className="sr-only">Aditya Gayal. Strange questions. Useful systems.</h1>
-          <p id="entrance-description" className="sr-only">A sculptural entrance to my portfolio. Skip the entrance to read about me, my interests, and my work. Escape also skips.</p>
+          <p id="entrance-description" className="sr-only">A sculptural entrance to my portfolio. Move your pointer, touch the surface, or use arrow keys to preview its tension. Skip the entrance to read about me, my interests, and my work. Escape also skips.</p>
           <div className={styles.artwork} aria-hidden="true" data-renderer={ready && !failed ? "webgl" : "svg"}>
             <div className={styles.fallback} data-hidden={ready && !failed}><EntranceFallback /></div>
             {loadScene && !failed && <div className={styles.scene}><SurfaceBoundary onFail={onLost}><EntranceScene onReady={onReady} onLost={onLost} /></SurfaceBoundary></div>}
