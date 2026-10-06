@@ -379,3 +379,51 @@
 .world[data-visible="false"] {
   visibility: hidden;
 }
+
+/* Native-scroll threshold: local scene choreography, never wheel interception. */
+.thresholdTrack { height: 0; pointer-events: none; overflow-anchor: none; }
+.portfolio :global(.hero-title-stack),
+.portfolio :global(.hero .eyebrow),
+.portfolio :global(.hero .intro-copy),
+.portfolio :global(.hero .hero-footer) { animation: none; }
+.portfolio :global(#hero-title:focus) { outline: none; }
+.portfolio :global(.hero-footer) { color: var(--field-ink, #fbf7ef); }
+.unfoldEntrance { --passage: 0; min-height: 0; touch-action: pan-y; }
+.unfoldEntrance .skip { border: 0; background: #f2ebdd; border-radius: 0; font-family: var(--font-reading), sans-serif; cursor: pointer; padding-inline: 14px; }
+.unfoldEntrance .name { opacity: clamp(0, calc(1 - var(--passage) * 3), 1); }
+.unfoldEntrance .caption { opacity: clamp(0, calc(1 - var(--passage) * 4), 1); transform: translateY(calc(var(--passage) * 35px)); }
+.unfoldCue { display: flex; align-items: center; gap: 22px; padding: 8px 0 8px 20px; min-height: 48px; border: 0; background: transparent; color: #22211f; font: 500 11px/1.3 var(--font-mono), monospace; letter-spacing: .09em; cursor: pointer; }
+.unfoldCue:focus-visible { outline: 2px solid #173fb8; outline-offset: 5px; }
+.cueArrow { display: grid; place-items: center; width: 42px; height: 42px; border: 1px solid #22211f; border-radius: 50%; font: 26px var(--font-reading), sans-serif; transition: transform 160ms ease-out; }
+.unfoldCue:hover .cueArrow { transform: translateY(5px); }
+.interiorWords { position: absolute; left: 8%; top: 31%; width: 65%; color: #fff8ed; opacity: clamp(0, calc((var(--passage) - .24) * 8), 1); transform: translate3d(calc((.5 - var(--passage)) * -110px), calc((.5 - var(--passage)) * 100px), 0) scale(calc(.86 + var(--passage) * .3)); transform-origin: 30% 50%; pointer-events: none; }
+.interiorLabel { font: 11px/1.3 var(--font-mono), monospace; letter-spacing: .13em; }
+.interiorWords p { margin: 25px 0 26px; font: 800 clamp(65px, 7.8vw, 116px)/.86 var(--font-display), sans-serif; letter-spacing: -.07em; }
+.interiorWords i { font-style: normal; color: #d1eb67; }
+.interiorThought { font: 14px/1.4 var(--font-reading), sans-serif; }
+.interiorWords { clip-path: inset(0); }
+.unfoldEntrance .interiorWords { opacity: clamp(0, min(calc((var(--passage) - .40) * 10), calc((.82 - var(--passage)) * 10)), 1); }
+.unfoldWorld { --passage: 0; isolation: isolate; }
+.unfoldWorld[data-active="true"] { background: transparent; }
+.unfoldWorld[data-active="true"]::before { content: ""; position: absolute; inset: 0; z-index: -2; background: #f2ebdd; opacity: clamp(0, calc((1 - var(--passage)) * 7), 1); }
+.unfoldWorld[data-active="true"]::after { content: ""; position: absolute; inset: 0; z-index: -1; background: #0b246a; clip-path: ellipse(calc(var(--passage) * 155%) calc(var(--passage) * 125%) at 62% 46%); opacity: clamp(0, calc((1 - var(--passage)) * 7), 1); }
+.unfoldEntrance .fallback { opacity: clamp(0, calc((1 - var(--passage)) * 3), 1); }
+.unfoldEntrance .fallback :global([data-unfold-piece="sweep"]) { transform: translateY(calc(var(--passage) * -460px)) rotate(calc(var(--passage) * -12deg)); transform-origin: 60% 40%; }
+.unfoldEntrance .fallback :global([data-unfold-piece="lower-shell"]),
+.unfoldEntrance .fallback :global([data-unfold-piece="fold-under"]) { transform: translateY(calc(var(--passage) * 580px)) rotate(calc(var(--passage) * 8deg)); transform-origin: 40% 45%; }
+.unfoldEntrance .fallback :global([data-unfold-piece="raised-flap"]) { transform: translateX(calc(var(--passage) * 700px)) rotate(calc(var(--passage) * 22deg)); transform-origin: 70% 40%; }
+.unfoldEntrance .fallback :global([data-unfold-interior]) { opacity: clamp(0, calc(1 - var(--passage) * 2), 1); }
+@media (max-width: 767px) {
+  .unfoldEntrance .caption { flex-direction: row; align-items: end; gap: 8px; }
+  .unfoldEntrance .caption p { max-width: 190px; font-size: 12px; }
+  .unfoldCue { gap: 10px; padding-left: 0; font-size: 9px; letter-spacing: .035em; }
+  .unfoldCue > span:first-child { max-width: 55px; text-align: left; }
+  .cueArrow { width: 36px; height: 36px; flex-shrink: 0; }
+  .interiorWords { left: 7%; top: 35%; width: 86%; transform: translate3d(0, calc((.5 - var(--passage)) * 100px), 0) scale(calc(.86 + var(--passage) * .3)); }
+  .interiorWords p { font-size: clamp(39px, 11.4vw, 53px); margin: 20px 0; }
+  .interiorLabel { font-size: 9px; }
+  .interiorThought { font-size: 12px; max-width: 220px; display: block; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cueArrow { transition: none; }
+}

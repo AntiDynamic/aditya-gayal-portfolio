@@ -110,6 +110,13 @@ export function RevealKey() {
       : clamp(velocity * 44 + progress * 62, -44, 44);
     const color = thoughtStates[selectedRef.current].color;
 
+    // Color and contrast follow the same pose clock as the Key. Waiting for a
+    // React commit here can briefly pair a new ink color with the old field.
+    const system = stage.parentElement;
+    system?.style.setProperty("--thought-color", color);
+    system?.style.setProperty("--field-color", thoughtStates[selectedRef.current].fieldColor);
+    system?.style.setProperty("--field-ink", thoughtStates[selectedRef.current].fieldInk);
+
     stage.style.setProperty("--reveal-progress", `${progress}`);
     stage.style.setProperty("--key-x", `${x}%`);
     stage.style.setProperty("--key-y", `${y}%`);
@@ -250,9 +257,10 @@ export function RevealKey() {
       const safeIndex = clamp(index, 0, thoughtStates.length - 1);
       selectedRef.current = safeIndex;
       setSelected(safeIndex);
+      updateDOM();
       animateTo(anchors[safeIndex], true);
     },
-    [animateTo],
+    [animateTo, updateDOM],
   );
 
   const markInteraction = useCallback(() => {
@@ -503,7 +511,6 @@ export function RevealKey() {
       <div
         className="hero-field"
         aria-hidden="true"
-        style={{ backgroundColor: thought.fieldColor }}
       />
       <div
         className="reveal-key"

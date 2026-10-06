@@ -15,6 +15,8 @@ export type WorldRuntime = {
   hero: HeroBinding | null;
   invalidate: (() => void) | null;
   passage: number;
+  /** Native-scroll opening, rather than the archived impact prototype. */
+  unfolding?: boolean;
 };
 export const WorldContext = createContext<{
   runtime: MutableRefObject<WorldRuntime>;

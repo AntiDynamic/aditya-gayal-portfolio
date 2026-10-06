@@ -67,6 +67,7 @@ export function useEntrancePresence(composition: EntranceComposition) {
     };
     const release = (event: PointerEvent) => { if (event.pointerType !== "mouse") reset(); };
     const keyboard = (event: KeyboardEvent) => {
+      if (!(document.activeElement instanceof HTMLElement) || !document.activeElement.matches("[data-surface-presence]")) return;
       if (!state.enabled || event.altKey || event.ctrlKey || event.metaKey || event.defaultPrevented || !["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) return;
       event.preventDefault();
       keyboardX = Math.max(20, Math.min(composition.width - 20, keyboardX + (event.key === "ArrowLeft" ? -24 : event.key === "ArrowRight" ? 24 : 0)));

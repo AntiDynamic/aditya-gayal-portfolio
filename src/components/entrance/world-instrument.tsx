@@ -83,14 +83,15 @@ export function WorldInstrument({
     const sourceX = cavity.x,
       sourceY = cavity.y;
     const p = passing ? runtime.current.passage : active ? 0 : 1;
+    const travel = runtime.current.unfolding ? Math.max(0, Math.min(1, (p - .34) / .66)) : p;
     const hero = runtime.current.hero;
     group.current.visible = active || passing || !!hero?.visible.current;
     const anchor = heroWorldAnchor(hero, size, get().camera);
     const { progress } = anchor;
     const toX = anchor.x,
       toY = anchor.y;
-    const pose = openingPose(p, sourceX, sourceY, anchor);
-    const blend = Math.max(0, Math.min(1, (p - 0.12) / 0.88));
+    const pose = openingPose(travel * travel * (3 - 2 * travel), sourceX, sourceY, anchor);
+    const blend = Math.max(0, Math.min(1, (p - 0.18) / 0.82));
     target.current.set(
       sourceX * pose.scale + pose.x,
       sourceY * pose.scale + pose.y,
@@ -121,11 +122,16 @@ export function WorldInstrument({
     }
     if (start.current) {
       const cam = get().camera;
+      const fitUnits = Math.max(composition.width / size.width, composition.height / size.height) / 100;
+      const settle = Math.max(0, Math.min(1, (p - .8) / .2));
+      const units = fitUnits + (.01 - fitUnits) * settle;
+      const restingDistance = size.height * units / (2 * Math.tan(16 * Math.PI / 180));
       cam.position.set(
-        Math.sin(p * Math.PI) * sourceX * 0.44,
-        Math.sin(p * Math.PI) * sourceY * 0.44,
-        initialDistance.current * (1 - 0.24 * p),
+        Math.sin(p * Math.PI) * sourceX * 0.16,
+        Math.sin(p * Math.PI) * sourceY * 0.16,
+        runtime.current.unfolding ? restingDistance * (1 - .22 * Math.sin(p * Math.PI)) : initialDistance.current * (1 - .24 * p),
       );
+      if (cam instanceof PerspectiveCamera) cam.aspect = size.width / size.height;
       cam.rotation.set(0, 0, 0);
       cam.updateProjectionMatrix();
     }

@@ -6,7 +6,6 @@ import {
   useMemo,
   useRef,
   useState,
-  useSyncExternalStore,
 } from "react";
 import {
   CanvasTexture,
@@ -15,10 +14,11 @@ import {
   OrthographicCamera,
   VSMShadowMap,
   SRGBColorSpace,
+  DoubleSide,
   TubeGeometry,
   CatmullRomCurve3,
   Vector3,
-  DoubleSide,
+  RGBADepthPacking,
   Mesh,
   MeshStandardMaterial,
 } from "three";
@@ -26,7 +26,6 @@ import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { toCreasedNormals } from "three/addons/utils/BufferGeometryUtils.js";
 import {
   getEntranceComposition,
-  getEntranceInterior,
   type EntranceComposition,
   type EntrancePiece,
 } from "./entrance-manifest";
@@ -35,14 +34,13 @@ import { useEntrancePresence } from "./entrance-presence";
 import {
   getBreakAssembly,
   type EntranceBreakStore,
-  type Point,
 } from "./entrance-break";
-import { useEntranceBreakMotion } from "./entrance-break-motion";
 import { heroWorldAnchor, openingPose, cavityAnchor } from "./world-layout";
+import { foldTopology, printFold, sectionProgress } from "./entrance-unfold";
 import { WorldInstrument } from "./world-instrument";
 import type { WorldRuntime } from "./world-context";
 import type { MutableRefObject } from "react";
-import { surfaceOutline as outline, cavityWall } from "./entrance-geometry";
+import { surfaceOutline as outline } from "./entrance-geometry";
 
 export type EntranceSceneProps = {
   onInvalidate?: (fn: (() => void) | null) => void;
@@ -61,14 +59,16 @@ function Surface({
   composition,
   atlas,
   textures,
+  runtime,
 }: {
   piece: EntrancePiece;
   composition: EntranceComposition;
   atlas: CanvasTexture | null;
   textures: ReturnType<typeof useSurfaceTextures>;
+  runtime?: MutableRefObject<WorldRuntime>;
 }) {
   const geometry = useMemo(() => {
-    const geometry = new ExtrudeGeometry(outline(piece.points, composition), {
+    let geometry: import("three").BufferGeometry = new ExtrudeGeometry(outline(piece.points, composition), {
       depth: piece.depth / 100,
       bevelEnabled: true,
       bevelSegments: piece.material === "paper" ? 1 : 4,
@@ -82,6 +82,11 @@ function Surface({
       bevelThickness: piece.material === "paper" ? 0.003 : 0.018,
       curveSegments: 1,
     });
+    if (piece.material === "paper") {
+      const original = geometry;
+      geometry = foldTopology(original, composition.width < 768 ? .23 : .65);
+      original.dispose();
+    }
     // One common planar UV field: print crosses joins without restarting on each sheet.
     const positions = geometry.getAttribute("position");
     const uv = new Float32Array(positions.count * 2);
@@ -114,6 +119,16 @@ function Surface({
     return geometry;
   }, [piece, composition]);
   useEffect(() => () => geometry.dispose(), [geometry]);
+  const fold = useRef({
+    uFieldCurl: { value: .025 },
+    uFieldHinge: { value: composition.width < 768 ? .98 : .78 },
+    uFieldDirection: { value: piece.id === "sweep" ? 1 : -1 },
+  });
+  useEffect(() => { fold.current.uFieldHinge.value = composition.width < 768 ? .98 : .78; }, [composition.width]);
+  const paper = piece.material === "paper";
+  useFrame(() => {
+    if (paper) fold.current.uFieldCurl.value = .025 + sectionProgress(runtime?.current.passage ?? 0, .025, .64) * (composition.width < 768 ? .75 : .23);
+  });
   const printed = piece.role === "primary";
   const metal = piece.material === "aluminum";
   const acrylic = piece.material === "acrylic";
@@ -124,7 +139,8 @@ function Surface({
           geometry={geometry}
           position={[0.004, -0.013, piece.z / 100 - 0.035]}
         >
-          <meshStandardMaterial color="#e2d6c3" roughness={1} />
+          <meshStandardMaterial color="#e2d6c3" roughness={1} side={DoubleSide}
+            onUpdate={material => { printFold(material, fold.current); material.needsUpdate = true; }} />
         </mesh>
       )}
       <mesh
@@ -133,9 +149,20 @@ function Surface({
         castShadow
         receiveShadow
       >
+        {paper && (
+          <meshDepthMaterial
+            attach="customDepthMaterial"
+            depthPacking={RGBADepthPacking}
+            onUpdate={material => {
+              printFold(material, fold.current);
+              material.needsUpdate = true;
+            }}
+          />
+        )}
         <meshStandardMaterial
           attach="material-0"
           {...MATERIAL_FINISH[piece.material]}
+          side={paper ? DoubleSide : undefined}
           color={piece.color}
           map={printed ? atlas : null}
           normalMap={
@@ -148,11 +175,13 @@ function Surface({
                   : null
           }
           onUpdate={(material) => {
+            if (paper) printFold(material, fold.current);
             material.needsUpdate = true;
           }}
         />
         <meshStandardMaterial
           attach="material-1"
+          onUpdate={material => { if (paper) printFold(material, fold.current); material.needsUpdate = true; }}
           color={
             piece.material === "paper"
               ? "#ded2bf"
@@ -232,74 +261,24 @@ function SignatureSurface({
   return <primitive object={object} />;
 }
 
-function Stroke({
-  points,
-  composition,
-  color,
-  radius = 0.006,
-}: {
-  points: Point[];
-  composition: EntranceComposition;
-  color: string;
-  radius?: number;
-}) {
-  const geometry = useMemo(
-    () =>
-      new TubeGeometry(
-        new CatmullRomCurve3(
-          points.map(
-            ([x, y]) =>
-              new Vector3(
-                (x - composition.width / 2) / 100 - 0.096,
-                (composition.height / 2 - y) / 100 + 0.14,
-                0.485,
-              ),
-          ),
-          false,
-          "catmullrom",
-          0,
-        ),
-        Math.max(1, points.length - 1),
-        radius,
-        3,
-        false,
-      ),
-    [points, composition, radius],
-  );
-  useEffect(() => () => geometry.dispose(), [geometry]);
-  return (
-    <mesh geometry={geometry}>
-      <meshStandardMaterial color={color} roughness={1} />
-    </mesh>
-  );
-}
-
 function Field({
   onReady,
   onLost,
-  breakStore,
   runtime,
-  passing,
 }: EntranceSceneProps) {
   const { size, get, gl, invalidate } = useThree();
   const mobile = size.width < 768;
   const composition = useMemo(() => getEntranceComposition(mobile), [mobile]);
   const sculpture = useEntrancePresence(composition);
-  const {
-    fragment: fragmentRef,
-    intact: intactRef,
-    body: bodyRef,
-    paper: paperRef,
-    metal: metalRef,
-    rubber: rubberRef,
-    debris: debrisRef,
-    trace: traceRef,
-  } = useEntranceBreakMotion(breakStore, composition);
-  const breakState = useSyncExternalStore(
-    breakStore.subscribe,
-    breakStore.getSnapshot,
-    breakStore.getServerSnapshot,
-  );
+  const unfolded = useRef<import("three").Group>(null);
+  const seam = useRef<import("three").Group>(null);
+  const chamberMaterials = useRef<import("three").Material[]>([]);
+  const seamMaterials = useRef<import("three").Material[]>([]);
+  const top = useRef<import("three").Group>(null);
+  const bottom = useRef<import("three").Group>(null);
+  const enamel = useRef<import("three").Group>(null);
+  const metal = useRef<import("three").Group>(null);
+  const rubber = useRef<import("three").Group>(null);
   const assembly = useMemo(() => getBreakAssembly(mobile), [mobile]);
   const textures = useSurfaceTextures(composition.width, composition.height);
   const modelUrl = `/entrance/models/entrance-break-${mobile ? "mobile" : "desktop"}.glb`;
@@ -324,7 +303,7 @@ function Field({
   const warmed = useRef(false);
   const readyFrameRef = useRef<number | null>(null);
   const metricFrameRef = useRef<number | null>(null);
-  const measuredPose = useRef("");
+  const measuredPose = useRef(-1);
   const passageGroup = useRef<import("three").Group>(null);
   const callbacks = useRef({ onReady, onLost });
   useEffect(() => {
@@ -339,11 +318,13 @@ function Field({
         composition.width / size.width,
         composition.height / size.height,
       ) / 100;
-    ortho.left = (-size.width * unitsPerPixel) / 2;
-    ortho.right = (size.width * unitsPerPixel) / 2;
-    ortho.top = (size.height * unitsPerPixel) / 2;
-    ortho.bottom = (-size.height * unitsPerPixel) / 2;
-    ortho.updateProjectionMatrix();
+    if (ortho instanceof OrthographicCamera) {
+      ortho.left = (-size.width * unitsPerPixel) / 2;
+      ortho.right = (size.width * unitsPerPixel) / 2;
+      ortho.top = (size.height * unitsPerPixel) / 2;
+      ortho.bottom = (-size.height * unitsPerPixel) / 2;
+      ortho.updateProjectionMatrix();
+    }
     gl.setPixelRatio(Math.min(window.devicePixelRatio, mobile ? 1 : 1.5));
     invalidate();
   }, [get, composition, size.width, size.height, gl, invalidate, mobile]);
@@ -417,42 +398,74 @@ function Field({
     };
   }, [atlas, gl, get, invalidate]);
 
-  // Demand rendering remains idle after the completed, font-ready frame.
+  // Scroll controls one shared pose. Geometry bends in the vertex shader;
+  // printed UVs, normals and shadow geometry travel with the actual surface.
   useFrame(() => {
-    if (passageGroup.current && passing && runtime) {
-      const cavity = cavityAnchor(
-        assembly.fragment.points,
-        composition.width,
-        composition.height,
-      );
-      const sourceX = cavity.x,
-        sourceY = cavity.y;
-      const pose = openingPose(
-        runtime.current.passage,
-        sourceX,
-        sourceY,
-        heroWorldAnchor(runtime.current.hero, size, get().camera),
-      );
-      passageGroup.current.scale.setScalar(pose.scale);
-      passageGroup.current.rotation.y = Math.sin(runtime.current.passage * Math.PI) * -.14;
-      passageGroup.current.rotation.z = Math.sin(runtime.current.passage * Math.PI) * .035;
-      passageGroup.current.position.set(pose.x, pose.y, pose.z);
+    const p = runtime?.current.passage ?? 0;
+    const lift = sectionProgress(p, .025, .57);
+    const depart = sectionProgress(p, .45, .96);
+    const joinDepart = sectionProgress(p, .20, .55);
+    if (top.current) {
+      top.current.rotation.set(lift * .88, -lift * .10, lift * -.07);
+      top.current.position.y = .78 + lift * .8 + depart * 4;
+      top.current.position.z = lift * .30;
     }
-    const pose = `${breakState.phase}/${breakState.charging}/${fragmentRef.current?.visible}`;
-    if (atlas && measuredPose.current !== pose) {
-      measuredPose.current = pose;
-      if (metricFrameRef.current !== null)
-        cancelAnimationFrame(metricFrameRef.current);
+    if (bottom.current) {
+      bottom.current.rotation.set(-lift * .80, lift * .05, lift * .045);
+      bottom.current.position.y = .78 - lift * .65 - depart * 4.5;
+      bottom.current.position.z = lift * .5;
+    }
+    if (enamel.current) {
+      enamel.current.rotation.set(-lift * .035, lift * 1.15, lift * -.035);
+      enamel.current.position.x = 1.65 + lift * (mobile ? .5 : 1.15) + depart * 5;
+      enamel.current.position.z = lift * .75;
+    }
+    if (metal.current) {
+      metal.current.rotation.z = -lift * .32;
+      metal.current.position.z = lift * .55;
+      metal.current.position.x = lift * .12 - joinDepart * (mobile ? 2.4 : 5.5);
+      metal.current.position.y = joinDepart * (mobile ? 3.5 : 7);
+    }
+    if (rubber.current) {
+      rubber.current.scale.set(1 + lift * .24, 1 - lift * .22, 1);
+      rubber.current.position.z = lift * .25;
+      rubber.current.position.x = -joinDepart * (mobile ? 2.6 : 6);
+      rubber.current.position.y = joinDepart * (mobile ? 3.5 : 7);
+    }
+    if (unfolded.current) {
+      unfolded.current.visible = p > .025 && p < .99;
+      if (!chamberMaterials.current.length) unfolded.current.traverse(node => {
+        if (node instanceof Mesh) chamberMaterials.current.push(...(Array.isArray(node.material) ? node.material : [node.material]));
+      });
+      const opacity = sectionProgress(p, .025, .20) * (1 - sectionProgress(p, .73, .99));
+      chamberMaterials.current.forEach(material => { material.opacity = opacity; });
+    }
+    if (seam.current) {
+      if (!seamMaterials.current.length) seam.current.traverse(node => {
+        if (node instanceof Mesh) seamMaterials.current.push(...(Array.isArray(node.material) ? node.material : [node.material]));
+      });
+      const opacity = 1 - sectionProgress(p, .18, .43);
+      seam.current.visible = opacity > .001;
+      seamMaterials.current.forEach(material => { material.opacity = opacity; });
+    }
+    if (passageGroup.current && runtime) {
+      const cavity = cavityAnchor(assembly.fragment.points, composition.width, composition.height);
+      const travel = sectionProgress(p, .34, 1);
+      const pose = openingPose(travel, cavity.x, cavity.y, heroWorldAnchor(runtime.current.hero, size, get().camera));
+      passageGroup.current.scale.setScalar(pose.scale);
+      passageGroup.current.rotation.y = Math.sin(travel * Math.PI) * -.10;
+      passageGroup.current.position.set(pose.x, pose.y, pose.z * .65);
+    }
+    const state = Math.round(p * 4);
+    if (atlas && measuredPose.current !== state) {
+      measuredPose.current = state;
+      if (metricFrameRef.current !== null) cancelAnimationFrame(metricFrameRef.current);
       metricFrameRef.current = requestAnimationFrame(() => {
         metricFrameRef.current = null;
         gl.domElement.dataset.renderStats = JSON.stringify({
-          calls: gl.info.render.calls,
-          triangles: gl.info.render.triangles,
-          geometries: gl.info.memory.geometries,
-          textures: gl.info.memory.textures,
-          programs: gl.info.programs?.length,
-          dpr: gl.getPixelRatio(),
-          fragmentVisible: fragmentRef.current?.visible,
+          calls: gl.info.render.calls, triangles: gl.info.render.triangles,
+          geometries: gl.info.memory.geometries, textures: gl.info.memory.textures,
+          programs: gl.info.programs?.length, dpr: gl.getPixelRatio(), passage: p,
         });
       });
     }
@@ -465,60 +478,19 @@ function Field({
     }
   });
 
-  const interior = useMemo(
-    () =>
-      getEntranceInterior(mobile).map((layer) => {
-        const shape = outline(layer.points, composition);
-        if (layer.opening)
-          shape.holes.push(outline(layer.opening, composition));
-        return {
-          ...layer,
-          geometry: new ExtrudeGeometry(shape, {
-            depth: layer.depth / 100,
-            bevelEnabled: false,
-          }),
-        };
-      }),
-    [composition, mobile],
-  );
-  useEffect(
-    () => () => interior.forEach((layer) => layer.geometry.dispose()),
-    [interior],
-  );
-
-  const recess = useMemo(
-    () => cavityWall(assembly.fragment.points, composition),
-    [assembly, composition],
-  );
-  const backplane = useMemo(
-    () =>
-      new ExtrudeGeometry(outline(assembly.fragment.points, composition), {
-        depth: 0.015,
-        bevelEnabled: false,
-      }),
-    [assembly, composition],
-  );
-  useEffect(
-    () => () => {
-      recess.dispose();
-      backplane.dispose();
-    },
-    [recess, backplane],
-  );
-  const pivot = [
-    (assembly.pivot[0] - composition.width / 2) / 100,
-    (composition.height / 2 - assembly.pivot[1]) / 100,
-  ];
-  const joint = [
-    (assembly.focus[0] - composition.width / 2) / 100,
-    (composition.height / 2 - assembly.focus[1]) / 100,
-  ];
-  const damaged = breakState.damage >= 2;
-  const crack = useMemo(
-    () =>
-      assembly.cut.slice(0, breakState.damage === 2 ? 4 : assembly.cut.length),
-    [assembly, breakState.damage],
-  );
+  const interior = useMemo(() => {
+    const points: [number, number][] = mobile
+      ? [[259,112],[279,120],[265,298],[299,327],[307,391],[274,378],[245,336],[173,334],[-30,327],[-30,311],[244,311]]
+      : [[887,94],[921,108],[873,371],[961,401],[987,478],[944,472],[847,431],[682,436],[-105,463],[-105,442],[849,405]];
+    return new ExtrudeGeometry(outline(points, composition), { depth: .18, bevelEnabled: true, bevelSize: .02, bevelThickness: .02, bevelSegments: 2 });
+  }, [composition, mobile]);
+  const trace = useMemo(() => new TubeGeometry(new CatmullRomCurve3([
+    new Vector3(mobile ? -.8 : -3.5, -.35, -3.25),
+    new Vector3(mobile ? -.25 : -1.5, .45, -3.20),
+    new Vector3(mobile ? .35 : 1, .45, -3.20),
+    new Vector3(mobile ? .8 : 2.9, -.15, -3.18),
+  ]), 36, mobile ? .008 : .014, 5, false), [mobile]);
+  useEffect(() => () => { interior.dispose(); trace.dispose(); }, [interior, trace]);
 
   return (
     <>
@@ -551,164 +523,57 @@ function Field({
       </mesh>
       <group ref={passageGroup}>
         <group ref={sculpture}>
-          <group>
-            {interior.map((layer) => (
-              <mesh
-                key={layer.id}
-                geometry={layer.geometry}
-                position={[0, 0, layer.z / 100]}
-                receiveShadow
-              >
-                <meshStandardMaterial color={layer.color} roughness={0.8} />
-              </mesh>
-            ))}
+          <group ref={seam}>
+            <mesh geometry={interior} position={[0, 0, -.08]} receiveShadow>
+              <meshStandardMaterial color="#1b43bd" roughness={.62} metalness={.12} transparent />
+            </mesh>
           </group>
-          <group visible={breakState.damage >= 2}>
-            <mesh geometry={recess} receiveShadow>
-              <meshStandardMaterial
-                vertexColors
-                roughness={1}
-                side={DoubleSide}
-              />
+          <group ref={unfolded}>
+            {/* A bounded architectural recess, with walls and a far plane.
+                Leave the instrument's route clear; never stack blue bars over it. */}
+            <mesh position={[0, 0, -4.1]} receiveShadow>
+              <boxGeometry args={[mobile ? 5.6 : 20, 14, .12]} />
+              <meshStandardMaterial color="#143891" roughness={.93} transparent depthWrite={false} />
             </mesh>
-            <mesh geometry={backplane} position={[0.11, -0.13, -2.72]} receiveShadow>
-              <meshStandardMaterial color="#06102c" roughness={1} />
+            <mesh position={[mobile ? -2.4 : -6.7, 0, -1.65]} rotation={[0, -.32, -.04]} receiveShadow>
+              <boxGeometry args={[.20, 11, 4.5]} />
+              <meshStandardMaterial color="#163b96" roughness={.72} transparent depthWrite={false} />
             </mesh>
-            {/* Angled, staggered planes make the opening a space, not a blue decal. */}
-            <mesh position={[pivot[0] + .25, pivot[1] - .85, -1.8]}
-              rotation={[.08, -.32, -.09]} receiveShadow>
-              <boxGeometry args={[mobile ? .40 : .75, mobile ? 1.35 : 1.9, .09]} />
-              <meshStandardMaterial color="#173da1" roughness={.72} />
+            <mesh position={[mobile ? 2.1 : 6.0, 0, -1.9]} rotation={[0, .22, -.08]} receiveShadow>
+              <boxGeometry args={[.30, 12, 4.3]} />
+              <meshStandardMaterial color="#1c46b4" roughness={.64} metalness={.08} transparent depthWrite={false} />
             </mesh>
-            <mesh position={[pivot[0] + .10, pivot[1] - .95, -.95]}
-              rotation={[0, .38, -.14]} castShadow receiveShadow>
-              <boxGeometry args={[mobile ? .07 : .12, mobile ? 1.2 : 1.75, .18]} />
-              <meshStandardMaterial color="#254aad" roughness={.62} metalness={.12} />
+            <mesh position={[0, mobile ? -3.0 : -3.8, -1.8]} rotation={[.06, 0, -.025]} receiveShadow>
+              <boxGeometry args={[mobile ? 5 : 14, .14, 4.5]} />
+              <meshStandardMaterial color="#15367e" roughness={.78} transparent depthWrite={false} />
             </mesh>
-            <mesh position={[pivot[0] + .27, pivot[1] - .6, -1.5]}
-              rotation={[.10, -.20, -.09]} castShadow>
-              <boxGeometry args={[mobile ? .38 : .72, .045, .22]} />
-              <meshStandardMaterial color="#416ec2" roughness={.58} metalness={.18} />
+            <mesh geometry={trace}>
+              <meshBasicMaterial color="#92b8cd" transparent depthWrite={false} />
             </mesh>
-            <group
-              ref={traceRef}
-              position={[
-                pivot[0] + 0.28,
-                pivot[1] - (mobile ? 1.2 : 1.52),
-                -2.3,
-              ]}
-              visible={false}
-            >
-              <mesh position={[0.1, 0, 0]}>
-                <boxGeometry args={[mobile ? 0.16 : 0.26, 0.012, 0.008]} />
-                <meshBasicMaterial color="#b6c9e4" />
-              </mesh>
-              <mesh position={[mobile ? 0.2 : 0.26, 0.03, 0]}>
-                <boxGeometry args={[0.025, 0.025, 0.008]} />
-                <meshBasicMaterial color="#e9ba52" />
-              </mesh>
-            </group>
+            <mesh position={[mobile ? .80 : 2.9, -.15, -3.17]}>
+              <boxGeometry args={[.045, .045, .01]} />
+              <meshBasicMaterial color="#ebbb49" transparent depthWrite={false} />
+            </mesh>
           </group>
-          {composition.pieces.map((piece) =>
-            piece.id === "raised-flap" ? (
-              <group key={piece.id} name={piece.id}>
-                <group ref={intactRef} visible={!damaged}>
-                  <Surface
-                    piece={piece}
-                    composition={composition}
-                    atlas={atlas}
-                    textures={textures}
-                  />
-                  {breakState.damage === 1 && (
-                    <Stroke
-                      points={assembly.branches[breakState.variant].slice(0, 3)}
-                      composition={composition}
-                      color="#858479"
-                      radius={0.0025}
-                    />
-                  )}
-                </group>
-                <group ref={bodyRef} visible={damaged}>
-                  <Surface
-                    piece={assembly.body}
-                    composition={composition}
-                    atlas={atlas}
-                    textures={textures}
-                  />
-                </group>
-                <group ref={fragmentRef} position={[pivot[0], pivot[1], 0]}>
-                  <group position={[-pivot[0], -pivot[1], 0]}>
-                    <SignatureSurface
-                      root={model.scene}
-                      name="BreakFragment"
-                      atlas={atlas}
-                      textures={textures}
-                    />
-                    {damaged && (
-                      <>
-                        {breakState.damage === 2 && (
-                          <Stroke
-                            points={crack}
-                            composition={composition}
-                            color="#5b5a51"
-                            radius={0.003}
-                          />
-                        )}
-                        <Stroke
-                          points={assembly.branches[breakState.variant]}
-                          composition={composition}
-                          color="#747369"
-                          radius={0.0025}
-                        />
-                      </>
-                    )}
-                  </group>
+          {composition.pieces.map(piece => {
+            const isTop = piece.id === "sweep";
+            const isBottom = piece.id === "lower-shell" || piece.id === "fold-under";
+            const isEnamel = piece.id === "raised-flap";
+            const pivotX = isEnamel ? 1.65 : 0;
+            const pivotY = isTop || isBottom ? .78 : 0;
+            const ref = isTop ? top : piece.id === "lower-shell" ? bottom : isEnamel ? enamel : piece.id === "metal-lip" ? metal : piece.id === "rubber-join" ? rubber : undefined;
+            if (piece.id === "fold-under") return null;
+            return (
+              <group key={piece.id} name={piece.id} ref={ref} position={[pivotX, pivotY, 0]}>
+                <group position={[-pivotX, -pivotY, 0]}>
+                  {piece.id === "metal-lip" || piece.id === "rubber-join" ? (
+                    <SignatureSurface root={model.scene} name={piece.id === "metal-lip" ? "MetalBracket" : "RubberJoint"} atlas={atlas} textures={textures} />
+                  ) : <Surface piece={piece} composition={composition} atlas={atlas} textures={textures} runtime={runtime} />}
+                  {piece.id === "lower-shell" && <Surface piece={composition.pieces.find(p => p.id === "fold-under")!} composition={composition} atlas={atlas} textures={textures} runtime={runtime} />}
                 </group>
               </group>
-            ) : piece.id === "metal-lip" || piece.id === "rubber-join" ? (
-              <group
-                key={piece.id}
-                name={piece.id}
-                ref={piece.id === "metal-lip" ? metalRef : rubberRef}
-                position={[joint[0], joint[1], 0]}
-              >
-                <group position={[-joint[0], -joint[1], 0]}>
-                  <SignatureSurface
-                    root={model.scene}
-                    name={
-                      piece.id === "metal-lip" ? "MetalBracket" : "RubberJoint"
-                    }
-                    atlas={atlas}
-                    textures={textures}
-                  />
-                </group>
-              </group>
-            ) : (
-              <group
-                key={piece.id}
-                name={piece.id}
-                ref={piece.id === "lower-shell" ? paperRef : undefined}
-              >
-                <Surface
-                  piece={piece}
-                  composition={composition}
-                  atlas={atlas}
-                  textures={textures}
-                />
-              </group>
-            ),
-          )}
-          <group ref={debrisRef} visible={false}>
-            {[0, 1, 2, 3].map((index) => (
-              <mesh key={index}>
-                <tetrahedronGeometry args={[0.035 + index * 0.009, 0]} />
-                <meshStandardMaterial
-                  color={index % 2 ? "#d9dbd2" : "#f5f4ef"}
-                  roughness={0.8}
-                />
-              </mesh>
-            ))}
-          </group>
+            );
+          })}
         </group>
       </group>
     </>

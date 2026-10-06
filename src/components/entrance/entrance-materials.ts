@@ -6,7 +6,7 @@ import type { EntranceMaterial } from "./entrance-manifest";
 
 /** Color belongs to the authored composition. These finishes distinguish its objects. */
 export const MATERIAL_FINISH: Record<EntranceMaterial, MeshStandardMaterialParameters> = {
-  paper: { roughness: 0.96, metalness: 0, normalScale: new Vector2(0.12, 0.12) },
+  paper: { roughness: 0.96, metalness: 0, normalScale: new Vector2(0.035, 0.035) },
   enamel: { roughness: 0.43, metalness: 0 },
   aluminum: { roughness: 0.49, metalness: 0.78, normalScale: new Vector2(0.16, 0.32) },
   rubber: { roughness: 1, metalness: 0 },

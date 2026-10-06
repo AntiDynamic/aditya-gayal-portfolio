@@ -50,7 +50,8 @@
   --space-10: 8rem;
 
   color-scheme: light;
-  scroll-behavior: smooth;
+  /* Lenis owns wheel easing; fragment navigation stays immediate and native. */
+  scroll-behavior: auto;
 }
 
 @theme inline {
