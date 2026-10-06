@@ -56,7 +56,8 @@ export function useEntrancePresence(composition: EntranceComposition) {
       invalidate();
     };
     const pointer = (event: PointerEvent) => {
-      if ((event.target as HTMLElement).closest("a, button")) { reset(); return; }
+      const target = event.target as HTMLElement;
+      if (target.closest("a, button") && !target.closest("[data-break-target]")) { reset(); return; }
       const x = (event.clientX - offsetX) / scale;
       const y = (event.clientY - offsetY) / scale;
       const elapsed = event.timeStamp - lastTime;

@@ -1,10 +1,12 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { Component, useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { Component, useCallback, useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import { EntranceContext } from "./entrance-context";
 import { EntranceFallback } from "./entrance-fallback";
 import styles from "./entrance.module.css";
+import { EntranceBreakStore, BREAK_DESCRIPTIONS } from "./entrance-break";
+import { EntranceBreakControls } from "./entrance-break-controls";
 
 const EntranceScene = dynamic(() => import("./entrance-scene").then((module) => module.EntranceScene), {
   ssr: false,
@@ -23,6 +25,8 @@ export function EntranceGate({ children }: { children: ReactNode }) {
   const [loadScene, setLoadScene] = useState(false);
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
+  const [breakStore] = useState(() => new EntranceBreakStore());
+  const breakState = useSyncExternalStore(breakStore.subscribe, breakStore.getSnapshot, breakStore.getServerSnapshot);
   const skipRef = useRef<HTMLAnchorElement>(null);
   const portfolioRef = useRef<HTMLDivElement>(null);
   const complete = useCallback(() => {
@@ -33,6 +37,12 @@ export function EntranceGate({ children }: { children: ReactNode }) {
   }, []);
   const onReady = useCallback(() => setReady(true), []);
   const onLost = useCallback(() => { setFailed(true); setReady(false); }, []);
+  const hasDamage = breakState.damage > 0;
+
+  useEffect(() => {
+    // Prepare the next module during exploration without mounting a second canvas.
+    if (hasDamage) void import("../reveal-scene").catch(() => {});
+  }, [hasDamage]);
 
   useEffect(() => {
     if (portfolioRef.current) portfolioRef.current.inert = active;
@@ -58,10 +68,12 @@ export function EntranceGate({ children }: { children: ReactNode }) {
     document.body.style.overflow = "hidden";
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") complete();
-      // There is only one actionable entrance control in the static stage.
       if (event.key === "Tab") {
         event.preventDefault();
-        skipRef.current?.focus();
+        const buttons = Array.from(document.querySelectorAll<HTMLElement>("#entrance-surface button")).filter(control => control.getClientRects().length && !control.hasAttribute("disabled"));
+        const controls = skipRef.current ? [skipRef.current, ...buttons] : buttons;
+        const current = controls.indexOf(document.activeElement as HTMLElement);
+        controls[(current + (event.shiftKey ? -1 : 1) + controls.length) % controls.length]?.focus();
       }
     };
     document.addEventListener("keydown", onKey);
@@ -74,19 +86,25 @@ export function EntranceGate({ children }: { children: ReactNode }) {
   return (
     <EntranceContext value={active}>
       {active && (
-        <section className={styles.entrance} id="entrance-surface" role="dialog" aria-modal="true" aria-labelledby="entrance-title" aria-describedby="entrance-description">
+        <section className={styles.entrance} id="entrance-surface" role="dialog" aria-modal="true" aria-labelledby="entrance-title" aria-describedby="entrance-description" data-break-phase={breakState.phase}>
           <h1 id="entrance-title" className="sr-only">Aditya Gayal. Strange questions. Useful systems.</h1>
-          <p id="entrance-description" className="sr-only">A sculptural entrance to my portfolio. Move your pointer, touch the surface, or use arrow keys to preview its tension. Skip the entrance to read about me, my interests, and my work. Escape also skips.</p>
+          <p id="entrance-description" className="sr-only">A sculptural entrance to my portfolio. One enamel corner can be opened. Tab to Apply pressure, then Enter for a normal hit or hold and release Space for a stronger hit. Arrow keys preview surface tension. Skip is always available. Escape also skips.</p>
           <div className={styles.artwork} aria-hidden="true" data-renderer={ready && !failed ? "webgl" : "svg"}>
-            <div className={styles.fallback} data-hidden={ready && !failed}><EntranceFallback /></div>
-            {loadScene && !failed && <div className={styles.scene}><SurfaceBoundary onFail={onLost}><EntranceScene onReady={onReady} onLost={onLost} /></SurfaceBoundary></div>}
+            <div className={styles.fallback} data-hidden={ready && !failed}><EntranceFallback state={breakState} /></div>
+            {loadScene && !failed && <div className={styles.scene}><SurfaceBoundary onFail={onLost}><EntranceScene onReady={onReady} onLost={onLost} breakStore={breakStore} /></SurfaceBoundary></div>}
           </div>
+          <EntranceBreakControls store={breakStore} />
           <header className={styles.masthead}>
             <p className={styles.name}>ADITYA<br />GAYAL<span>DEVELOPER / BUILDER</span></p>
             <a ref={skipRef} className={styles.skip} href="#top" onClick={complete}>Skip entrance <span aria-hidden="true">↗</span></a>
           </header>
           <footer className={styles.caption}>
             <p>Strange questions are where I start.<br />Making something real is why I stay.</p>
+            <div className={styles.breakNotes}>
+              <p aria-live="polite" aria-atomic="true">{breakState.note || BREAK_DESCRIPTIONS[breakState.phase]}</p>
+              <span id="break-instructions">Tap the seam. Hold, then release for more pressure.</span>
+              {breakState.damage > 0 && <button type="button" className={styles.reset} onClick={() => { breakStore.reset(); skipRef.current?.focus(); }}>Try again <span aria-hidden="true">↺</span></button>}
+            </div>
           </footer>
         </section>
       )}

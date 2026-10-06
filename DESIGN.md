@@ -2,7 +2,7 @@
 
 **Status:** Approved creative direction; updated for identity-first homepage and personal interaction sections\
 **Owner:** Aditya Gayal\
-**Current scope:** Identity-first homepage plus Stage B pointer presence of the approved **Break the Surface** entrance. Preserve Stage A.5's static sculpture. Reveal Key and the personal sections remain unchanged. Destruction, audio, physics, debris, and animated entry remain unapproved implementation stages.
+**Current scope:** Identity-first homepage plus Stage C: one representative enamel-corner destruction prototype in the approved **Break the Surface** entrance. Preserve Stage A.5's framing and Stage B's demand rendering. All-material destruction, sound playback, physics packages, entry transitions, and changes to later sections remain outside this phase.
 
 This document is the governing design contract. Read it before every implementation phase. If an implementation choice conflicts with this document, change the implementation or update this document deliberately before proceeding.
 
@@ -67,6 +67,35 @@ These rules refine the Stage A assembly and supersede its material/count notes a
 - The immediate SVG fallback remains still. Pointer behavior carries no information and gates no content. Semantic text, identity, and Skip remain DOM. No new dependencies or WebGL scene; entrance/hero ownership stays sequential.
 - Stage B must be reviewed at the five established widths, plus mouse approach/release, touch release, keyboard preview, reduced motion, fallback, and settled idle rendering. Do not proceed to Stage C without review of pointer feel.
 - Review results: resting captures match Stage A.5; mouse, touch, and arrow preview request frames, then idle checks report zero additional draws. Reduced motion requests no response frames. Skip, Escape, focus transfer, direct hashes, and SVG fallback pass; no overflow or uncaught exceptions at the five widths. Build and lint pass. No dependencies changed; aggregate generated JavaScript increased approximately 1.2 KB gzip. These draw checks validate lifecycle, not hardware frame rate. QA captures are in ignored `visual-qa/entrance-stage-b/`.
+
+#### Stage C — one structural break
+
+- The removable enamel corner lies beside the cobalt cavity and compressed restraint. Complementary authored polygons replace one area of the existing enamel face; do not add a wall of breakable tiles.
+- Visitor action: apply pressure to the weak corner. Consequence: a fracture opens, a joint releases, and the printed fragment leaves. Identity: the polished surface hides wrong turns and another attempt. This is a personal process metaphor, not a combat or scoring mechanic.
+- Persistent progression: pristine → stress → hairline → fractured → detached. Four normal hits suffice; a hold of approximately 500ms delivers two increments. Measure duration from input timestamps, not handler execution delays. Already-open space cannot advance damage.
+- Use one immutable external store for meaningful state, damage, impact data, and charge start/end. Store transient motion in refs and Three transforms. No per-frame React state.
+- Impact records entity, normalized/world point, normal, direction, force, charge, approach speed, prior damage, material, timestamp, and joint context. Four authored fracture branches respond to first-contact region; later hits extend existing cracks.
+- Fracture edges have actual extruded thickness and bevels. The detachable piece uses the same registered print atlas as the remaining enamel, so letters travel with the physical fragment. Essential HTML text remains intact.
+- Pristine uses the approved uninterrupted enamel silhouette. Pre-created complementary cut geometry becomes visible only after the first hit; do not expose the complete fracture before interaction.
+- Strong failure has a short 120ms loaded pause. The bracket turns, the rubber restraint relaxes, the paper settles slightly, and one heavy fragment rotates forward, then falls out of the composition on an authored gravity-like trajectory. No general physics engine.
+- Four small ceramic chips support impacts; only two are visible on mobile. They expire within 700ms. The major fragment exits within approximately 1.3 seconds. Keep controls and semantic content above the render layer.
+- Behind the missing corner, two authored apertures expose three blue depth planes with dark recessed floor and tiny cold-white/saffron trace fragments. Never introduce a sci-fi portal, fog, glow, or a persistent ambient render loop.
+- Preserve broad key/fill lighting, near-frontal editorial camera, selective shadows, DPR caps, texture limits, and one active WebGL scene. Quietly preload the Reveal Key module after first damage without mounting a second canvas. Full shader warmup and entry choreography await a later phase.
+- Use a real DOM pressure button aligned to the material, with visible keyboard focus. Enter gives a normal hit; holding/releasing Space loads a stronger hit. Touch and mouse share press/release semantics. Skip, Escape, direct hashes, reset, and focus transfer remain available. Browser shortcuts remain untouched.
+- Reduced motion changes fracture/reveal state immediately, with no debris flight, impulse, or moving fragment. SVG fallback preserves damage and the opening without WebGL. No-JavaScript access shows the ordinary readable portfolio.
+- Reset is an immediate authored state restore, not the future magnetic rebuild. One or two marginal responses are enough; no HUD, target marker, power meter, toast, score, or achievements.
+- Audio is prepared only: six selected CC0 one-shots, provenance and transformations in `public/entrance/ASSETS.md`. No fetch/decode/playback, toggle, autoplay, or runtime audio engine in Stage C. Procedural textures and geometry remain sufficient; no downloaded PBR pack, HDRI, or GLB.
+- Review static/damaged/detached states at 1440, 1024, 768, 390, and 320. Measure idle draws, counters, DPR, bundle growth, reset-cycle resource counts, keyboard/touch/fallback access, and visual print ownership. Do not claim hardware 60fps from a software-rendered browser.
+- Stop at this corner. Do not expand destruction, implement entry through the opening, introduce a persistent global canvas, or change the rest of the portfolio.
+
+#### Stage C review record — 2026-10-06
+
+- Production renders reviewed at 1440, 1024, 768, 390, and 320px. Preserve the independently composed mobile sculpture, calm header/footer space, and sharp registered type. The repaired pristine silhouette, visible chipped thickness, printed fragment, and recessed aperture are the accepted implementation grammar; this is still a prototype awaiting user visual approval.
+- Mouse normal/hold, touch tap/hold, keyboard Enter/Space, reset, Skip/Escape focus transfer, direct hashes, reduced motion, disabled WebGL, and no-JavaScript reading were exercised. No horizontal overflow or uncaught exception appeared in the recorded checks.
+- Aggregate generated JavaScript gzip grew by 6,793 bytes (441,575 → 448,368); this is not an initial-route transfer measurement. No dependency was added. Six future Foley files total 25,875 bytes and are not fetched during this phase.
+- Renderer counters: 48 calls including shadow passes in pristine/settled states; 2,734 desktop / 2,438 mobile pristine triangles, 2,894 / 2,598 settled triangles. A sampled mobile impact reached 56 calls and 3,050 triangles. At device DPR 2, desktop caps at 1.5 and mobile at 1.0. Four repeated reset cycles plateaued at the same warm geometry/texture/program counts.
+- Instrumented idle draw calls returned to zero after settling at every reviewed width, reduced motion, touch completion, and reset cycles. These headless software-renderer observations do not establish hardware FPS or performance on a physical phone.
+- Keep isolated scenes for this prototype. Investigate a hybrid shared renderer for entrance/hero continuity only when implementing the full passage; retain DOM/SVG for the personal sections. Do not turn this recommendation into an immediate global-canvas refactor.
 
 ### Concept
 
