@@ -37,24 +37,35 @@
 .portfolio[data-entrance-active="true"] :global(.hero-footer) { animation-play-state: paused; }
 .noScript { padding: 20px; }
 .interactionPlane { position: absolute; left: 50%; top: 50%; width: min(100vw, 144dvh); aspect-ratio: 1440 / 1000; transform: translate(-50%, -50%); pointer-events: none; }
-.hitArea { position: absolute; border: 0; padding: 0; background: transparent; pointer-events: auto; cursor: crosshair; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+.hitArea { position: absolute; border: 0; padding: 0; background: transparent; pointer-events: auto; cursor: default; touch-action: manipulation; user-select: none; -webkit-tap-highlight-color: transparent; }
 .desktopHit { left: 57%; top: 34%; width: 20%; height: 33%; clip-path: polygon(0 17%, 24% 0, 81% 0, 100% 69%, 63% 100%, 51% 45%, 7% 32%); }
 .mobileHit { display: none; }
-.contactFocus { position: absolute; left: 49%; top: 34%; width: 36px; height: 36px; border: 2px solid #173fb8; outline: 3px solid #f2ebdd; opacity: 0; transform: rotate(-8deg); }
+.contactFocus { position: absolute; left: var(--contact-x,49%); top: var(--contact-y,34%); width: 24px; height: 24px; border: 1px solid #22211f; border-right-color: transparent; border-bottom-color: transparent; border-radius: 50%; opacity: 0; transform: translate(-50%,-50%) rotate(-20deg); transition: transform 120ms ease-out, opacity 100ms ease-out; pointer-events: none; }
 .hitArea:focus-visible { outline: none; }
-.hitArea:focus-visible .contactFocus { opacity: 1; }
+.hitArea:focus-visible .contactFocus { opacity: 1; border: 2px solid #173fb8; outline: 3px solid #f2ebdd; width: 32px; height: 32px; }
+.hitArea[data-charging="true"] .contactFocus { opacity: .75; transform: translate(-50%,-50%) scale(.35) rotate(60deg); transition: transform 500ms cubic-bezier(.16,1,.3,1), opacity 80ms ease-out; }
+.hitArea[data-open="true"]:not(:focus-visible) .contactFocus { opacity: 0; }
 .breakNotes { text-align: right; background: var(--surface-paper); max-width: 340px; }
 .breakNotes > p { font-size: 13px; line-height: 1.5; }
-.breakNotes > span { display: block; margin-top: 5px; font: 11px/1.5 var(--font-mono), monospace; }
-.reset { background: transparent; border: 0; font-size: 13px; min-height: 44px; padding: 4px 0 0 16px; cursor: pointer; color: var(--surface-ink); }
-.reset span { margin-left: 15px; font-size: 18px; }
+.breakNotes > span { display: inline-block; font: 11px/1.5 var(--font-mono), monospace; }
+.discovery { opacity: 0; transition: opacity 120ms ease-out; }
+.entrance:has(.hitArea:focus-visible) .discovery { opacity: 1; }
+.marginNote { margin-right: 12px; }
+.reset { background: transparent; border: 0; font-size: 13px; width: 44px; height: 44px; padding: 0; cursor: pointer; color: var(--surface-ink); }
+.reset span { font-size: 21px; }
 .reset:focus-visible { outline: 2px solid #173fb8; outline-offset: 3px; }
+@media (hover: hover) {
+  .hitArea[data-valid="true"]:hover:not([data-open="true"]) .contactFocus { opacity: .35; }
+  .entrance:has(.hitArea[data-valid="true"]:hover) .discovery { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) { .contactFocus, .discovery { transition: none; } }
 @media (max-width: 767px) {
   .interactionPlane { width: min(100vw, 46.20853dvh); aspect-ratio: 390 / 844; }
   .desktopHit { display: none; }
   .mobileHit { display: block; left: 58%; top: 33%; width: 37%; height: 32%; clip-path: polygon(0 14%, 55% 0, 91% 16%, 100% 74%, 65% 100%, 50% 45%, 5% 29%); }
-  .contactFocus { left: 53%; top: 31%; width: 28px; height: 28px; }
+  .contactFocus { --contact-x: 53%; --contact-y: 31%; }
   .breakNotes { text-align: left; }
+  .discovery { opacity: 1; }
   .breakNotes > span { font-size: 11px; }
   .reset { padding-left: 0; }
   .desktopDrawing { display: none; }

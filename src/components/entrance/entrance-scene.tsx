@@ -1,13 +1,16 @@
 "use client";
 
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { Canvas, useFrame, useThree, useLoader } from "@react-three/fiber";
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
-import { CanvasTexture, ExtrudeGeometry, Float32BufferAttribute, OrthographicCamera, VSMShadowMap, Shape, SRGBColorSpace, TubeGeometry, CatmullRomCurve3, Vector3 } from "three";
+import { CanvasTexture, ExtrudeGeometry, Float32BufferAttribute, OrthographicCamera, VSMShadowMap, SRGBColorSpace, TubeGeometry, CatmullRomCurve3, Vector3, DoubleSide, Mesh, MeshStandardMaterial } from "three";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { toCreasedNormals } from "three/addons/utils/BufferGeometryUtils.js";
 import { getEntranceComposition, getEntranceInterior, type EntranceComposition, type EntrancePiece } from "./entrance-manifest";
 import { MATERIAL_FINISH, useSurfaceTextures } from "./entrance-materials";
 import { useEntrancePresence } from "./entrance-presence";
 import { getBreakAssembly, type EntranceBreakStore, type Point } from "./entrance-break";
 import { useEntranceBreakMotion } from "./entrance-break-motion";
+import { surfaceOutline as outline, cavityWall } from "./entrance-geometry";
 
 export type EntranceSceneProps = {
   onReady: () => void;
@@ -16,23 +19,11 @@ export type EntranceSceneProps = {
   breakStore: EntranceBreakStore;
 };
 
-function outline(points: EntrancePiece["points"], composition: EntranceComposition) {
-  const shape = new Shape();
-  points.forEach(([x, y], index) => {
-    const px = (x - composition.width / 2) / 100;
-    const py = (composition.height / 2 - y) / 100;
-    if (index === 0) shape.moveTo(px, py);
-    else shape.lineTo(px, py);
-  });
-  shape.closePath();
-  return shape;
-}
-
 function Surface({ piece, composition, atlas, textures }: { piece: EntrancePiece; composition: EntranceComposition; atlas: CanvasTexture | null; textures: ReturnType<typeof useSurfaceTextures> }) {
   const geometry = useMemo(() => {
     const geometry = new ExtrudeGeometry(outline(piece.points, composition), {
-      depth: piece.depth / 100, bevelEnabled: true, bevelSegments: piece.material === "paper" ? 1 : 3,
-      steps: 1, bevelSize: piece.material === "paper" ? 0.004 : piece.material === "enamel" ? 0.012 : 0.018,
+      depth: piece.depth / 100, bevelEnabled: true, bevelSegments: piece.material === "paper" ? 1 : 4,
+      steps: 1, bevelSize: piece.material === "paper" ? 0.004 : piece.material === "enamel" ? 0.008 : 0.018,
       bevelThickness: piece.material === "paper" ? 0.003 : 0.018,
       curveSegments: 1,
     });
@@ -56,6 +47,7 @@ function Surface({ piece, composition, atlas, textures }: { piece: EntrancePiece
     }
     geometry.setAttribute("uv", new Float32BufferAttribute(uv, 2));
     geometry.computeVertexNormals();
+    if (piece.material === "enamel") return toCreasedNormals(geometry,Math.PI/3);
     return geometry;
   }, [piece, composition]);
   useEffect(() => () => geometry.dispose(), [geometry]);
@@ -73,6 +65,46 @@ function Surface({ piece, composition, atlas, textures }: { piece: EntrancePiece
   );
 }
 
+function SignatureSurface({ root, name, atlas, textures }: { root: import("three").Group; name:string; atlas:CanvasTexture|null; textures:ReturnType<typeof useSurfaceTextures> }) {
+  const object=useMemo(()=>{
+    const source=root.getObjectByName(name);
+    if (!source) throw new Error(`Missing signature node: ${name}`);
+    const clone=source.clone(true);
+    clone.traverse(node=>{
+      if (!(node instanceof Mesh)) return;
+      node.castShadow=true; node.receiveShadow=true;
+      const materials=Array.isArray(node.material) ? node.material : [node.material];
+      const mapped=materials.map(source=>{
+        const material=(source as MeshStandardMaterial).clone();
+        if (material.name==="PrintFace") {
+          material.map=atlas; material.normalMap=textures.enamelNormal;
+          // glTF stores V downward. Restore our shared atlas's upward UV field.
+          node.geometry=node.geometry.clone();
+          const uv=node.geometry.getAttribute("uv");
+          for (let index=0;index<uv.count;index++) uv.setY(index,1-uv.getY(index));
+          uv.needsUpdate=true;
+        }
+        if (material.name==="BrushedMetal") {
+          material.normalMap=textures.metalNormal;
+          material.normalScale.set(.08,.16);
+        }
+        material.needsUpdate=true;
+        return material;
+      });
+      node.material=Array.isArray(node.material) ? mapped : mapped[0];
+    });
+    return clone;
+  },[root,name,atlas,textures]);
+  useEffect(()=>()=>object.traverse(node=>{
+    if (node instanceof Mesh) {
+      const materials=Array.isArray(node.material) ? node.material : [node.material];
+      if (materials.some(material=>material.name==="PrintFace")) node.geometry.dispose();
+      materials.forEach(material=>material.dispose());
+    }
+  }),[object]);
+  return <primitive object={object} />;
+}
+
 function Stroke({ points, composition, color, radius = .006 }: { points: Point[]; composition: EntranceComposition; color: string; radius?: number }) {
   const geometry = useMemo(() => new TubeGeometry(new CatmullRomCurve3(points.map(([x,y]) => new Vector3((x-composition.width/2)/100-.096,(composition.height/2-y)/100+.14,.485)), false, "catmullrom", 0), Math.max(1,points.length-1),radius,3,false), [points, composition, radius]);
   useEffect(() => () => geometry.dispose(), [geometry]);
@@ -84,12 +116,24 @@ function Field({ onReady, onLost, breakStore }: EntranceSceneProps) {
   const mobile = size.width < 768;
   const composition = useMemo(() => getEntranceComposition(mobile), [mobile]);
   const sculpture = useEntrancePresence(composition);
-  const { fragment: fragmentRef, intact: intactRef, paper: paperRef, metal: metalRef, rubber: rubberRef, debris: debrisRef } = useEntranceBreakMotion(breakStore, composition);
+  const { fragment: fragmentRef, intact: intactRef, body: bodyRef, paper: paperRef, metal: metalRef, rubber: rubberRef, debris: debrisRef, trace: traceRef } = useEntranceBreakMotion(breakStore, composition);
   const breakState = useSyncExternalStore(breakStore.subscribe, breakStore.getSnapshot, breakStore.getServerSnapshot);
   const assembly = useMemo(() => getBreakAssembly(mobile), [mobile]);
   const textures = useSurfaceTextures(composition.width, composition.height);
+  const modelUrl=`/entrance/models/entrance-break-${mobile ? "mobile" : "desktop"}.glb`;
+  const model=useLoader(GLTFLoader,modelUrl);
+  useEffect(()=>()=>{
+    model.scene.traverse(node=>{
+      if (node instanceof Mesh) {
+        node.geometry.dispose();
+        (Array.isArray(node.material) ? node.material : [node.material]).forEach(material=>material.dispose());
+      }
+    });
+    useLoader.clear(GLTFLoader,modelUrl);
+  },[model,modelUrl]);
   const [atlas, setAtlas] = useState<CanvasTexture | null>(null);
   const notified = useRef(false);
+  const warmed = useRef(false);
   const readyFrameRef = useRef<number | null>(null);
   const metricFrameRef = useRef<number | null>(null);
   const measuredPose = useRef("");
@@ -153,6 +197,16 @@ function Field({ onReady, onLost, breakStore }: EntranceSceneProps) {
     return () => canvas.removeEventListener("webglcontextlost", lost);
   }, [gl]);
 
+  useEffect(()=>{
+    if (!atlas) return;
+    // compile() traverses hidden meshes too: the fragment must be ready before a hit.
+    gl.initTexture(atlas);
+    gl.compile(get().scene,get().camera);
+    warmed.current=true;
+    invalidate();
+    return ()=>{ warmed.current=false; };
+  },[atlas,gl,get,invalidate]);
+
   // Demand rendering remains idle after the completed, font-ready frame.
   useFrame(() => {
     const pose = `${breakState.phase}/${breakState.charging}/${fragmentRef.current?.visible}`;
@@ -164,7 +218,7 @@ function Field({ onReady, onLost, breakStore }: EntranceSceneProps) {
         gl.domElement.dataset.renderStats = JSON.stringify({ calls:gl.info.render.calls, triangles:gl.info.render.triangles, geometries:gl.info.memory.geometries, textures:gl.info.memory.textures, programs:gl.info.programs?.length, dpr:gl.getPixelRatio(), fragmentVisible:fragmentRef.current?.visible });
       });
     }
-    if (atlas && !notified.current) {
+    if (atlas && warmed.current && !notified.current) {
       notified.current = true;
       readyFrameRef.current = requestAnimationFrame(() => {
         readyFrameRef.current = null;
@@ -180,31 +234,13 @@ function Field({ onReady, onLost, breakStore }: EntranceSceneProps) {
   }), [composition, mobile]);
   useEffect(() => () => interior.forEach((layer) => layer.geometry.dispose()), [interior]);
 
-  const innerWorld = useMemo(() => {
-    const points = assembly.fragment.points;
-    return [
-      { points, z:-6, color:"#214cca", depth:8 },
-      { points:points.map(([x,y]):Point => [x+5,y+8]), z:-24, color:"#123ba4", depth:8 },
-      { points:points.map(([x,y]):Point => [x+10,y+16]), z:-40, color:"#081c54", depth:4 },
-    ].map((layer,index) => {
-      const shape = outline(layer.points, composition);
-      if (index < 2) {
-        const apertures:Point[][] = mobile ? [
-          [[309,348],[333,358],[319,385],[338,418],[320,449],[332,480],[315,504],[309,463],[313,412]],
-          [[316,375],[325,377],[319,400],[329,420],[319,449],[324,476],[316,484],[314,445]],
-        ] : [
-          [[987,443],[1034,450],[1019,480],[1062,516],[1051,568],[1009,608],[996,552],[997,492]],
-          [[1006,467],[1022,469],[1023,495],[1046,518],[1034,556],[1014,582],[1009,536]],
-        ];
-        shape.holes.push(outline(apertures[index],composition));
-      }
-      return { ...layer, geometry:new ExtrudeGeometry(shape,{depth:layer.depth/100,bevelEnabled:false}) };
-    });
-  }, [assembly, composition, mobile]);
-  useEffect(() => () => innerWorld.forEach(layer => layer.geometry.dispose()), [innerWorld]);
+  const recess=useMemo(()=>cavityWall(assembly.fragment.points,composition),[assembly,composition]);
+  const backplane=useMemo(()=>new ExtrudeGeometry(outline(assembly.fragment.points,composition),{depth:.015,bevelEnabled:false}),[assembly,composition]);
+  useEffect(()=>()=>{ recess.dispose(); backplane.dispose(); },[recess,backplane]);
   const pivot = [(assembly.pivot[0]-composition.width/2)/100,(composition.height/2-assembly.pivot[1])/100];
-  const damaged = breakState.damage > 0;
-  const crack = useMemo(() => assembly.cut.slice(0,breakState.damage === 1 ? 4 : breakState.damage === 2 ? 7 : assembly.cut.length), [assembly, breakState.damage]);
+  const joint=[(assembly.focus[0]-composition.width/2)/100,(composition.height/2-assembly.focus[1])/100];
+  const damaged = breakState.damage >= 2;
+  const crack = useMemo(() => assembly.cut.slice(0,breakState.damage === 2 ? 4 : assembly.cut.length), [assembly, breakState.damage]);
 
   return (
     <>
@@ -217,25 +253,34 @@ function Field({ onReady, onLost, breakStore }: EntranceSceneProps) {
       </mesh>
       <group ref={sculpture}>
         <group>{interior.map((layer) => <mesh key={layer.id} geometry={layer.geometry} position={[0, 0, layer.z / 100]} receiveShadow><meshStandardMaterial color={layer.color} roughness={.8} /></mesh>)}</group>
-        <group>
-          {innerWorld.map((layer,index) => <mesh key={index} geometry={layer.geometry} position={[0,0,layer.z/100]} receiveShadow><meshStandardMaterial color={layer.color} roughness={.94} /></mesh>)}
-          <mesh position={[(mobile ? 320-195 : 1025-720)/100,(mobile ? 422-438 : 500-537)/100,-.33]}><boxGeometry args={[mobile ? .018 : .025,mobile ? .16 : .30,.01]} /><meshStandardMaterial color="#aacefa" roughness={1} /></mesh>
-          <mesh position={[(mobile ? 322-195 : 1032-720)/100,(mobile ? 422-430 : 500-521)/100,-.33]}><boxGeometry args={[mobile ? .04 : .07,.025,.01]} /><meshStandardMaterial color="#ffcb48" roughness={1} /></mesh>
+        <group visible={breakState.damage>=2}>
+          <mesh geometry={recess} receiveShadow><meshStandardMaterial vertexColors roughness={1} side={DoubleSide} /></mesh>
+          <mesh geometry={backplane} position={[0,0,-1.22]} receiveShadow><meshStandardMaterial color="#091b46" roughness={1} /></mesh>
+          <mesh position={[pivot[0]+.32,pivot[1]-.85,-.72]} rotation={[0,.15,-.08]} receiveShadow><boxGeometry args={[mobile ? .05 : .08,mobile ? 1.05 : 1.65,.08]} /><meshStandardMaterial color="#1c4284" roughness={.86} /></mesh>
+          <mesh position={[pivot[0]+.15,pivot[1]-.70,-.74]} rotation={[0,.10,-.08]} receiveShadow><boxGeometry args={[mobile ? .34 : .62,.035,.10]} /><meshStandardMaterial color="#1c4284" roughness={.86} /></mesh>
+          <group ref={traceRef} position={[pivot[0]+.28,pivot[1]-(mobile ? 1.20 : 1.52),-1.15]} visible={false}>
+            <mesh position={[.10,0,0]}><boxGeometry args={[mobile ? .16 : .26,.012,.008]} /><meshBasicMaterial color="#b6c9e4" /></mesh>
+            <mesh position={[mobile ? .20 : .26,.03,0]}><boxGeometry args={[.025,.025,.008]} /><meshBasicMaterial color="#e9ba52" /></mesh>
+          </group>
         </group>
         {composition.pieces.map((piece) => piece.id === "raised-flap" ? <group key={piece.id} name={piece.id}>
-          <group ref={intactRef} visible={!damaged}><Surface piece={piece} composition={composition} atlas={atlas} textures={textures} /></group>
-          <group visible={damaged}><Surface piece={assembly.body} composition={composition} atlas={atlas} textures={textures} /></group>
+          <group ref={intactRef} visible={!damaged}>
+            <Surface piece={piece} composition={composition} atlas={atlas} textures={textures} />
+            {breakState.damage===1 && <Stroke points={assembly.branches[breakState.variant].slice(0,3)} composition={composition} color="#858479" radius={.0025} />}
+          </group>
+          <group ref={bodyRef} visible={damaged}><Surface piece={assembly.body} composition={composition} atlas={atlas} textures={textures} /></group>
           <group ref={fragmentRef} position={[pivot[0],pivot[1],0]}>
             <group position={[-pivot[0],-pivot[1],0]}>
-              <Surface piece={assembly.fragment} composition={composition} atlas={atlas} textures={textures} />
+              <SignatureSurface root={model.scene} name="BreakFragment" atlas={atlas} textures={textures} />
               {damaged && <>
-                <Stroke points={crack} composition={composition} color="#34372f" radius={breakState.damage >= 3 ? .010 : .004} />
-                <Stroke points={assembly.branches[breakState.variant]} composition={composition} color="#414438" radius={breakState.damage >= 2 ? .006 : .003} />
-                {breakState.damage >= 3 && <Stroke points={assembly.branches[(breakState.variant+2)%4]} composition={composition} color="#414438" radius={.005} />}
+                {breakState.damage===2 && <Stroke points={crack} composition={composition} color="#5b5a51" radius={.003} />}
+                <Stroke points={assembly.branches[breakState.variant]} composition={composition} color="#747369" radius={.0025} />
               </>}
             </group>
           </group>
-        </group> : <group key={piece.id} name={piece.id} ref={piece.id === "lower-shell" ? paperRef : piece.id === "metal-lip" ? metalRef : piece.id === "rubber-join" ? rubberRef : undefined}><Surface piece={piece} composition={composition} atlas={atlas} textures={textures} /></group>)}
+        </group> : piece.id==="metal-lip" || piece.id==="rubber-join" ? <group key={piece.id} name={piece.id} ref={piece.id==="metal-lip" ? metalRef : rubberRef} position={[joint[0],joint[1],0]}>
+          <group position={[-joint[0],-joint[1],0]}><SignatureSurface root={model.scene} name={piece.id==="metal-lip" ? "MetalBracket" : "RubberJoint"} atlas={atlas} textures={textures} /></group>
+        </group> : <group key={piece.id} name={piece.id} ref={piece.id === "lower-shell" ? paperRef : undefined}><Surface piece={piece} composition={composition} atlas={atlas} textures={textures} /></group>)}
         <group ref={debrisRef} visible={false}>
           {[0,1,2,3].map(index => <mesh key={index}><tetrahedronGeometry args={[.035+index*.009,0]} /><meshStandardMaterial color={index%2 ? "#d9dbd2" : "#f5f4ef"} roughness={.8} /></mesh>)}
         </group>

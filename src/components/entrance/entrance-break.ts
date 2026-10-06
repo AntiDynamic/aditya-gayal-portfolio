@@ -34,8 +34,8 @@ export function inPolygon(x: number, y: number, points: Point[]) {
 export function getBreakAssembly(mobile: boolean) {
   const original = getEntranceComposition(mobile).pieces.find(p => p.id === "raised-flap")!;
   const cut: Point[] = mobile
-    ? [[310,523],[342,483],[329,450],[357,417],[331,390],[349,355],[320,334],[324,307],[288,292],[267,302]]
-    : [[1003,655],[1092,580],[1080,510],[1046,480],[1070,437],[1022,404],[1045,362],[958,348],[916,364],[876,370]];
+    ? [[310,523],[345,478],[339,445],[330,433],[336,423],[326,392],[332,378],[322,335],[324,307],[288,292],[267,302]]
+    : [[1003,655],[1092,580],[1081,524],[1072,513],[1078,501],[1037,441],[1029,415],[1045,362],[958,348],[916,364],[876,370]];
   const left: Point[] = mobile
     ? [[267,302],[300,326],[306,395],[302,462],[310,523]]
     : [[876,370],[958,400],[983,478],[977,558],[1003,655]];
@@ -44,7 +44,7 @@ export function getBreakAssembly(mobile: boolean) {
   const body: EntrancePiece = { ...original, points: [...original.points.slice(0, first), ...cut, ...original.points.slice(last + 1)] };
   const fragment: EntrancePiece = { ...original, id: "enamel-corner", points: [...left, ...cut.slice(1, -1)] };
   const focus: Point = mobile ? [260,325] : [868,409];
-  const pivot: Point = mobile ? [305,392] : [990,482];
+  const pivot: Point = mobile ? [310,332] : [991,392];
   const hit: Point = mobile ? [320,375] : [1020,450];
   const branches: Point[][] = mobile
     ? [[[320,334],[313,351],[320,367],[306,395]],[[349,355],[334,366],[339,381],[331,390]],[[329,450],[313,436],[317,418],[305,403]],[[342,483],[324,476],[315,462],[302,462]]]

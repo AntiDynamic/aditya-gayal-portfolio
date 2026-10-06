@@ -1,13 +1,14 @@
 "use client";
 
-import { useEffect, useRef, type PointerEvent, type KeyboardEvent } from "react";
-import { getBreakAssembly, type EntranceBreakStore, type Point } from "./entrance-break";
+import { useEffect, useRef, useSyncExternalStore, type PointerEvent, type KeyboardEvent } from "react";
+import { getBreakAssembly, inPolygon, type EntranceBreakStore, type Point } from "./entrance-break";
 import styles from "./entrance.module.css";
 
 export function EntranceBreakControls({ store }: { store: EntranceBreakStore }) {
   const plane = useRef<HTMLDivElement>(null);
   const gesture = useRef<{ pointer: number; point: Point; time: number; speed: number } | null>(null);
   const sample = useRef<{ point: Point; time: number; speed: number } | null>(null);
+  const state=useSyncExternalStore(store.subscribe,store.getSnapshot,store.getServerSnapshot);
   useEffect(() => {
     const cancel = () => { gesture.current = null; store.cancel(); };
     const visibility = () => { if (document.hidden) cancel(); };
@@ -49,8 +50,16 @@ export function EntranceBreakControls({ store }: { store: EntranceBreakStore }) 
     {[false, true].map(mobile => <button key={String(mobile)} type="button" className={`${styles.hitArea} ${mobile ? styles.mobileHit : styles.desktopHit}`}
       aria-label="Apply pressure to the enamel corner" aria-describedby="break-instructions"
       data-break-target={mobile ? "mobile" : "desktop"}
+      data-charging={state.charging} data-open={state.phase==="detached"}
       onPointerDown={event => down(event, mobile)} onPointerUp={up}
-      onPointerMove={event => { const point = locate(event, mobile); const previous = sample.current; sample.current = { point, time:event.timeStamp, speed:previous && event.timeStamp > previous.time ? Math.hypot(point[0]-previous.point[0],point[1]-previous.point[1])/(event.timeStamp-previous.time) : 0 }; }}
+      onPointerMove={event => {
+        const point=locate(event,mobile), previous=sample.current, assembly=getBreakAssembly(mobile);
+        sample.current={point,time:event.timeStamp,speed:previous && event.timeStamp>previous.time ? Math.hypot(point[0]-previous.point[0],point[1]-previous.point[1])/(event.timeStamp-previous.time) : 0};
+        const bounds=event.currentTarget.getBoundingClientRect();
+        event.currentTarget.style.setProperty("--contact-x",`${event.clientX-bounds.left}px`);
+        event.currentTarget.style.setProperty("--contact-y",`${event.clientY-bounds.top}px`);
+        event.currentTarget.dataset.valid=String(inPolygon(...point,assembly.fragment.points) || Math.hypot(point[0]-assembly.focus[0],point[1]-assembly.focus[1])<(mobile?32:45));
+      }}
       onPointerCancel={() => { gesture.current = null; store.cancel(); }}
       onLostPointerCapture={() => { gesture.current = null; store.cancel(); }}
       onKeyDown={event => keyDown(event, mobile)} onKeyUp={keyUp}

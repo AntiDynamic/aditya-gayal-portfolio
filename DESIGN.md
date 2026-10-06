@@ -2,7 +2,7 @@
 
 **Status:** Approved creative direction; updated for identity-first homepage and personal interaction sections\
 **Owner:** Aditya Gayal\
-**Current scope:** Identity-first homepage plus Stage C: one representative enamel-corner destruction prototype in the approved **Break the Surface** entrance. Preserve Stage A.5's framing and Stage B's demand rendering. All-material destruction, sound playback, physics packages, entry transitions, and changes to later sections remain outside this phase.
+**Current scope:** Stage C.5: physical readability, signature geometry, and rendering refinement of one enamel-corner break in the approved **Break the Surface** entrance. Preserve Stage A.5's framing and Stage B's demand rendering. All-material destruction, sound playback, physics packages, entry transitions, and changes to later sections remain outside this phase.
 
 This document is the governing design contract. Read it before every implementation phase. If an implementation choice conflicts with this document, change the implementation or update this document deliberately before proceeding.
 
@@ -96,6 +96,26 @@ These rules refine the Stage A assembly and supersede its material/count notes a
 - Renderer counters: 48 calls including shadow passes in pristine/settled states; 2,734 desktop / 2,438 mobile pristine triangles, 2,894 / 2,598 settled triangles. A sampled mobile impact reached 56 calls and 3,050 triangles. At device DPR 2, desktop caps at 1.5 and mobile at 1.0. Four repeated reset cycles plateaued at the same warm geometry/texture/program counts.
 - Instrumented idle draw calls returned to zero after settling at every reviewed width, reduced motion, touch completion, and reset cycles. These headless software-renderer observations do not establish hardware FPS or performance on a physical phone.
 - Keep isolated scenes for this prototype. Investigate a hybrid shared renderer for entrance/hero continuity only when implementing the full passage; retain DOM/SVG for the personal sections. Do not turn this recommendation into an immediate global-canvas refactor.
+
+#### Stage C.5 — mass, tension, failure
+
+These rules supersede the Stage C timing, geometry, cavity, and instruction treatments.
+
+- Keep the first impact on the intact silhouette: a local compression and short, faint stress line. Only subsequent damage opens the complementary cut. Late damage increasingly uses actual separation, exposed sidewall, and misalignment rather than thicker drawn lines.
+- Use Blender only for three signature objects: `BreakFragment`, `MetalBracket`, and `RubberJoint`. The paper, enamel parent, composition, print atlas, and cavity remain runtime-authored. Generate separate desktop/mobile GLBs from the same TypeScript manifest via `scripts/blender/build-entrance-break.py`; never duplicate cut coordinates manually.
+- Fragment: dense enamel with a small bevel, weighted face normals, a chipped cut silhouette, real thickness, a deliberate upper-attachment origin, and continuous printed UVs. Bracket: thin folded geometry with a mounting pivot. Rubber: rounded, matte construction with a visible tension direction. Never migrate the full entrance to Blender.
+- Failure sequence: load 120ms → resist 70ms → release 120ms → readable separation 180ms → acceleration/flight 360ms. Follow-through overlaps the late flight for approximately 300ms; settle by approximately 1,250ms. Do not lengthen the whole event merely to hide weak phases.
+- Keep the fragment's cream front and print legible during separation before accelerating across a clean local area. Its moving shadow and sidewall must explain depth. Compose the trajectory; no random rigid-body fling.
+- Give paper a quick soft sag/overshoot, metal a sharp small vibration, rubber a recoil with faster damping, and enamel restrained heavy rotation. Rotate joints about their mounting points, not the global scene origin. Let the enamel parent shift subtly under redistributed load.
+- The cavity has a bounded opening, continuous dark setback walls, a dark far floor, one muted mid-depth cobalt structure, and a tiny distant trace. The far floor may never extend beyond the assembly as a visible rectangle. Avoid stacks of bright blue graphic rims.
+- Introduce the first Trace hint only after structural release, briefly drawing one far pale line and then stopping. No ambient loop or global Trace implementation.
+- Preserve the editorial orthographic camera and framing. Allow a small local view impulse (lower on mobile) and a 1.2% post-release approach to the opening; no DOM shake. Reduced motion has neither impulse nor camera drift.
+- Remove the crosshair and target brackets. A faint incomplete pressure ring appears only at valid proximity or press, contracts during charge, and disappears on release. A high-contrast complete ring remains for keyboard focus, including after detachment.
+- Keep visible instructions minimal: one proximity cue, **Break through.**, removed after the first impact. Mobile can show this cue initially. Full keyboard/hold/Skip instructions stay available to assistive technology. Reset becomes a secondary 44px restore icon with an accessible name. Do not display a dummy Sound control while audio is absent.
+- Load the responsive signature asset once for the active scene, reuse it through resets, and dispose cloned materials/UV geometry and source buffers on scene removal. Upload the print atlas and compile hidden signature materials before declaring WebGL ready.
+- Keep one active canvas, no per-frame React state, DPR ≤1.5 desktop / 1 mobile, one meaningful fragment, four/two chips, selective shadows, and zero idle draws after settling. No Rapier, postprocessing, new runtime library, or permanent animation loop.
+- Validate T0–T10 in an actual rendered contact sheet and compare the new motion study with the preserved Stage C video. Passing engineering checks does not replace visual review of separation, mass, and final composition.
+- Stage C.5 review: production widths 320–1440, mouse/touch/keyboard, reset, Skip/Escape, reduced motion, SVG/no-JS fallback, focus transfer, direct hashes, and idle rendering pass. Build/lint pass. Aggregate JS grows 15,080 bytes gzip; responsive GLBs are 37,704 / 35,656 bytes. Sampled pristine/settled calls are 36 / 46; reset resources plateau and idle adds zero draws. Hardware FPS remains unverified. See `docs/entrance-stage-c5.md`; local T0–T10 and before/after studies are in `visual-qa/entrance-stage-c5/`.
 
 ### Concept
 

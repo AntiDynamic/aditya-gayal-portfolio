@@ -52,12 +52,20 @@ export function EntranceGate({ children }: { children: ReactNode }) {
     const isDirectLink = () => window.location.hash && window.location.hash !== "#top";
     const onHashChange = () => { if (isDirectLink()) setActive(false); };
     window.addEventListener("hashchange", onHashChange);
+    let assetHint:HTMLLinkElement|null=null;
     const timer = window.setTimeout(() => {
       if (isDirectLink()) setActive(false);
-      else setLoadScene(true);
+      else {
+        assetHint=document.createElement("link");
+        assetHint.rel="preload"; assetHint.as="fetch"; assetHint.crossOrigin="anonymous";
+        assetHint.href=`/entrance/models/entrance-break-${window.innerWidth<768 ? "mobile" : "desktop"}.glb`;
+        document.head.append(assetHint);
+        setLoadScene(true);
+      }
     }, 80);
     return () => {
       window.clearTimeout(timer);
+      assetHint?.remove();
       window.removeEventListener("hashchange", onHashChange);
     };
   }, []);
@@ -94,6 +102,7 @@ export function EntranceGate({ children }: { children: ReactNode }) {
             {loadScene && !failed && <div className={styles.scene}><SurfaceBoundary onFail={onLost}><EntranceScene onReady={onReady} onLost={onLost} breakStore={breakStore} /></SurfaceBoundary></div>}
           </div>
           <EntranceBreakControls store={breakStore} />
+          <p id="break-instructions" className="sr-only">Press the enamel corner. Enter applies pressure. Hold and release Space or a pointer for a stronger impact. Skip or Escape enters the portfolio immediately.</p>
           <header className={styles.masthead}>
             <p className={styles.name}>ADITYA<br />GAYAL<span>DEVELOPER / BUILDER</span></p>
             <a ref={skipRef} className={styles.skip} href="#top" onClick={complete}>Skip entrance <span aria-hidden="true">↗</span></a>
@@ -101,9 +110,10 @@ export function EntranceGate({ children }: { children: ReactNode }) {
           <footer className={styles.caption}>
             <p>Strange questions are where I start.<br />Making something real is why I stay.</p>
             <div className={styles.breakNotes}>
-              <p aria-live="polite" aria-atomic="true">{breakState.note || BREAK_DESCRIPTIONS[breakState.phase]}</p>
-              <span id="break-instructions">Tap the seam. Hold, then release for more pressure.</span>
-              {breakState.damage > 0 && <button type="button" className={styles.reset} onClick={() => { breakStore.reset(); skipRef.current?.focus(); }}>Try again <span aria-hidden="true">↺</span></button>}
+              <p className="sr-only" aria-live="polite" aria-atomic="true">{breakState.note || BREAK_DESCRIPTIONS[breakState.phase]}</p>
+              {breakState.damage===0 && <span className={styles.discovery}>Break through.</span>}
+              {breakState.note && <span className={styles.marginNote}>{breakState.note}</span>}
+              {breakState.damage > 0 && <button type="button" className={styles.reset} aria-label="Restore the entrance surface" title="Restore surface" onClick={() => { breakStore.reset(); skipRef.current?.focus(); }}><span aria-hidden="true">↺</span></button>}
             </div>
           </footer>
         </section>

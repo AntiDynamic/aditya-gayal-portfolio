@@ -1,4 +1,4 @@
-# Entrance assets — Stage C
+# Entrance assets — Stage C.5
 
 Only assets with a current purpose are stored here. No full libraries, reference
 videos, 4K textures, placeholder models, or environment maps are shipped.
@@ -14,7 +14,7 @@ videos, 4K textures, placeholder models, or environment maps are shipped.
   tails, convert to mono 22,050 Hz Ogg Vorbis quality 3, limit peaks to -6 dBFS
   without automatic makeup gain. No layering, pitch effects, or cinematic processing.
 - Purpose: a compact tactile palette for a later explicitly enabled sound system.
-  **None is imported, fetched, decoded, or played by Stage C.** These are material
+  **None is imported, fetched, decoded, or played by Stage C or C.5.** These are material
   Foley source selections, not evidence that sound is already implemented.
 
 | Original archive filename | Final file | Bytes | Intended use |
@@ -34,7 +34,7 @@ recordings remain unselected; do not substitute unrelated sounds just to fill sl
 ## Generated runtime graphics
 
 Original procedural work in this repository; no downloaded texture license needed.
-No raster texture files or GLB files were added.
+No raster texture files were added. The three-object Blender assets are documented below.
 
 | Runtime texture / geometry | Source | Dimensions / method | Use |
 | --- | --- | --- | --- |
@@ -44,18 +44,58 @@ No raster texture files or GLB files were added.
 | Font-ready print atlas | `src/components/entrance/entrance-scene.tsx` | Generated canvas, width ≤2048px | Registered headline on every physical face, including detached fragment |
 | Enamel complementary cut | `src/components/entrance/entrance-break.ts` | Two authored polygon boundaries with matching cut edges | One actual thick removable corner |
 | Four fracture branches | Same + scene `Stroke` | Four authored line paths with geometry, no crack decals | Hit-region-dependent persistent fracture |
-| Cobalt interior | Scene + shared manifest | Three nested extruded depth planes with two apertures | Actual recessed view beneath the fragment |
+| Cobalt interior | Scene + shared manifest | Continuous setback wall, bounded recessed floor, one brace, and distant Trace | Actual recessed view beneath the fragment |
 | Ceramic chips | Scene | Four reused tetrahedra, two visible on mobile | Brief supporting debris, never an idle effect |
 
-## Deliberately omitted
+## Generated Blender signature assets
+
+Blender **4.5.14 LTS**, installed locally outside this repository. Original
+geometry generated here, no downloaded model/texture or mystery binary source.
+Three objects only; the entrance scene itself remains authored in DOM/SVG/Three.
+
+- Source: `scripts/blender/build-entrance-break.py`.
+- Shared-coordinate bridge: `scripts/blender/export-assembly.mjs`, reading the
+  actual TypeScript manifest/cut. Blender never maintains a second set of points.
+- Generation: `blender -b --factory-startup --python scripts/blender/build-entrance-break.py`.
+- Optional neutral CPU preview: append `-- --preview`; its output is an ignored
+  QA image, not a production asset.
+- Export: GLB / glTF Y-up, applied small bevels and weighted normals, registered
+  face UVs, named nodes, no textures, cameras, lights, animation, Draco, or Meshopt.
+- Semantic nodes: `BreakFragment`, `MetalBracket`, `RubberJoint`. Three meshes,
+  four primitives, four materials. Fragment origin is the upper loaded attachment;
+  bracket and rubber origins are their shared mounting point.
+- Runtime: load the responsive file before readiness, clone per-node materials,
+  restore the atlas UV orientation on the printed face, share the existing atlas,
+  reuse through resets, dispose on scene removal. No Blender runtime dependency.
+
+| Asset | First export with duplicate support slots | Optimized GLB | Gzip estimate | Triangles |
+| --- | ---: | ---: | ---: | ---: |
+| `models/entrance-break-desktop.glb` | 41,092 B | 37,704 B | 27,314 B | 1,404 |
+| `models/entrance-break-mobile.glb` | 38,916 B | 35,656 B | 26,328 B | 1,316 |
+
+Optimization removed duplicate material primitives on the supports; no decoder
+was added. Gzip figures are local compression estimates, not measured HTTP
+transfer sizes. `models/geometry-report.json` records version, source, and sizes.
+
+Stage C.5 also generates rounded/creased-normal parent geometry and continuous
+setback cavity walls in `entrance-scene.tsx` / `entrance-geometry.ts`. No image maps
+are downloaded. The paper, metal, and enamel procedural maps above remain shared.
+
+Lighting experiment: a locally generated 128×64 floating-point neutral studio
+probe was compared against explicit lights in actual production renders. It
+slightly brightened faces but added texture/program resources without a clear
+readability gain, so it was removed. No HDRI or environment-map file is shipped.
+Comparison images remain in ignored `visual-qa/entrance-stage-c5/`.
+
+## Stage C omissions (historical)
 
 - HDRI: retain the approved broad key/fill lighting and contact shadows. An
   environment download has no demonstrated benefit for this matte assembly.
-- GLB: the complementary polygon cut already supplies thickness, pivots, print
-  registration, bevels, and sidewalls. No imported geometry or decoder is needed.
+- Stage C used procedural geometry only. Stage C.5 selectively replaces the
+  signature fragment/bracket/restraint; no model of the full entrance is used.
 - External texture packs: current micro-detail is generated and shared. Downloaded
   images would add transfer cost without improving the signature break.
 - Reference videos: local research only, never copied into public assets.
 
-Future `textures/`, `models/`, or `generated/` folders should be created only when
+Future `textures/` or `generated/` folders should be created only when
 an actual asset is used and documented here.
