@@ -6,6 +6,10 @@ The skippable **Break the Surface** entrance now has one breakable enamel corner
 
 Behind the entrance, the identity-first homepage opens with the Reveal Key exploring five thought states, followed by Aditya’s approach to coding and collaboration, recurring curiosities, concise project links, and direct contact details. Continuum’s deeper experience remains available in an expandable section under Work. `DESIGN.md` documents the approved visual system and implementation boundaries. [Stage C.5 review](docs/entrance-stage-c5.md) records the geometry pipeline, motion phases, measurements, and remaining limits. The previous [Stage C review](docs/entrance-stage-c.md) is preserved.
 
+## Experience architecture checkpoint
+
+[Experience Architecture V2](docs/experience-architecture-v2.md) audits the current implementation, records the 21st.dev mechanics/source review, and proposes a scoped entrance-to-hero world with DOM/SVG personal scenes. It is a proposal awaiting review; `DESIGN.md` remains the approved implementation contract.
+
 ## Run locally
 
 ```bash
