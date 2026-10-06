@@ -434,6 +434,8 @@ function Field({
         heroWorldAnchor(runtime.current.hero, size, get().camera),
       );
       passageGroup.current.scale.setScalar(pose.scale);
+      passageGroup.current.rotation.y = Math.sin(runtime.current.passage * Math.PI) * -.14;
+      passageGroup.current.rotation.z = Math.sin(runtime.current.passage * Math.PI) * .035;
       passageGroup.current.position.set(pose.x, pose.y, pose.z);
     }
     const pose = `${breakState.phase}/${breakState.charging}/${fragmentRef.current?.visible}`;
@@ -569,33 +571,31 @@ function Field({
                 side={DoubleSide}
               />
             </mesh>
-            <mesh geometry={backplane} position={[0, 0, -1.22]} receiveShadow>
-              <meshStandardMaterial color="#091b46" roughness={1} />
+            <mesh geometry={backplane} position={[0.11, -0.13, -2.72]} receiveShadow>
+              <meshStandardMaterial color="#06102c" roughness={1} />
             </mesh>
-            <mesh
-              position={[pivot[0] + 0.32, pivot[1] - 0.85, -0.72]}
-              rotation={[0, 0.15, -0.08]}
-              receiveShadow
-            >
-              <boxGeometry
-                args={[mobile ? 0.05 : 0.08, mobile ? 1.05 : 1.65, 0.08]}
-              />
-              <meshStandardMaterial color="#1c4284" roughness={0.86} />
+            {/* Angled, staggered planes make the opening a space, not a blue decal. */}
+            <mesh position={[pivot[0] + .25, pivot[1] - .85, -1.8]}
+              rotation={[.08, -.32, -.09]} receiveShadow>
+              <boxGeometry args={[mobile ? .40 : .75, mobile ? 1.35 : 1.9, .09]} />
+              <meshStandardMaterial color="#173da1" roughness={.72} />
             </mesh>
-            <mesh
-              position={[pivot[0] + 0.15, pivot[1] - 0.7, -0.74]}
-              rotation={[0, 0.1, -0.08]}
-              receiveShadow
-            >
-              <boxGeometry args={[mobile ? 0.34 : 0.62, 0.035, 0.1]} />
-              <meshStandardMaterial color="#1c4284" roughness={0.86} />
+            <mesh position={[pivot[0] + .10, pivot[1] - .95, -.95]}
+              rotation={[0, .38, -.14]} castShadow receiveShadow>
+              <boxGeometry args={[mobile ? .07 : .12, mobile ? 1.2 : 1.75, .18]} />
+              <meshStandardMaterial color="#254aad" roughness={.62} metalness={.12} />
+            </mesh>
+            <mesh position={[pivot[0] + .27, pivot[1] - .6, -1.5]}
+              rotation={[.10, -.20, -.09]} castShadow>
+              <boxGeometry args={[mobile ? .38 : .72, .045, .22]} />
+              <meshStandardMaterial color="#416ec2" roughness={.58} metalness={.18} />
             </mesh>
             <group
               ref={traceRef}
               position={[
                 pivot[0] + 0.28,
                 pivot[1] - (mobile ? 1.2 : 1.52),
-                -1.15,
+                -2.3,
               ]}
               visible={false}
             >

@@ -48,12 +48,12 @@ export function openingPose(
   sourceY: number,
   destination: { x: number; y: number },
 ) {
-  const scale = 1 + progress * 2.5;
+  const scale = 1 + progress * 4.5;
   return {
     scale,
     x: progress * (destination.x - sourceX * scale),
     y: progress * (destination.y - sourceY * scale),
-    z: progress * 7,
+    z: progress * 10,
   };
 }
 

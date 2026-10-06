@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Bricolage_Grotesque, DM_Sans, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
+import "lenis/dist/lenis.css";
 
 const display = Bricolage_Grotesque({
   variable: "--font-display",

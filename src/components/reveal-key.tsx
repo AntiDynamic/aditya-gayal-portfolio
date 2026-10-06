@@ -58,6 +58,7 @@ const clamp = (value: number, min: number, max: number) =>
 
 export function RevealKey() {
   const world = useWorld();
+  const hasSharedWorld = world !== null;
   const bindHero = world?.bindHero;
   const wake = world?.wake;
   const boundsRef = useRef({ left: 0, top: 0, width: 1440, height: 420 });
@@ -278,7 +279,7 @@ export function RevealKey() {
       }
     };
     const idle = window.setTimeout(() => {
-      const available = !world && supportsWebgl() && !reduced.matches;
+      const available = !hasSharedWorld && supportsWebgl() && !reduced.matches;
       setWebgl(available);
       setLoadScene(available);
     }, 650);
@@ -291,7 +292,7 @@ export function RevealKey() {
         motionRef.current.velocity = 0;
         updateDOM();
       } else {
-        const available = !world && supportsWebgl();
+        const available = !hasSharedWorld && supportsWebgl();
         setWebgl(available);
         setLoadScene(available);
       }
@@ -358,7 +359,7 @@ export function RevealKey() {
       document.removeEventListener("visibilitychange", onVisibility);
       reduced.removeEventListener("change", onMotionChange);
     };
-  }, [chooseThought, updateDOM, entranceActive, world, wake]);
+  }, [chooseThought, updateDOM, entranceActive, hasSharedWorld, wake]);
 
   const progressFromPointer = useCallback(
     (clientX: number) => {

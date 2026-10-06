@@ -620,6 +620,42 @@ Review at **320, 390, 768, 1024, and 1440px**. Check pointer, touch, keyboard, r
 - Work uses one reusable SVG stage with five states and direct existing repository links. No additional project pages.
 - Now contains established recurring questions, explicitly presented as open questions; no fabricated current learning dates, projects or hobbies. Contact retains email, GitHub and LinkedIn.
 - Use component CSS modules. Preserve warm paper/ink, saturated personal fields, subtle material texture, large authored typography, asymmetry, and calm intervals. Avoid boxes framing every interaction.
-- No new runtime dependency is justified. Use the 21st proximity falloff/magnetic principles reviewed in V2, rewritten with cached bounds and bounded motion; do not import its per-letter measurement loop.
+- The originally dependency-free V2 pass is now extended by the explicitly requested motion libraries in §19. Use the 21st proximity falloff/magnetic principles reviewed in V2, rewritten with cached bounds and bounded motion; do not import its per-letter measurement loop.
 - Demand-render WebGL, cap DPR at 1.5 desktop / 1 mobile, stop when settled, pause when offscreen/hidden, and release resources at actual ownership boundaries. No per-frame React state.
 - Every scene supports keyboard/touch and readable content without interaction. Reduced motion uses immediate authored states, no camera flight. Validate real renders at 320, 390, 768, 1024, 1440 before final push.
+
+
+## 19. GSAP / Lenis / Vanta — motion refinement contract
+
+Requested explicitly for the existing experience. These tools extend the visual system; they do not replace semantic content or its reading order.
+
+### GSAP — authored physical consequence
+
+- Own the signature break's numeric choreography through a local timeline: load 140ms, resistance 80ms, release 130ms, readable separation 280ms, accelerating flight 520ms, departure 380ms. Paper, enamel, metal and rubber retain different responses.
+- Keep printed typography and the fragment in the same Three transform hierarchy. Move the fragment outward and into clear space before its downward acceleration.
+- Expand structural response: paper sag, bracket rotation, restraint recoil, enamel redistribution. Do not put all pieces on identical springs.
+- Use `onUpdate` to invalidate the demand-rendered R3F scene; transient values remain in refs. Kill local timelines on reset/unmount; pause break motion when the document is hidden. Never pause the global GSAP timeline.
+- Entrance passage is 1.35s with `power2.inOut`, camera depth change, foreground enlargement and controlled rotation. Skip/Escape remain immediate; reduced motion bypasses passage.
+- Reduced motion sets the final meaningful state immediately, with no flight or impulse.
+
+### Lenis — scroll response
+
+- Activate only after entrance exit. Wheel input settles with `lerp: 0.085`; touch remains native (`syncTouch: false`).
+- Preserve ordinary anchors, browser history, keyboard focus and direct links. Stop inertia on navigation. No translated page wrapper, scroll locks or pinned cinematic sections.
+- Destroy on reduced-motion changes/unmount; suspend RAF while the document is hidden. This small scroll RAF does not invalidate WebGL scenes.
+
+### Vanta — a bounded curiosity substrate
+
+- Use only WAVES behind the authored topic field. The folded solid material makes connections change a physical surface; it is not a global decorative wallpaper, ocean simulation, particle field or network graph.
+- Use the existing Three.js version through explicit `THREE`, without loading a second renderer library version. Lazy-import Vanta/Three when the field becomes visible after entry.
+- An authored pairing changes surface color, height and speed through GSAP over 850ms. Dark cobalt, olive, cyan and ochre remain below light, readable DOM topic labels.
+- A new interaction wakes a short response. Freeze rendering 3.4s after the final update/input; destroy the effect, listeners, geometry and renderer when offscreen, hidden, reduced motion is requested or the component unmounts.
+- Vanta 0.5.24 is pinned: its RAF handle is isolated in the adapter because upstream offers no pause API. Recheck adapter fields before upgrading.
+- Replace the stock grid with 40×32 desktop / 28×22 mobile subdivisions. Broad directional lighting replaces legacy point-light assumptions; folds must read before interaction. Cap Vanta DPR at 1.25 desktop / 1 mobile. No postprocessing, transmission or downloaded texture assets. Touch selects topics; it does not track a global Vanta touch handler.
+- Keep a static faceted SVG underneath for reduced motion, disabled WebGL and no JavaScript. All topics, authored relationships and controls remain outside the canvas.
+
+### Review gate
+
+- Inspect actual movement and settled frames at 1440, 1024, 768, 390 and 320. Check keyboard, tap/hold, reset, focus transfer, live motion-preference changes, deep links and fallback.
+- Verify both the entrance and Vanta stop drawing after settling, and Vanta releases its context offscreen. Report aggregate compressed bundle growth separately from initial-route transfer.
+- Do not claim Lusion-level quality or hardware FPS from headless software rendering. Judge depth, trackable separation, continuity and input response from actual captures.

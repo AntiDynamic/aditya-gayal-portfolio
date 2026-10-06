@@ -372,6 +372,8 @@
 }
 .entrance[data-passing="true"] .skip {
   color: #fff8ed;
+  background: #22211f;
+  padding-inline: 14px;
 }
 
 .world[data-visible="false"] {

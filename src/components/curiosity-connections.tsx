@@ -8,6 +8,7 @@ import {
   type PointerEvent as ReactPointerEvent,
 } from "react";
 import styles from "./curiosity-connections.module.css";
+import { CuriositySurface } from "./curiosity-surface";
 
 const topics = [
   {
@@ -405,6 +406,7 @@ export function CuriosityConnections() {
         data-active={activeRelationship?.id ?? "none"}
         data-selected={selected ?? "none"}
       >
+        <CuriositySurface tone={activeRelationship?.color ?? "none"} />
         <svg
           className={styles.routes}
           viewBox="0 0 1000 560"
@@ -460,7 +462,6 @@ export function CuriosityConnections() {
                 </g>
               )}
             </svg>
-            <span>{activeRelationship.note}</span>
           </div>
         )}
         <div

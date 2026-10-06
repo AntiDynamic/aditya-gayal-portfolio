@@ -113,14 +113,12 @@ export function useEntrancePresence(composition: EntranceComposition) {
       state[key] = Math.abs(difference) < .001 ? state[target] : state[key] + difference * alpha;
       remaining += Math.abs(state[target] - state[key]);
     }
-    const limit = mobile ? .009 : .016;
+    const limit = mobile ? .024 : .048;
     object.rotation.set(-state.y * limit, state.x * limit, 0);
     for (const piece of object.children) {
       // Authored construction hierarchy: pliable paper, resistant enamel, tense join.
-      const lift = piece.name === "sweep" ? .10 : piece.name === "lower-shell" ? .055 : piece.name === "fold-under" ? .02 : 0;
+      const lift = piece.name === "sweep" ? .19 : piece.name === "lower-shell" ? .10 : piece.name === "fold-under" ? .035 : 0;
       piece.position.z = state.pressure * lift;
-      if (piece.name === "metal-lip") piece.rotation.z = state.pressure * -.023;
-      if (piece.name === "rubber-join") piece.scale.z = 1 - state.pressure * .06;
     }
     if (remaining > .001 && state.enabled && !document.hidden) invalidate();
   });

@@ -122,9 +122,9 @@ export function WorldInstrument({
     if (start.current) {
       const cam = get().camera;
       cam.position.set(
-        Math.sin(p * Math.PI) * sourceX * 0.32,
-        Math.sin(p * Math.PI) * sourceY * 0.32,
-        initialDistance.current * (1 - 0.08 * p),
+        Math.sin(p * Math.PI) * sourceX * 0.44,
+        Math.sin(p * Math.PI) * sourceY * 0.44,
+        initialDistance.current * (1 - 0.24 * p),
       );
       cam.rotation.set(0, 0, 0);
       cam.updateProjectionMatrix();

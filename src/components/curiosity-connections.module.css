@@ -540,3 +540,12 @@
 }
 
 @media(max-width:767px){.topic[data-topic="experimental"]>span:first-child{font-size:clamp(17px,4.7vw,20px);overflow-wrap:normal}}
+
+@media (max-width: 767px) {
+  .topic[data-topic="civic"] > span:first-child,
+  .topic[data-topic="automation"] > span:first-child,
+  .topic[data-topic="visual"] > span:first-child {
+    font-size: clamp(17px, 5.1vw, 20px);
+    overflow-wrap: normal;
+  }
+}

@@ -19,10 +19,10 @@ export function cavityWall(points: Point[], composition: EntranceComposition) {
   for (let index=0;index<points.length;index++) {
     const next=(index+1)%points.length;
     const front=(i:number):number[] => [(points[i][0]-composition.width/2)/100,(composition.height/2-points[i][1])/100,.065];
-    const back=(i:number):number[] => [(points[i][0]-composition.width/2+11)/100,(composition.height/2-points[i][1]-13)/100,-1.15];
+    const back=(i:number):number[] => [(points[i][0]-composition.width/2+11)/100,(composition.height/2-points[i][1]-13)/100,-2.65];
     for (const vertex of [front(index),back(index),front(next),front(next),back(index),back(next)]) {
       positions.push(...vertex);
-      colors.push(...(vertex[2]>0 ? [.034,.052,.10] : [.014,.025,.060]));
+      colors.push(...(vertex[2]>0 ? [.048,.075,.16] : [.008,.013,.034]));
     }
   }
   const geometry=new BufferGeometry();

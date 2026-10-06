@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { gsap } from "gsap";
 import {
   Component,
   useCallback,
@@ -52,6 +53,11 @@ export function EntranceGate({ children }: { children: ReactNode }) {
     invalidate: null,
     passage: 0,
   });
+  useEffect(() => {
+    // Structural events use elapsed time. Slow renderers must not turn a
+    // 1.35s passage into several seconds of artificial ticker lag recovery.
+    gsap.ticker.lagSmoothing(0);
+  }, []);
   const bindHero = useCallback((binding: HeroBinding | null) => {
     runtime.current.hero = binding;
     runtime.current.invalidate?.();
@@ -62,7 +68,7 @@ export function EntranceGate({ children }: { children: ReactNode }) {
   }, []);
   const [passing, setPassing] = useState(false);
   const pendingFocus = useRef(false);
-  const passageFrame = useRef<number | null>(null);
+  const passageTimeline = useRef<gsap.core.Tween | null>(null);
   const [active, setActive] = useState(true);
   const [loadScene, setLoadScene] = useState(false);
   const [ready, setReady] = useState(false);
@@ -77,8 +83,7 @@ export function EntranceGate({ children }: { children: ReactNode }) {
   const skipRef = useRef<HTMLAnchorElement>(null);
   const portfolioRef = useRef<HTMLDivElement>(null);
   const complete = useCallback(() => {
-    if (passageFrame.current !== null)
-      cancelAnimationFrame(passageFrame.current);
+    passageTimeline.current?.kill();
     runtime.current.passage = 1;
     pendingFocus.current = true;
     setPassing(false);
@@ -95,20 +100,17 @@ export function EntranceGate({ children }: { children: ReactNode }) {
       return;
     }
     setPassing(true);
-    const start = performance.now();
-    const tick = (now: number) => {
-      const p = Math.min(1, (now - start) / 1100);
-      runtime.current.passage = p * p * (3 - 2 * p);
-      runtime.current.invalidate?.();
-      if (p < 1) passageFrame.current = requestAnimationFrame(tick);
-      else complete();
-    };
-    passageFrame.current = requestAnimationFrame(tick);
+    passageTimeline.current = gsap.to(runtime.current, {
+      passage: 1,
+      duration: 1.35,
+      ease: "power2.inOut",
+      onUpdate: () => runtime.current.invalidate?.(),
+      onComplete: complete,
+    });
   };
   useEffect(
     () => () => {
-      if (passageFrame.current !== null)
-        cancelAnimationFrame(passageFrame.current);
+      passageTimeline.current?.kill();
     },
     [],
   );

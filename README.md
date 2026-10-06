@@ -4,7 +4,7 @@ A personal portfolio built around **The Folded Field**, a vivid editorial identi
 
 The skippable **Break the Surface** entrance now has one breakable enamel corner. Tap/click for pressure, or hold and release for a stronger hit; keyboard users can use Enter or hold Space. The printed fragment carries its typography into the break, revealing a deeper cobalt cavity. Reset restores the surface. Sound is not enabled.
 
-The same Reveal Key lives inside the opening and travels into the hero during a skippable 1.1-second passage. Behind the entrance, the identity-first homepage opens with the Reveal Key exploring five thought states, followed by Aditya’s approach to coding and collaboration, recurring curiosities, concise project links, and direct contact details. Continuum’s deeper experience remains available in an expandable section under Work. `DESIGN.md` documents the approved visual system and implementation boundaries. [Stage C.5 review](docs/entrance-stage-c5.md) records the geometry pipeline, motion phases, measurements, and remaining limits. The previous [Stage C review](docs/entrance-stage-c.md) is preserved.
+The same Reveal Key lives inside the opening and travels into the hero during a skippable 1.35-second passage. Behind the entrance, the identity-first homepage opens with the Reveal Key exploring five thought states, followed by Aditya’s approach to coding and collaboration, recurring curiosities, concise project links, and direct contact details. Continuum’s deeper experience remains available in an expandable section under Work. `DESIGN.md` documents the approved visual system and implementation boundaries. [Stage C.5 review](docs/entrance-stage-c5.md) records the geometry pipeline, motion phases, measurements, and remaining limits. The previous [Stage C review](docs/entrance-stage-c.md) is preserved.
 
 ## The playable notebook
 
@@ -19,7 +19,7 @@ The approved [Experience Architecture V2](docs/experience-architecture-v2.md) is
 - **Move:** recurring questions on notes that can be arranged and turned over.
 - **Send:** the final trace resolves toward email, with GitHub and LinkedIn alongside.
 
-`DESIGN.md` is the implementation contract. [Build and review](docs/experience-v2-build.md) records visual QA, accessibility, performance measurements, and limits. Current questions are presented as recurring interests, not invented live activity. Sound stays off; no sound system or additional dependency was added.
+`DESIGN.md` is the implementation contract. [Build and review](docs/experience-v2-build.md) records visual QA, accessibility, performance measurements, and limits. Current questions are presented as recurring interests, not invented live activity. Sound stays off. The [motion refinement](docs/motion-libraries.md) adds GSAP choreography, Lenis wheel scrolling and a bounded Vanta surface that responds to curiosity pairings.
 
 ## Run locally
 
@@ -38,7 +38,7 @@ pnpm build
 
 ## Stack
 
-Next.js App Router, React, TypeScript, Tailwind CSS v4, and React Three Fiber for a scoped entrance/hero world and a separate lazy build assembly. Essential copy and project links remain in HTML; WebGL is a lazy enhancement with HTML/SVG fallbacks. Entrance geometry is removed after passage while the Key and renderer persist. The build assembly mounts near its section and is disposed offscreen.
+Next.js App Router, React, TypeScript, Tailwind CSS v4, and React Three Fiber for a scoped entrance/hero world and a separate lazy build assembly. GSAP orchestrates structural motion and passage; Lenis smooths wheel input after entry; Vanta WAVES supplies one bounded, lazily loaded curiosity surface. Essential copy and project links remain in HTML; WebGL is a lazy enhancement with HTML/SVG fallbacks. Entrance geometry is removed after passage while the Key and renderer persist. The build assembly mounts near its section and is disposed offscreen.
 
 ## Signature geometry
 
