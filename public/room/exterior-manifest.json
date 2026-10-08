@@ -1,0 +1,12 @@
+{
+  "identifier": "abandoned_slipway",
+  "creator": "Philip Modin",
+  "sourceUrl": "https://polyhaven.com/a/abandoned_slipway",
+  "downloadUrl": "https://dl.polyhaven.org/file/ph-assets/HDRIs/extra/Tonemapped%20JPG/abandoned_slipway.jpg",
+  "license": "CC0-1.0",
+  "licenseUrl": "https://polyhaven.com/license",
+  "originalBytes": 5160993,
+  "optimizedBytes": 102980,
+  "md5": "f94f23017b84809622c71fd18f849685",
+  "modifications": "Complete seamless 360-degree panorama; 2048x1024 WebP; restrained cool haze/desaturation; infinite scene background, not a cropped box or HDR lighting"
+}

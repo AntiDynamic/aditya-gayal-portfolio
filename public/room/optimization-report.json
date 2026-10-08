@@ -1,0 +1,99 @@
+{
+  "sourceModelBytes": 16689753,
+  "optimizedModelBytes": 2336640,
+  "sourceTriangles": 130035,
+  "optimizedTriangles": 32975,
+  "sourceMaterialBytes": 2419527,
+  "optimizedMaterialBytes": 41380,
+  "customShellBytes": 594512,
+  "fontBytes": 251752,
+  "totalSceneAssetBytes": 3327264,
+  "exterior": {
+    "identifier": "abandoned_slipway",
+    "creator": "Philip Modin",
+    "sourceUrl": "https://polyhaven.com/a/abandoned_slipway",
+    "downloadUrl": "https://dl.polyhaven.org/file/ph-assets/HDRIs/extra/Tonemapped%20JPG/abandoned_slipway.jpg",
+    "license": "CC0-1.0",
+    "licenseUrl": "https://polyhaven.com/license",
+    "originalBytes": 5160993,
+    "optimizedBytes": 102980,
+    "md5": "f94f23017b84809622c71fd18f849685",
+    "modifications": "Complete seamless 360-degree panorama; 2048x1024 WebP; restrained cool haze/desaturation; infinite scene background, not a cropped box or HDR lighting"
+  },
+  "fontSource": {
+    "identifier": "Caveat 500",
+    "creator": "The Caveat Project Authors",
+    "sourceUrl": "https://fonts.google.com/specimen/Caveat",
+    "downloadUrl": "https://fonts.gstatic.com/s/caveat/v23/WnznHAc5bAfYB2QRah7pcpNvOx-pjcB9SII.ttf",
+    "license": "SIL-OFL-1.1",
+    "licenseFile": "/room/fonts/OFL.txt",
+    "originalBytes": 251752,
+    "optimizedBytes": 251752,
+    "modifications": "Unmodified font, registered locally for Canvas handwriting"
+  },
+  "models": [
+    {
+      "identifier": "metal_office_desk",
+      "originalBytes": 1606530,
+      "optimizedBytes": 346364,
+      "originalTriangles": 6898,
+      "optimizedTriangles": 4594,
+      "originalPrimitiveCount": 9,
+      "optimizedPrimitiveCount": 1
+    },
+    {
+      "identifier": "painted_wooden_chair_02",
+      "originalBytes": 2396396,
+      "optimizedBytes": 156084,
+      "originalTriangles": 1246,
+      "optimizedTriangles": 1246,
+      "originalPrimitiveCount": 1,
+      "optimizedPrimitiveCount": 1
+    },
+    {
+      "identifier": "desk_lamp_arm_01",
+      "originalBytes": 2875984,
+      "optimizedBytes": 566560,
+      "originalTriangles": 24102,
+      "optimizedTriangles": 10845,
+      "originalPrimitiveCount": 2,
+      "optimizedPrimitiveCount": 2
+    },
+    {
+      "identifier": "binder_notebook",
+      "originalBytes": 1889775,
+      "optimizedBytes": 290196,
+      "originalTriangles": 18077,
+      "optimizedTriangles": 5421,
+      "originalPrimitiveCount": 2,
+      "optimizedPrimitiveCount": 1
+    },
+    {
+      "identifier": "wooden_bookshelf_worn",
+      "originalBytes": 2777194,
+      "optimizedBytes": 419688,
+      "originalTriangles": 10106,
+      "optimizedTriangles": 4547,
+      "originalPrimitiveCount": 1,
+      "optimizedPrimitiveCount": 1
+    },
+    {
+      "identifier": "book_encyclopedia_set_01",
+      "originalBytes": 3261046,
+      "optimizedBytes": 390956,
+      "originalTriangles": 67306,
+      "optimizedTriangles": 4022,
+      "originalPrimitiveCount": 40,
+      "optimizedPrimitiveCount": 2
+    },
+    {
+      "identifier": "flathead_screwdriver",
+      "originalBytes": 1882828,
+      "optimizedBytes": 166792,
+      "originalTriangles": 2300,
+      "optimizedTriangles": 2300,
+      "originalPrimitiveCount": 1,
+      "optimizedPrimitiveCount": 1
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+[
+  {
+    "id": "continuum",
+    "source": "https://github.com/AntiDynamic/Continuum",
+    "license": "MIT",
+    "capture": "Original editorial rendering of documented CLI commands. Not an application screenshot or a claimed run result.",
+    "file": "public/media/work/continuum.webp",
+    "width": 1440,
+    "height": 1000,
+    "originalBytes": 53433,
+    "optimizedBytes": 22232
+  },
+  {
+    "id": "tracepilot",
+    "source": "https://github.com/priyanshuchawda/tracepilot-gemini-cli",
+    "license": "Apache-2.0",
+    "capture": "Actual repository workbench UI served locally without backend services; offline/idle state retained. No generated proof or fabricated run data.",
+    "file": "public/media/work/tracepilot.webp",
+    "width": 1440,
+    "height": 1000,
+    "originalBytes": 54536,
+    "optimizedBytes": 19242
+  },
+  {
+    "id": "netranagar",
+    "source": "https://github.com/AntiDynamic/NetraNagar-public",
+    "license": "User-provided project representation; no third-party application-code license asserted",
+    "capture": "Actual published application build served locally. Unavailable monitoring data retained. Map attribution: © OpenStreetMap contributors, https://www.openstreetmap.org/copyright.",
+    "file": "public/media/work/netranagar.webp",
+    "width": 1440,
+    "height": 1000,
+    "originalBytes": 1141396,
+    "optimizedBytes": 202806
+  }
+]

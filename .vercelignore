@@ -1,0 +1,12 @@
+node_modules
+.next
+.git
+visual-qa
+coverage
+docs
+scripts
+.env*
+*.pem
+*.tsbuildinfo
+README.md
+AGENTS.md

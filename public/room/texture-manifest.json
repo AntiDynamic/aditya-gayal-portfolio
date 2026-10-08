@@ -1,0 +1,54 @@
+[
+  {
+    "identifier": "white_plaster_02",
+    "map": "color",
+    "creator": {
+      "Rob Tuytel": "All"
+    },
+    "sourceUrl": "https://polyhaven.com/a/white_plaster_02",
+    "downloadUrl": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/white_plaster_02/white_plaster_02_diff_1k.jpg",
+    "license": "CC0-1.0",
+    "originalBytes": 527219,
+    "optimizedBytes": 2292,
+    "modifications": "1024px JPEG to 512px WebP; wall diffuse repainted 84%, floor desaturated 42%; restrained normal strength"
+  },
+  {
+    "identifier": "white_plaster_02",
+    "map": "normal",
+    "creator": {
+      "Rob Tuytel": "All"
+    },
+    "sourceUrl": "https://polyhaven.com/a/white_plaster_02",
+    "downloadUrl": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/white_plaster_02/white_plaster_02_nor_gl_1k.jpg",
+    "license": "CC0-1.0",
+    "originalBytes": 652310,
+    "optimizedBytes": 22908,
+    "modifications": "1024px JPEG to 512px WebP; wall diffuse repainted 84%, floor desaturated 42%; restrained normal strength"
+  },
+  {
+    "identifier": "linoleum_brown",
+    "map": "color",
+    "creator": {
+      "Rob Tuytel": "All"
+    },
+    "sourceUrl": "https://polyhaven.com/a/linoleum_brown",
+    "downloadUrl": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/linoleum_brown/linoleum_brown_diff_1k.jpg",
+    "license": "CC0-1.0",
+    "originalBytes": 684269,
+    "optimizedBytes": 14208,
+    "modifications": "1024px JPEG to 512px WebP; wall diffuse repainted 84%, floor desaturated 42%; restrained normal strength"
+  },
+  {
+    "identifier": "linoleum_brown",
+    "map": "normal",
+    "creator": {
+      "Rob Tuytel": "All"
+    },
+    "sourceUrl": "https://polyhaven.com/a/linoleum_brown",
+    "downloadUrl": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/linoleum_brown/linoleum_brown_nor_gl_1k.jpg",
+    "license": "CC0-1.0",
+    "originalBytes": 555729,
+    "optimizedBytes": 1972,
+    "modifications": "1024px JPEG to 512px WebP; wall diffuse repainted 84%, floor desaturated 42%; restrained normal strength"
+  }
+]

@@ -1,0 +1,178 @@
+[
+  {
+    "identifier": "metal_office_desk",
+    "source": "Poly Haven",
+    "creator": {
+      "Ulan Cabanilla": "All"
+    },
+    "sourceUrl": "https://polyhaven.com/a/metal_office_desk",
+    "license": "CC0-1.0",
+    "licenseUrl": "https://polyhaven.com/license",
+    "originalBytes": 1606530,
+    "optimizedBytes": 346364,
+    "originalResolution": 1024,
+    "optimizedResolution": 768,
+    "modifications": "Blender: normalize origin to floor, remove cameras/lights, JPEG textures; dense geometry decimated; static meshes joined by material; placement adapted to room",
+    "rawPath": "/tmp/portfolio-room-source/metal_office_desk/metal_office_desk_1k.gltf",
+    "dimensions": [
+      2.000000476837158,
+      0.9472135305404663,
+      0.7875000238418579
+    ],
+    "triangles": 4594,
+    "originalTriangles": 6898,
+    "originalPrimitiveCount": 9,
+    "optimizedPrimitiveCount": 1
+  },
+  {
+    "identifier": "painted_wooden_chair_02",
+    "source": "Poly Haven",
+    "creator": {
+      "Kirill Sannikov": "All"
+    },
+    "sourceUrl": "https://polyhaven.com/a/painted_wooden_chair_02",
+    "license": "CC0-1.0",
+    "licenseUrl": "https://polyhaven.com/license",
+    "originalBytes": 2396396,
+    "optimizedBytes": 156084,
+    "originalResolution": 1024,
+    "optimizedResolution": 512,
+    "modifications": "Blender: normalize origin to floor, remove cameras/lights, JPEG textures; dense geometry decimated; static meshes joined by material; placement adapted to room",
+    "rawPath": "/tmp/portfolio-room-source/painted_wooden_chair_02/painted_wooden_chair_02_1k.gltf",
+    "dimensions": [
+      0.6393896341323853,
+      0.6620978116989136,
+      1.2637710571289062
+    ],
+    "triangles": 1246,
+    "originalTriangles": 1246,
+    "originalPrimitiveCount": 1,
+    "optimizedPrimitiveCount": 1
+  },
+  {
+    "identifier": "desk_lamp_arm_01",
+    "source": "Poly Haven",
+    "creator": {
+      "Yann Kervran": "Rigging",
+      "Kuutti Siitonen": "Modeling & texturing"
+    },
+    "sourceUrl": "https://polyhaven.com/a/desk_lamp_arm_01",
+    "license": "CC0-1.0",
+    "licenseUrl": "https://polyhaven.com/license",
+    "originalBytes": 2875984,
+    "optimizedBytes": 566560,
+    "originalResolution": 1024,
+    "optimizedResolution": 512,
+    "modifications": "Blender: normalize origin to floor, remove cameras/lights, JPEG textures; dense geometry decimated; static meshes joined by material; placement adapted to room",
+    "rawPath": "/tmp/portfolio-room-source/desk_lamp_arm_01/desk_lamp_arm_01_1k.gltf",
+    "dimensions": [
+      0.20172932744026184,
+      0.6138725876808167,
+      0.8926106691360474
+    ],
+    "triangles": 10845,
+    "originalTriangles": 24102,
+    "originalPrimitiveCount": 2,
+    "optimizedPrimitiveCount": 2
+  },
+  {
+    "identifier": "binder_notebook",
+    "source": "Poly Haven",
+    "creator": {
+      "DaDrood": "All"
+    },
+    "sourceUrl": "https://polyhaven.com/a/binder_notebook",
+    "license": "CC0-1.0",
+    "licenseUrl": "https://polyhaven.com/license",
+    "originalBytes": 1889775,
+    "optimizedBytes": 290196,
+    "originalResolution": 1024,
+    "optimizedResolution": 512,
+    "modifications": "Blender: normalize origin to floor, remove cameras/lights, JPEG textures; dense geometry decimated; static meshes joined by material; placement adapted to room",
+    "rawPath": "/tmp/portfolio-room-source/binder_notebook/binder_notebook_1k.gltf",
+    "dimensions": [
+      0.5840288400650024,
+      0.19995832443237305,
+      0.025289427489042282
+    ],
+    "triangles": 5421,
+    "originalTriangles": 18077,
+    "originalPrimitiveCount": 2,
+    "optimizedPrimitiveCount": 1
+  },
+  {
+    "identifier": "wooden_bookshelf_worn",
+    "source": "Poly Haven",
+    "creator": {
+      "Ulan Cabanilla": "All"
+    },
+    "sourceUrl": "https://polyhaven.com/a/wooden_bookshelf_worn",
+    "license": "CC0-1.0",
+    "licenseUrl": "https://polyhaven.com/license",
+    "originalBytes": 2777194,
+    "optimizedBytes": 419688,
+    "originalResolution": 1024,
+    "optimizedResolution": 768,
+    "modifications": "Blender: normalize origin to floor, remove cameras/lights, JPEG textures; dense geometry decimated; static meshes joined by material; placement adapted to room",
+    "rawPath": "/tmp/portfolio-room-source/wooden_bookshelf_worn/wooden_bookshelf_worn_1k.gltf",
+    "dimensions": [
+      1.37395179271698,
+      0.5813020467758179,
+      2.0634419918060303
+    ],
+    "triangles": 4547,
+    "originalTriangles": 10106,
+    "originalPrimitiveCount": 1,
+    "optimizedPrimitiveCount": 1
+  },
+  {
+    "identifier": "book_encyclopedia_set_01",
+    "source": "Poly Haven",
+    "creator": {
+      "John Malcolm": "All"
+    },
+    "sourceUrl": "https://polyhaven.com/a/book_encyclopedia_set_01",
+    "license": "CC0-1.0",
+    "licenseUrl": "https://polyhaven.com/license",
+    "originalBytes": 3261046,
+    "optimizedBytes": 390956,
+    "originalResolution": 1024,
+    "optimizedResolution": 512,
+    "modifications": "Blender: normalize origin to floor, remove cameras/lights, JPEG textures; dense geometry decimated; static meshes joined by material; placement adapted to room",
+    "rawPath": "/tmp/portfolio-room-source/book_encyclopedia_set_01/book_encyclopedia_set_01_1k.gltf",
+    "dimensions": [
+      0.5512974262237549,
+      0.16306233406066895,
+      0.23741818964481354
+    ],
+    "triangles": 4022,
+    "originalTriangles": 67306,
+    "originalPrimitiveCount": 40,
+    "optimizedPrimitiveCount": 2
+  },
+  {
+    "identifier": "flathead_screwdriver",
+    "source": "Poly Haven",
+    "creator": {
+      "Dylan Detwiller": "All"
+    },
+    "sourceUrl": "https://polyhaven.com/a/flathead_screwdriver",
+    "license": "CC0-1.0",
+    "licenseUrl": "https://polyhaven.com/license",
+    "originalBytes": 1882828,
+    "optimizedBytes": 166792,
+    "originalResolution": 1024,
+    "optimizedResolution": 512,
+    "modifications": "Blender: normalize origin to floor, remove cameras/lights, JPEG textures; dense geometry decimated; static meshes joined by material; placement adapted to room",
+    "rawPath": "/tmp/portfolio-room-source/flathead_screwdriver/flathead_screwdriver_1k.gltf",
+    "dimensions": [
+      0.03002973645925522,
+      0.03002973459661007,
+      0.26129382848739624
+    ],
+    "triangles": 2300,
+    "originalTriangles": 2300,
+    "originalPrimitiveCount": 1,
+    "optimizedPrimitiveCount": 1
+  }
+]

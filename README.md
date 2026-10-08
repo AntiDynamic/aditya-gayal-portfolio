@@ -1,53 +1,52 @@
 # Aditya Gayal — portfolio
 
-A personal portfolio built around **The Folded Field**, a vivid editorial identity with tactile interaction and connected visual systems.
+A realtime black-hole opening leads into a first-person workspace and a cream editorial portfolio. Real photographs, project media and typography gain restrained spatial behavior without losing their normal HTML layout.
 
-The homepage now begins with one **continuous identity journey**: question → observation → connections → persistence → another perspective. A perspective camera travels through four physical stations. Thick Blender-authored ribbon forms separate, rearrange and align; physical print belongs to their UVs. Large HTML typography moves from the same scroll value. Wheel, touch and keyboard scrolling are enough; direct navigation to Work is always available.
-
-There is no default click/destruction gate. Work, recurring questions, email, GitHub and LinkedIn follow the personal story. Reduced motion and no JavaScript receive a normal chapter stack; WebGL failure retains the authored SVG illustration. Sound remains off. The former entrance, Reveal Key and personal widgets are preserved in source, but not mounted on the default homepage. Historical `?entrance=1` no longer selects the archived gate.
-
-## The playable notebook
-
-The earlier [Experience Architecture V2](docs/experience-architecture-v2.md) remains a record of the previous pass. The current direction and remaining work are documented in:
-
-- [Current problems](docs/CURRENT_PROBLEMS.md): recording-grounded audit and reference comparison.
-- [Resource map](docs/RESOURCE_MAP.md): tools, source references and ownership.
-- [Experience roadmap](docs/EXPERIENCE_ROADMAP.md): scene storyboards and future work.
-- [Journey build/review](docs/JOURNEY_REVIEW.md): actual desktop/mobile images, motion sequence and measured performance.
-
-`DESIGN.md` §21 is the current implementation contract. Historical [build and review](docs/experience-v2-build.md), [scroll-opening review](docs/unfold-passage.md), and [Stage C.5](docs/entrance-stage-c5.md) preserve earlier work. Current questions remain recurring interests, not invented live activity.
-
-## Run locally
+## Run
 
 ```bash
 pnpm dev
 ```
 
-Open `http://localhost:3000`.
+- `http://localhost:3000/?portfolio` — actual portfolio directly.
+- `http://localhost:3000/?replay=1&motion=full` — complete opening, even after a completed session.
+- `http://localhost:3000/?room=1` — room directly.
+- `http://localhost:3000/#work` — selected work, bypassing the prologue.
+- `http://localhost:3000/lab/event-horizon` — black-hole renderer review.
 
-The isolated **Event Horizon of a Question** prototype is at `http://localhost:3000/lab/event-horizon`. Scroll through the black-hole approach, collapsing typography, white point and identity reveal. Skip intro/Escape or `#identity` goes directly to the final frame. Its renderer and reference attribution are documented in [event-horizon references](docs/event-horizon-references.md). It has not replaced the homepage.
+Completed sessions and `?portfolio` bypass the prologue. The portfolio hero offers **Watch the intro** to replay the full black-hole sequence. Reduced motion defaults to the guided room; choosing the full replay explicitly overrides that preference for this visit. Keyboard access, Escape, WebGL fallback, and content without JavaScript remain available.
 
-Optional music is off by default. The Event Horizon score builds with the plunge, then gives way to a quieter portfolio loop at the white point. Track sources and CC0 licensing are listed in [public/audio/ASSETS.md](public/audio/ASSETS.md).
+## Current implementation
 
-If you see a still illustration and stacked chapters, your browser may be requesting reduced motion. Use **Enable animation** above the headline to opt into the 3D scroll journey. **Pause animation** returns to the reading view. The website respects the system preference by default; no system setting needs to change.
+Next.js App Router, React, TypeScript, Tailwind CSS, Three.js, and Web Audio. Native scrolling drives scene targets. Animation uses refs and shader uniforms; there is no per-frame React state. Hidden and offscreen scenes stop rendering. The portfolio remains semantic HTML.
+
+The black-hole renderer, first-person room, and monitor transition are documented in [black-hole references](docs/event-horizon-references.md), [room prologue](docs/room-prologue.md), and [prologue polish](docs/prologue-lock.md). The actual website is documented in [editorial portfolio](docs/editorial-portfolio.md), its [depth pass](docs/editorial-depth.md), and [everyday motion and activation](docs/editorial-fluidity.md). Technical references and asset rights are in [animation references](docs/animation-references.md). Project provenance is in [content sources](docs/portfolio-content-sources.md).
+
+## Assets and sound
+
+The active room uses optimized CC0 props and materials, an original Blender shell, and an OFL handwriting font. See [asset sources](docs/asset-sources.md). Its reusable scripts live in `scripts/assets/` and `scripts/blender/`.
+
+Audio uses the existing prologue mix and licensed environmental samples. Browsers may require a natural click, tap, or key before playback. Text stages remain silent. The portfolio has an optional original soundtrack, enabled through its Music control; see [image reliability and interactions](docs/portfolio-repair.md), [sound design](docs/sound-design.md), [audio sources](docs/audio-sources.md), and [audio asset licenses](public/audio/ASSETS.md).
 
 ## Checks
 
 ```bash
 pnpm lint
 pnpm build
+pnpm start
+QA_URL=http://localhost:3000 node scripts/editorial-qa.mjs
+QA_URL=http://localhost:3000 node scripts/elevation-flow-qa.mjs
+QA_URL=http://localhost:3000 node scripts/room-walk-qa.mjs
 ```
 
-## Stack
+Current portfolio repair screenshots and recordings are in `visual-qa/repair/`; the review gallery is served locally at `http://localhost:3002/`. Earlier room, black-hole, and audio regression evidence remains in the corresponding `visual-qa/` directories. Chromium is required for browser QA; FFmpeg is required for recording conversion. Development and production builds explicitly use Webpack.
 
-Next.js App Router, React, TypeScript, Tailwind CSS v4 and one lazy React Three Fiber identity world. GSAP/ScrollTrigger orchestrate numeric motion; CSS sticky supplies the bounded stage without scroll interception. Lenis smooths wheel input, with native touch/anchors. Essential copy and links remain server-rendered HTML. Vanta and old build scenes remain installed/in source but are not mounted by this homepage. Rendering sleeps after motion settles.
+## Production
 
-## Signature geometry
+- Complete experience: https://aditya-gayal-portfolio.vercel.app/
+- Portfolio only: https://aditya-gayal-portfolio.vercel.app/?portfolio
+- Replay: https://aditya-gayal-portfolio.vercel.app/?replay=1&motion=full
 
-Blender CLI authors the three named curved parts of the Question Relay. Regenerate with:
+The Vercel project is linked locally. Deploy the current working tree with `pnpm dlx vercel@latest deploy --prod`. Production uses the pinned pnpm version through Corepack. GitHub-triggered deployment is not connected yet; Vercel requires the owner's GitHub login connection to enable it. CLI deployment does not require a commit or push.
 
-```bash
-blender -b --factory-startup --python scripts/blender/build-question-relay.py
-```
-
-Provenance and geometry sizes are recorded in [model assets](public/models/ASSETS.md). The historical break script and [entrance assets](public/entrance/ASSETS.md) remain reproducible. Blender is an authoring tool, not a website dependency.
+Release checks: `QA_URL=https://aditya-gayal-portfolio.vercel.app node scripts/release-qa.mjs`. Security boundaries, deployment details, and remaining limits are documented in [production release](docs/production-release.md). QA recordings, environment files, and source documentation are excluded from deployment upload.

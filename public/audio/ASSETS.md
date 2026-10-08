@@ -1,15 +1,9 @@
-# Music assets
+# Audio assets
 
-Both tracks are CC0/public-domain releases from OpenGameArt. Music starts only after the visitor activates the Sound control. The Event Horizon score fades down at the collapse; the quieter portfolio loop fades in at the white point and continues on the main site.
+The shipped prologue recordings `threshold-airy.mp3` and `threshold-light.mp3` are CC0 releases. Their creator names, source URLs, download URLs, sizes, and processing are recorded in [audio provenance](../../docs/audio-sources.md).
 
-| Final file | Source / author | License | Processing | Final size | Use |
-| --- | --- | --- | --- | ---: | --- |
-| `event-horizon-score.mp3` | [Generic trailer music](https://opengameart.org/content/generic-trailer-music), Emma_MA | CC0; author notes public-domain release in Jan 2017 | MP3 re-encode from source MP3 using ffmpeg/libmp3lame at 128 kbps, 44.1 kHz stereo; metadata removed | 2,629,006 bytes; 164.26 s | Intense, dramatic score for the black-hole approach. |
-| `portfolio-ambience.mp3` | [Outer Space Loop](https://opengameart.org/content/outer-space-loop), wipics | CC0 / public domain | MP3 re-encode from source MP3 using ffmpeg/libmp3lame at 112 kbps, 44.1 kHz stereo; metadata removed | 979,426 bytes; 69.90 s | Quieter, loopable ambient bed for the portfolio. |
+Room Foley is also CC0. Exact file-level source, creator, license, processing, and checksum records are in [Foley sources](foley/sources.json). Original procedural cosmic and equipment audio is implemented through Web Audio; see [sound design](../../docs/sound-design.md).
 
-Original downloads:
+Browsers may require a natural click, tap, or key before playback. The interior text and singularity are silent. The actual portfolio offers the optional original soundtrack `work-in-progress.mp3`, generated entirely by `scripts/assets/compose-portfolio-music.mjs` without third-party samples or compositions. It is off until the visitor presses Music, and does not change the licensed prologue mix.
 
-- `https://opengameart.org/sites/default/files/Generic%20Trailer%20Music_0.mp3` (3,936,416 bytes)
-- `https://opengameart.org/sites/default/files/outer_space_2.mp3` (1,681,785 bytes)
-
-These are existing compositions by the named authors, not generated or claimed as original Aditya music. The repository redistributes optimized derivatives under the source tracks' CC0 terms.
+Unused trailer music, portfolio ambience, and the muted interior recording were removed during cleanup. Active recordings and licenses remain intact.

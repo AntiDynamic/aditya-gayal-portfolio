@@ -1,5 +1,7 @@
 # Event Horizon of a Question — references and adaptation
 
+Current presentation and pacing are documented in `clean-pull.md`. The original adaptation notes below include earlier exterior typography, scroll-derived time and sound controls that have since been replaced or removed.
+
 The experiment lives at `/lab/event-horizon`. The homepage is unchanged. Worktree was clean at the start; baseline was `0d2625f`. No reset, clean or re-clone of the portfolio was performed.
 
 ## NASA SVS 14576 — visual/camera reference
@@ -42,7 +44,7 @@ Our response: one optical phenomenon, sparse type, peripheral disk passages, dim
 - DOM: identity, semantic headline, links, skip, motion choice, focus. Essential text never depends on the shader.
 - CSS module: sticky viewport, the white identity composition, small reveal transforms and focus styles.
 - Native browser scroll: one normalized progress value, 85ms exponential response, reversible. No wheel interception, scroll lock, or hundreds of observers.
-- GSAP/Lenis: retained elsewhere; unnecessary for this one scalar controller. No second smoothing loop.
+- The scalar controller uses native scroll without a separate smoothing library.
 - Blender: inspected existing pipeline, not used; mathematical lensing does not benefit from a mesh asset.
 - 21st.dev: existing project reference audit was inspected. No component solves geodesic rendering or improves this simple scroll/controller boundary; no new templates or packages imported.
 - No new dependencies, physics engine, environment download or background video. Opt-in music uses two locally hosted CC0 tracks; provenance and processing are in `public/audio/ASSETS.md`.

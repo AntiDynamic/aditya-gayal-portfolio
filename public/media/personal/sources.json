@@ -1,0 +1,42 @@
+[
+  {
+    "file": "public/media/personal/aditya-standing-450.webp",
+    "originalFilename": "WhatsApp Image 2026-10-08 at 17.20.29.jpeg",
+    "approval": "Third photo: striped pink/red shirt, standing against sky and city",
+    "source": "User-provided photograph",
+    "rights": "Used with the user's express approval; no third-party license asserted",
+    "originalBytes": 192878,
+    "optimizedBytes": 68370,
+    "modifications": "Orientation respected; downsampled without upscaling; WebP quality 84; metadata removed. No retouching or invented background."
+  },
+  {
+    "file": "public/media/personal/aditya-standing-900.webp",
+    "originalFilename": "WhatsApp Image 2026-10-08 at 17.20.29.jpeg",
+    "approval": "Third photo: striped pink/red shirt, standing against sky and city",
+    "source": "User-provided photograph",
+    "rights": "Used with the user's express approval; no third-party license asserted",
+    "originalBytes": 192878,
+    "optimizedBytes": 181476,
+    "modifications": "Orientation respected; downsampled without upscaling; WebP quality 84; metadata removed. No retouching or invented background."
+  },
+  {
+    "file": "public/media/personal/aditya-open-450.webp",
+    "originalFilename": "WhatsApp Image 2026-10-08 at 17.20.30.jpeg",
+    "approval": "Fourth photo: same shirt with jacket, arms open against city",
+    "source": "User-provided photograph",
+    "rights": "Used with the user's express approval; no third-party license asserted",
+    "originalBytes": 169342,
+    "optimizedBytes": 60778,
+    "modifications": "Orientation respected; downsampled without upscaling; WebP quality 84; metadata removed. No retouching or invented background."
+  },
+  {
+    "file": "public/media/personal/aditya-open-900.webp",
+    "originalFilename": "WhatsApp Image 2026-10-08 at 17.20.30.jpeg",
+    "approval": "Fourth photo: same shirt with jacket, arms open against city",
+    "source": "User-provided photograph",
+    "rights": "Used with the user's express approval; no third-party license asserted",
+    "originalBytes": 169342,
+    "optimizedBytes": 151334,
+    "modifications": "Orientation respected; downsampled without upscaling; WebP quality 84; metadata removed. No retouching or invented background."
+  }
+]

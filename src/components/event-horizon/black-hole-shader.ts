@@ -6,9 +6,12 @@ precision highp float;
 
 uniform vec2 uResolution;
 uniform float uProgress;
+uniform float uExterior;
 uniform float uReduced;
-uniform sampler2D uType;
+uniform sampler2D uIdentity;
 uniform float uTime;
+uniform vec4 uPlasma;
+uniform vec3 uHotStrength;
 uniform vec3 uCamPos;
 uniform mat3 uCamMat;
 uniform float uTanHalfFov;
@@ -59,7 +62,7 @@ float pnoise2(vec2 p, float period) {
 float diskFbm(vec2 p, float period) {
   float value = 0.0;
   float amplitude = 0.55;
-  for (int i = 0; i < 4; i++) {
+  for (int i = 0; i < DISK_OCTAVES; i++) {
     value += amplitude * pnoise2(p, period);
     p = p * 2.0 + vec2(0.0, 9.17);
     period *= 2.0;
@@ -102,40 +105,12 @@ vec3 starLayer(vec2 uv, float cells) {
 }
 
 vec3 sampleSky(vec3 dir) {
+  if(uStarIntensity<=0.0)return vec3(0.0);
   vec2 uv = dirToOct(dir);
   vec3 color = (starLayer(uv, 75.0) * .55 + starLayer(uv + .31, 155.0) * .22) * uStarIntensity;
   return color;
 }
 
-void shadeThought(vec3 before, vec3 after, inout vec3 color, float transmittance) {
-  float tide = smoothstep(.43,.75,uProgress)*(1.0-uReduced);
-  // Two faces of one nearby text plane descend toward the hole. Light intersects
-  // it on its curved path, so disk occlusion, magnification and duplicate images
-  // emerge from the same geodesic as the background. No screen-space swirl.
-  float planeZ=mix(uCamPos.z*.25,max(1.015,uCamPos.z-.30),tide);
-  if((before.z-planeZ)*(after.z-planeZ)>=0.0) return;
-  vec3 hit=mix(before,after,(before.z-planeZ)/(before.z-after.z));
-  vec3 planeCenter=uCamPos+uCamMat[2]*((planeZ-uCamPos.z)/uCamMat[2].z);
-  hit.xy-=planeCenter.xy;
-  float r=length(hit.xy);
-  float angle=atan(hit.y,hit.x);
-  float tangentialCompression=1.0+pow(tide,2.0)*12.0;
-  vec2 q=hit.xy;
-  // The tidal tensor stretches along the radial axis and compresses across it.
-  // Separate upper/lower baselines carry different depth/rate offsets.
-  float side=sign(q.y);
-  float extent=max(.04,uCamPos.z-planeZ);
-  float radialStretch=1.0+pow(tide,3.0)*16.0;
-  q.x*=tangentialCompression;
-  q.y=q.y/radialStretch+side*extent*.265*tide;
-  q.x+=sin(angle)*tide*.15*r;
-  float compositionWidth=min(1.0,(uResolution.x/uResolution.y)/1.3);
-  vec2 uv=q/vec2(extent*1.65*compositionWidth,extent*.82)+.5;
-  if(any(lessThan(uv,vec2(0.0)))||any(greaterThan(uv,vec2(1.0)))) return;
-  float ink=texture(uType,uv).r;
-  float appear=smoothstep(.20,.29,uProgress)*(1.0-smoothstep(.71,.80,uProgress))*(1.0-uReduced);
-  color+=vec3(.32,.31,.29)*ink*appear*transmittance;
-}
 
 void shadeDisk(
   vec3 hitPoint,
@@ -160,20 +135,42 @@ void shadeDisk(
   float gRaw = clamp(camGravFactor / (ut * (1.0 - omega * lz)), 0.05, 4.0);
   float g = mix(1.0, gRaw, uBeaming);
 
-  float azimuth = (theta - omega * uTime * uTimeScale) / TAU;
+  float flowAngle = theta - omega * uTime * uTimeScale;
+  float azimuth = flowAngle / TAU;
+  float innerActivity = 1.0-smoothstep(uDiskInner,uDiskOuter,r);
   vec2 noiseCoord = vec2(azimuth * DISK_NOISE_PERIOD + r * 1.1, r * 3.0);
+  noiseCoord += vec2(uPlasma.x*.055*sin(flowAngle*2.0+r),uPlasma.y*.045*cos(flowAngle*3.0-r))*(.25+.75*innerActivity);
   float turbulence = diskFbm(noiseCoord, DISK_NOISE_PERIOD);
-  float structure = smoothstep(0.15, 0.85, turbulence);
+  float structure = smoothstep(0.24, 0.78, turbulence);
+  float filamentPhase = flowAngle*7.0+r*10.0+turbulence*4.0+uPlasma.z*.08;
+  float filaments = smoothstep(.75,.97,sin(filamentPhase)) * smoothstep(.35,.7,turbulence);
+  float lanes = smoothstep(.65,.95,sin(flowAngle*3.0+r*4.0+turbulence*2.0));
+  float density = .4+.8*structure;
+  density *= 1.0+filaments*(.14+.24*innerActivity)-lanes*.14;
+#if DISK_OCTAVES > 3
+  float fine = pnoise2(vec2(azimuth*DISK_NOISE_PERIOD*2.0+r*2.2,r*9.0+uPlasma.z*.05),DISK_NOISE_PERIOD*2.0);
+  density *= 1.0+(fine-.5)*.12*innerActivity;
+#endif
+  float heat = 0.0;
+  for (int region = 0; region < HOT_REGIONS; region++) {
+    float regionId = float(region);
+    float regionRadius = 4.1+regionId*2.1;
+    float radialOffset = (r-regionRadius)/(.38+regionId*.16);
+    float angularOffset = 1.0-cos(flowAngle-(.7+regionId*2.2));
+    float arc = exp(-radialOffset*radialOffset-angularOffset*(12.0-regionId*2.0));
+    heat += arc*uHotStrength[region];
+  }
+  density *= 1.0+heat;
 
   float profile = pow(max(0.0, (1.0 - sqrt(uDiskInner / r)) / (r * r * r)), 0.25);
-  float temperature = uDiskTemp * uTempNorm * profile;
+  float temperature = uDiskTemp * uTempNorm * profile * (1.0+heat*.035+uPlasma.w*.006*innerActivity*(structure-.35));
 
   float observedTemp = temperature * g;
   float luminance = pow(observedTemp / uDiskTemp, 4.0);
-  float alpha = edgeFade * (0.55 + 0.45 * structure);
+  float alpha = edgeFade * (0.48 + 0.52 * structure);
 
   vec3 source = blackbody(observedTemp)
-    * (luminance * uDiskBrightness * (0.4 + 0.8 * structure) * 2.0);
+    * (luminance * uDiskBrightness * density * 2.0);
   color += transmittance * alpha * source;
   transmittance *= 1.0 - alpha;
 }
@@ -189,7 +186,7 @@ vec3 linearToSrgb(vec3 c) {
 }
 
 void finalize(vec3 color) {
-  color *= uExposure * (1.0-smoothstep(.73,.82,uProgress));
+  color *= uExposure * (1.0-smoothstep(.73,.82,uExterior));
   color = linearToSrgb(acesToneMap(color));
   color += (hash12(gl_FragCoord.xy) - .5) / 255.0;
   fragColor = vec4(color,1.0);
@@ -199,14 +196,28 @@ void main() {
   vec2 ndc = (2.0 * gl_FragCoord.xy - uResolution) / uResolution.y;
   // After the physical ray-traced approach, a deliberately non-scientific coda.
   // An emissive sphere overtakes the observer. No opacity-based white overlay.
-  if(uProgress > .82) {
-    float birth = smoothstep(.865,.88,uProgress);
-    float travel = smoothstep(.89,.95,uProgress);
+  if(uProgress>.95) {
+    // Retreat from an inked physical plane: perspective reveals the letter surface.
+    // This is a camera/plane intersection, not a scale transform on DOM typography.
+    float retreat=smoothstep(.951,.978,uProgress);
+    vec3 origin=vec3(mix(.8,0.0,retreat),mix(.55,0.0,retreat),-mix(.015,4.8*max(1.0,1.2/(uResolution.x/uResolution.y)),retreat));
+    vec3 direction=normalize(vec3(ndc*.46,1.0));
+    vec3 hit=origin+direction*(-origin.z/direction.z);
+    vec2 uv=hit.xy/vec2(6.8,3.4)+.5;
+    float ink=0.0;
+    if(all(greaterThanEqual(uv,vec2(0.0)))&&all(lessThanEqual(uv,vec2(1.0))))ink=texture(uIdentity,uv).r;
+    float reveal=smoothstep(.951,.958,uProgress)*(1.0-smoothstep(.978,.986,uProgress));
+    fragColor=vec4(mix(vec3(.972,.965,.945),vec3(.06,.065,.07),ink*reveal),1.0);
+    return;
+  }
+  if(uProgress > .855) {
+    float birth = smoothstep(.861,.884,uProgress);
+    float travel = smoothstep(.882,.95,uProgress);
     float radius = .022;
     // Author the approach distance so the last metre remains readable: a pure
     // exponential rush made the final expansion feel like a flash.
     float viewReach=length(vec2(uResolution.x/uResolution.y,1.0))+.3;
-    float projectedRadius=.002+viewReach*pow(travel,3.5);
+    float projectedRadius=.002+viewReach*pow(travel,2.8);
     float distanceToPoint=radius*sqrt(1.0+4.0/(projectedRadius*projectedRadius));
     vec3 ray = normalize(vec3(ndc*.5,1.0));
     vec3 center = vec3(0.0,0.0,distanceToPoint);
@@ -218,6 +229,7 @@ void main() {
     fragColor=vec4(vec3(.972,.965,.945)*point*birth,1.0);
     return;
   }
+  if(uProgress >= .655){fragColor=vec4(0.002,0.003,0.005,1.0);return;}
   vec3 rayDir = normalize(uCamMat * vec3(ndc * uTanHalfFov, 1.0));
   vec3 rayOrigin = uCamPos;
   float r0 = length(rayOrigin);
@@ -300,8 +312,6 @@ void main() {
 
     vec3 orbitRadial = cos(phi) * radialDir + sin(phi) * planeE2;
     vec3 point = orbitRadial / u;
-
-    if(uProgress>.20 && uProgress<.80) shadeThought(prevPoint,point,color,transmittance);
 
     if (prevPoint.y * point.y < 0.0) {
       float t = prevPoint.y / (prevPoint.y - point.y);
