@@ -2,7 +2,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { execFileSync } from "node:child_process";
 
 const rate = 44100;
-const beat = 60 / 84;
+const beat = 60 / 96;
 const duration = beat * 64;
 const length = Math.round(rate * duration);
 const left = new Float32Array(length);
@@ -33,16 +33,18 @@ const chords = [[53, 57, 60, 64, 67], [50, 57, 60, 64, 69], [45, 55, 60, 64, 67]
 for (let bar = 0; bar < 16; bar++) {
   const chord = chords[Math.floor(bar / 2) % chords.length];
   const start = bar * beat * 4;
+  const energy = bar < 2 ? .55 : bar > 13 ? .72 : 1;
   if (bar % 2 === 0) chord.slice(1).forEach((midi, index) => note(midi, start + index * .013, beat * 6, .047, (index - 1.5) * .22));
-  note(chord[0] - 12, start, beat * 2.8, .11, 0);
-  if (bar % 4 !== 3) note(chord[0] - 12, start + beat * 2.5, beat * 1.2, .052, 0);
+  note(chord[0] - 12, start, beat * 1.65, .12 * energy, 0);
+  note(chord[0] - 12, start + beat * 1.75, beat * .6, .055 * energy, 0);
+  if (bar % 4 !== 3) note(chord[0] - 12, start + beat * 2.5, beat * 1.2, .075 * energy, 0);
   if (bar % 4 === 1 || bar % 4 === 2) {
     note(chord[3] + 12, start + beat * 1.5, beat * 1.2, .028, -.25, false);
     note(chord[2] + 12, start + beat * 3, beat * 1.2, .022, .25, false);
   }
-  for (const pulse of [0, 2.5]) add(start + beat * pulse, .24, time => Math.sin(Math.PI * 2 * (48 * time + 8 * (1 - Math.exp(-time * 32)))) * Math.exp(-time * 26) * .095);
-  for (const pulse of [1, 3]) add(start + beat * pulse, .12, time => (random() * 2 - 1) * Math.exp(-time * 42) * .025, -.08);
-  for (let tick = 0; tick < 8; tick++) add(start + beat * tick / 2 + (tick % 2 ? .025 : 0), .035, time => (random() * 2 - 1) * Math.exp(-time * 150) * .012, tick % 2 ? .35 : -.35);
+  for (const pulse of [0, 2, 2.75]) add(start + beat * pulse, .26, time => Math.sin(Math.PI * 2 * (48 * time + 8 * (1 - Math.exp(-time * 32)))) * Math.exp(-time * 23) * .13 * energy);
+  for (const pulse of [1, 3]) add(start + beat * pulse, .15, time => ((random() * 2 - 1) * Math.exp(-time * 35) + Math.sin(time * 180 * Math.PI * 2) * Math.exp(-time * 44) * .2) * .038 * energy, -.08);
+  for (let tick = 0; tick < 8; tick++) add(start + beat * tick / 2 + (tick % 2 ? .025 : 0), .05, time => (random() * 2 - 1) * Math.exp(-time * (tick % 4 === 3 ? 75 : 150)) * .018 * energy, tick % 2 ? .35 : -.35);
 }
 const dryLeft = left.slice();
 const dryRight = right.slice();
@@ -62,4 +64,4 @@ await mkdir("visual-qa/repair", { recursive: true });
 const raw = "visual-qa/repair/portfolio-music.wav";
 await writeFile(raw, Buffer.concat([header, pcm]));
 execFileSync("ffmpeg", ["-y", "-loglevel", "error", "-i", raw, "-af", "volume=10dB", "-c:a", "libmp3lame", "-q:a", "4", "public/audio/work-in-progress.mp3"]);
-console.log({ duration, bpm: 84, source: "Original composition synthesized by this script; no sampled recordings." });
+console.log({ duration, bpm: 96, source: "Original composition synthesized by this script; no sampled recordings." });

@@ -42,7 +42,8 @@
 .keyboard nav { display:flex; flex-wrap:wrap; }
 .notice { position:absolute; left:24px; top:30px; z-index:5; font:11px/1.6 var(--font-mono),monospace; }
 .replay { position:relative; display:block; width:max-content; margin:20px 4vw 40px auto; border:0; background:none; color:#55524c; min-height:44px; font:11px/44px var(--font-mono),monospace; cursor:pointer; text-decoration:none; }
-.blackHoleSkip { position:fixed; z-index:75; top:26px; right:32px; background:none; border:0; color:#d7d5c8; mix-blend-mode:difference; font:11px/1.5 var(--font-mono),monospace; min-height:44px; cursor:pointer; }
+.blackHoleSkip { position:fixed; z-index:75; top:20px; left:4vw; background:none; border:0; color:#d7d5c8; mix-blend-mode:difference; font:11px/1.5 var(--font-mono),monospace; min-height:44px; cursor:pointer; opacity:.38; transition:opacity .25s; }
+.blackHoleSkip:hover,.blackHoleSkip:focus-visible { opacity:1; }
 .srOnly { position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap; }
 @media(prefers-reduced-motion:reduce) { .room *, .room *::after { animation:none!important; transition:none!important; } }
 @media(max-width:767px) {
@@ -51,5 +52,5 @@
  .viewpoints { bottom:20px; } .viewpoints button { padding:8px 11px; }
  .viewpoints .inspectButton { flex-basis:100%; border-left:0; border-top:1px solid #697261; }
  .inspection { bottom:26px; gap:18px; }
- .blackHoleSkip { right:16px; top:15px; }
+ .blackHoleSkip { left:16px; top:15px; }
 }

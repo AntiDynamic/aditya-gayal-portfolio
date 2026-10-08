@@ -101,6 +101,7 @@ try {
     await page.getByRole('button', { name:'Other page', exact:true }).click(); await page.waitForTimeout(650); await capture('10b-other-page');
     await page.keyboard.press("e"); await page.waitForTimeout(1100); await capture('17-lamp-on');
     assert.ok(Number(await page.locator('[data-room]').getAttribute('data-notebook-lift')) < 0.01);
+    if (!guided) { assert.equal(await page.evaluate(() => document.pointerLockElement !== null), true); report.checks.push(`${test}: closing inspection resumes mouse look automatically`); }
     if (guided) {
       await page.getByRole('button', { name:'Drawing', exact:true }).click(); await page.waitForTimeout(1400); await page.getByRole('button', { name:'Look closer', exact:true }).click(); await page.waitForTimeout(1200); await capture('11-board'); await page.keyboard.press('e'); await page.waitForTimeout(1000);
       await page.getByRole('button', { name:'Desk', exact:true }).click(); await page.waitForTimeout(1400); await capture('12-second-chair');

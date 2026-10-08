@@ -59,7 +59,7 @@ export function RoomPrologue({ complete, website }: { complete: () => void; webs
       try {
         const instance = new module.RoomRenderer(target, node, useTouch, reduced, { status: setStatus, complete: () => completion.current(), failed: () => completion.current(), revealWebsite: () => reveal.current(), sound: kind => { if (kind === "power") roomAudio.powered(); else roomAudio.effect(kind); }, audioFrame: (position, forward, up, wake, handoff) => roomAudio.frame(position, forward, up, wake, handoff) });
         renderer.current = instance;
-        loadTimeout = window.setTimeout(() => { if (!disposed) completion.current(); }, 15000);
+        loadTimeout = window.setTimeout(() => { if (!disposed) completion.current(); }, useTouch ? 30000 : 20000);
         await instance.initialize();
         clearTimeout(loadTimeout);
       } catch (error) { console.error("Room unavailable; opening portfolio", error); completion.current(); }
@@ -80,7 +80,7 @@ export function RoomPrologue({ complete, website }: { complete: () => void; webs
     {showEscape && <p className={styles.escapeHint}>Esc — release mouse</p>}
     {status.phase === "ready" && <div className={styles.entry}>
       <button ref={enterButton} type="button" onClick={() => { renderer.current?.enter(); if (guided) renderer.current?.guide("desk"); }}>Enter room <span aria-hidden="true">↗</span></button>
-      <p>{guided ? "Choose a view · tap an object to look closer" : "WASD to move · mouse to look · E to inspect · Esc to release"}</p>
+      <p>{guided ? "Choose a view or swipe across the room · tap Look closer" : "WASD to move · mouse to look · E to inspect · Esc to release"}</p>
     </div>}
     {status.phase === "explore" && !guided && !status.locked && <div className={styles.resume}>
       <button type="button" data-resume-room aria-label="Resume mouse look" onClick={() => renderer.current?.enter()}>Mouse look ↗</button>

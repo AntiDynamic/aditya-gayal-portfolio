@@ -1,9 +1,11 @@
 .experience { background:#f8f6f1; color:#171819; position:relative; overflow-anchor:none; --control-ink:#eeeae4; }
 .viewport { position:relative; min-height:100svh; overflow:clip; }
 .visual { display:none; }
-.controls { position:absolute; top:26px; right:4vw; z-index:4; opacity:0; pointer-events:none; }
+.controls { position:fixed; top:20px; right:4vw; z-index:4; display:flex; gap:20px; opacity:.7; transition:opacity .25s; }
+.controls:hover { opacity:1; }
 .controls:focus-within { opacity:1; pointer-events:auto; }
-.controls a { display:inline-flex; align-items:center; gap:12px; min-height:44px; font:11px/1.4 var(--font-mono); color:#171819; text-decoration:none; }
+.controls a { display:inline-flex; align-items:center; gap:7px; min-height:44px; font:11px/1.4 var(--font-mono); color:#eeeae4; text-decoration:none; }
+.controls a:hover { text-decoration:underline; text-underline-offset:4px; }
 .controls a:focus-visible,.continue:focus-visible { outline:2px solid currentColor;outline-offset:6px; }
 .identity { min-height:100svh; display:flex; flex-direction:column; justify-content:center; padding:110px 8vw 65px; }
 .rule { display:block;width:54px;height:2px;background:#171819;margin-bottom:34px; }

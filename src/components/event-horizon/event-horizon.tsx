@@ -7,7 +7,7 @@ export function EventHorizon({bridge=false}:{bridge?:boolean}){return <main clas
     <div className={styles.visual} aria-hidden="true"><EventHorizonScroll bridge={bridge} /></div>
     {bridge && <p className={styles.scrollCue} data-black-hole-cue aria-hidden="true">Scroll to enter <span>↓</span></p>}
     <nav className={styles.controls} aria-label="Introduction">
-      <a href="#identity" data-skip-intro>Skip intro <span aria-hidden="true">↗</span></a>
+      {bridge ? <><Link href="/?room=1" prefetch={false} data-room-shortcut>Room <span aria-hidden="true">↗</span></Link><Link href="/?portfolio" prefetch={false} data-website-shortcut>Website <span aria-hidden="true">↗</span></Link></> : <a href="#identity" data-skip-intro>Skip intro <span aria-hidden="true">↗</span></a>}
     </nav>
     <section className={styles.identity} aria-labelledby="identity-title" data-identity aria-hidden={bridge || undefined} inert={bridge}>
       <span className={styles.rule} data-reform="0" aria-hidden="true" />

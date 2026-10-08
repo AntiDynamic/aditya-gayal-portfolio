@@ -107,6 +107,8 @@ export class RoomRenderer {
   private drag?: { horizontal: number; vertical: number; origin: number };
   private dragDistance = 0;
   private suppressClick = false;
+  private restoreMouseLook = false;
+  private lastInteraction = 0;
 
   constructor(private canvas: HTMLCanvasElement, private host: HTMLElement, private guided: boolean, private reduced: boolean, private callbacks: Callbacks) {
     RectAreaLightUniformsLib.init();
@@ -450,6 +452,7 @@ export class RoomRenderer {
   enter() {
     if (this.status.phase !== "ready" && this.status.phase !== "explore") return;
     this.status.phase = "explore"; this.canvas.tabIndex = -1; this.canvas.focus({ preventScroll: true }); this.emit();
+    this.lastInteraction = this.clock;
     if (!this.guided && !this.reduced) {
       try { const lock = this.canvas.requestPointerLock(); if (lock) void lock.catch(this.pointerError); } catch { this.pointerError(); }
     }
@@ -472,6 +475,8 @@ export class RoomRenderer {
 
   inspect(discovery: Discovery | null = this.status.target) {
     if (!discovery || !["explore", "ready"].includes(this.status.phase)) return;
+    this.restoreMouseLook = document.pointerLockElement === this.canvas;
+    this.lastInteraction = this.clock;
     this.returnPose = this.capture(); this.status.inspection = discovery; this.status.target = null; this.status.phase = "inspect";
     this.visits.add(discovery); this.host.dataset.discoveries = [...this.visits].join(",");
     if (document.pointerLockElement === this.canvas) document.exitPointerLock();
@@ -498,7 +503,10 @@ export class RoomRenderer {
     if (this.status.inspection === "notebook") this.callbacks.sound("paper");
     if (this.status.inspection === "drawer") this.callbacks.sound("drawer");
     this.status.inspection = null; this.status.phase = "explore";
+    this.lastInteraction = this.clock;
     if (this.returnPose) this.move(this.returnPose, 0.8);
+    if (this.restoreMouseLook && !this.guided && !this.reduced) this.enter();
+    this.restoreMouseLook = false;
     this.emit();
   }
 
@@ -513,6 +521,7 @@ export class RoomRenderer {
   recover() {
     if (this.status.inspection !== "computer" || this.status.recovered || this.status.recovering) return;
     this.status.recovering = true; this.recoveryTime = 1.8;
+    this.lastInteraction = this.clock;
     this.callbacks.sound("drive");
     this.callbacks.sound("keyboard");
     const texture = monitorTexture(false, true); this.ownedTextures.add(texture);
@@ -703,6 +712,8 @@ export class RoomRenderer {
       this.host.dataset.lookTarget = `${this.yaw.toFixed(5)},${this.pitch.toFixed(5)}`;
       if (this.timings.length === 180) { this.host.dataset.frameMs = (this.timings.reduce((sum, value) => sum + value, 0) / 180).toFixed(2); this.host.dataset.drawMs = (this.drawTimes.reduce((sum, value) => sum + value, 0) / this.drawTimes.length).toFixed(2); }
     }
+    const resting = this.guided && ["ready", "explore", "inspect"].includes(this.status.phase) && !this.cameraMove && this.recoveryTime <= 0 && this.clock - this.lastInteraction > 1.5 && Math.abs(this.notebookLift - (this.status.inspection === "notebook" ? 1 : 0)) < .004 && Math.abs(this.lamp.intensity - (powered ? 1.65 : 0)) < .01 && Math.abs(this.monitorLight.intensity - (this.status.recovered ? 2.5 : 0.2)) < .01;
+    if (resting) { this.previous = 0; this.host.dataset.idle = "true"; return; }
     this.frame = requestAnimationFrame(this.render);
   };
 

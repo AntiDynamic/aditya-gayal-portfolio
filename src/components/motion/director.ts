@@ -69,7 +69,7 @@ export class MotionDirector {
     if (root.parentElement) this.surfaceObserver.observe(root.parentElement, { attributes: true, attributeFilter: ["data-monitor-surface"] });
     void document.fonts.ready.then(async () => {
       await Promise.race([
-        Promise.all(this.media.map(element => element.querySelector<HTMLImageElement>("img")!.decode().catch(() => {}))),
+        Promise.all(this.media.map(element => element.querySelector<HTMLImageElement>("img")!).filter(image => image.loading === "eager").map(image => image.decode().catch(() => {}))),
         new Promise(resolve => setTimeout(resolve, 4500)),
       ]);
       if (this.disposed) return;
@@ -190,6 +190,11 @@ export class MotionDirector {
       if (Math.abs(reveal.value - target) > .002) settling = true;
       reveal.element.style.setProperty("--reveal", reveal.value.toFixed(3));
       reveal.element.style.setProperty("--reveal-y", `${((1 - reveal.value) * (reveal.lines.length ? 12 : 38)).toFixed(2)}px`);
+      if (reveal.element.hasAttribute("data-spatial")) {
+        const distance = clamp((this.frame.height * .82 - top) / this.frame.height);
+        const tilt = this.frame.reduced ? 0 : (1 - distance) * (this.frame.mobile ? 1.1 : 2.4);
+        reveal.element.style.setProperty("--spatial-tilt", `${tilt.toFixed(2)}deg`);
+      }
       for (let index = 0; index < reveal.lines.length; index++) {
         const delay = Math.min(index * .13, .4);
         const progress = this.frame.reduced ? 1 : smooth(delay, 1, reveal.value);

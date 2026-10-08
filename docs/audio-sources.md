@@ -13,6 +13,6 @@ Audio is default-on through natural browser-permitted interaction, with no enabl
 
 ## Audition status
 
-The post-room site now has a separate original composition, `public/audio/work-in-progress.mp3`: 84 BPM, 45.714 seconds, synthesized without third-party recordings or samples. Rebuild it with `node scripts/assets/compose-portfolio-music.mjs`. This is not a downloaded CC0 track and does not reuse the cosmic recordings. It has an explicit optional play/mute control, fades independently, and pauses during prologues and hidden-document states. Composition, implementation, and limitations are documented in `docs/portfolio-repair.md`.
+The post-room site has a separate original composition, `public/audio/work-in-progress.mp3`: 96 BPM, 40 seconds, synthesized without third-party recordings or samples. Rebuild it with `node scripts/assets/compose-portfolio-music.mjs`. This is not a downloaded CC0 track and does not reuse the cosmic recordings. It has an explicit optional play/mute control, fades independently, and pauses during prologues and hidden-document states. Composition, implementation, and limitations are documented in `docs/portfolio-repair.md`.
 
 Source/license verification and decoding completed. Subjective listening against the final motion was **not** verified by the agent. These are provisional musical choices, not a claim that filenames or metadata establish musical suitability. Review the full sequence muted first, then audition these layers with headphones. No autoplay, compression swell or soundtrack is required to understand the visuals.

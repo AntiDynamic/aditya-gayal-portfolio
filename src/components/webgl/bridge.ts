@@ -98,7 +98,7 @@ export class WebGLBridge {
     layer.hover = damp(layer.hover, hoverTarget, 11, frame.delta);
     const progress = clamp((frame.height - top) / (frame.height + rect.height));
     const depthEnvelope = smooth(.08, .3, progress) * (1 - smooth(.6, .88, progress));
-    const depthTarget = frame.reduced || frame.monitor ? 0 : (depthEnvelope * (restingPhoto ? 9 : portrait ? 25 : 38) + layer.hover * (portrait ? 5 : 22)) * (frame.mobile ? .3 : 1);
+    const depthTarget = frame.reduced || frame.monitor ? 0 : (depthEnvelope * (restingPhoto ? 18 : portrait ? 42 : 66) + layer.hover * (portrait ? 8 : 29)) * (frame.mobile ? .5 : 1);
     layer.depth = damp(layer.depth, depthTarget, restingPhoto ? 2.8 : 5, frame.delta);
     const entrance = clamp((frame.height - top) / Math.min(rect.height * .3, frame.height * .26));
     const revealTarget = frame.reduced || frame.monitor ? 1 : entrance;
@@ -108,8 +108,8 @@ export class WebGLBridge {
     mesh.scale.set(rect.width, rect.height, Math.max(rect.width, rect.height));
     mesh.rotation.set(0, 0, 0);
     if (!frame.reduced && !frame.monitor) {
-      mesh.rotation.y = (localX - .5) * layer.hover * .035 + depthEnvelope * (portrait ? -.025 : .055) * (frame.mobile ? .35 : 1);
-      mesh.rotation.x = (localY - .5) * layer.hover * .026 + depthEnvelope * (portrait ? .012 : -.028) * (frame.mobile ? .35 : 1);
+      mesh.rotation.y = (localX - .5) * layer.hover * .048 + depthEnvelope * (portrait ? -.036 : .072) * (frame.mobile ? .45 : 1);
+      mesh.rotation.x = (localY - .5) * layer.hover * .032 + depthEnvelope * (portrait ? .018 : -.039) * (frame.mobile ? .45 : 1);
     }
     const aspect = layer.image.naturalWidth / layer.image.naturalHeight;
     const targetAspect = rect.width / rect.height;

@@ -105,7 +105,12 @@ export function EventHorizonScroll({bridge=false}:{bridge?:boolean}){
       if(event.target instanceof Element&&event.target.closest("input,textarea,select,[role=dialog]"))return;
       skip(event);
     };
-    const link=root.querySelector("[data-skip-intro]")!;link.addEventListener("click",skip);
+    const link=root.querySelector<HTMLElement>("[data-skip-intro]");link?.addEventListener("click",skip);
+    const roomLink=root.querySelector<HTMLElement>("[data-room-shortcut]");
+    const websiteLink=root.querySelector<HTMLElement>("[data-website-shortcut]");
+    const openRoom=(event:Event)=>{event.preventDefault();dispatchEvent(new Event("event-horizon-room"));};
+    const openWebsite=(event:Event)=>{event.preventDefault();dispatchEvent(new Event("event-horizon-skip"));};
+    roomLink?.addEventListener("click",openRoom);websiteLink?.addEventListener("click",openWebsite);
     const observer=new IntersectionObserver(([entry])=>{visible=entry.isIntersecting;if(visible)wake();else{cancelAnimationFrame(raf);raf=0;last=0;}},{threshold:0});observer.observe(root);
     let layoutObserved=false;
     const layoutObserver=new ResizeObserver(()=>{if(layoutObserved)resize();else layoutObserved=true;});
@@ -117,7 +122,7 @@ export function EventHorizonScroll({bridge=false}:{bridge?:boolean}){
       if(disposed)return;
       try{renderer=new module.BlackHoleRenderer(canvas,root,fail);renderer.resize(innerWidth,height);wake();}catch{fail();}
     }).catch(fail);
-    return()=>{disposed=true;cancelAnimationFrame(raf);observer.disconnect();layoutObserver.disconnect();renderer?.dispose();link.removeEventListener("click",skip);removeEventListener("scroll",onScroll);removeEventListener("resize",resize);removeEventListener("hashchange",hash);removeEventListener("keydown",escape);document.removeEventListener("visibilitychange",visibility);preference.removeEventListener("change",resize);root.removeAttribute("data-enhanced");};
+    return()=>{disposed=true;cancelAnimationFrame(raf);observer.disconnect();layoutObserver.disconnect();renderer?.dispose();link?.removeEventListener("click",skip);roomLink?.removeEventListener("click",openRoom);websiteLink?.removeEventListener("click",openWebsite);removeEventListener("scroll",onScroll);removeEventListener("resize",resize);removeEventListener("hashchange",hash);removeEventListener("keydown",escape);document.removeEventListener("visibilitychange",visibility);preference.removeEventListener("change",resize);root.removeAttribute("data-enhanced");};
   },[bridge]);
   return <div className={styles.canvasHost} ref={host}><div className={styles.still}/><svg className={styles.fallbackPoint} viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><circle cx="50" cy="50" r="0" fill="#f8f6f1"/></svg><canvas className={styles.canvas}/></div>;
 }

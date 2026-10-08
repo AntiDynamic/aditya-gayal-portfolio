@@ -46,11 +46,13 @@ export function ExperienceGate({ children, blackHole }: { children: ReactNode; b
       void import("../motion/director").catch(() => {});
     } else delete document.documentElement.dataset.prologuePending;
     const whiteout = () => { if (phaseRef.current === "black-hole") activate("room"); };
+    const roomShortcut = () => { if (phaseRef.current === "black-hole") activate("room"); };
     const directLink = () => { if (location.hash && phaseRef.current !== "portfolio") complete(); };
     addEventListener("event-horizon-whiteout", whiteout);
+    addEventListener("event-horizon-room", roomShortcut);
     addEventListener("event-horizon-skip", complete);
     addEventListener("hashchange", directLink);
-    return () => { cancelled = true; removeEventListener("event-horizon-whiteout", whiteout); removeEventListener("event-horizon-skip", complete); removeEventListener("hashchange", directLink); document.body.style.removeProperty("overflow"); delete document.documentElement.dataset.prologue; };
+    return () => { cancelled = true; removeEventListener("event-horizon-whiteout", whiteout); removeEventListener("event-horizon-room", roomShortcut); removeEventListener("event-horizon-skip", complete); removeEventListener("hashchange", directLink); document.body.style.removeProperty("overflow"); delete document.documentElement.dataset.prologue; };
   }, [complete]);
 
   const active = phase !== "portfolio";

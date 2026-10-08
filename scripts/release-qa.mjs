@@ -25,13 +25,18 @@ try {
     assert.ok(!headers["content-security-policy"].includes("'unsafe-eval'"));
     assert.equal(headers["x-powered-by"], undefined);
     await page.waitForSelector('[data-editorial][data-ready="true"]');
-    await page.waitForFunction(() => Array.from(document.querySelectorAll("[data-media] img")).every(image => image.complete && image.naturalWidth > 0));
+    await page.waitForFunction(() => Array.from(document.querySelectorAll('[data-media] img[loading="eager"]')).every(image => image.complete && image.naturalWidth > 0));
     await page.waitForTimeout(1200);
     await page.screenshot({ path: `${output}/${name}-hero.png` });
     for (const chapter of ["about", "work", "lately", "contact"]) {
       await page.locator(`#${chapter}`).scrollIntoViewIfNeeded();
       await page.waitForTimeout(900);
       await page.screenshot({ path: `${output}/${name}-${chapter}.png` });
+    }
+    for (const image of await page.locator("[data-media] img").all()) {
+      await image.scrollIntoViewIfNeeded();
+      await image.evaluate(element => element.decode());
+      assert.ok(await image.evaluate(element => element.naturalWidth > 0));
     }
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1));
     await page.getByRole("button", { name: "Play portfolio music" }).click();
@@ -78,6 +83,17 @@ try {
   await reducedPage.locator("[data-prologue-black-hole]").waitFor();
   report.checks.push("Reduced motion shows the black hole with reduced animation; direct guided room and full replay remain available");
   await reducedContext.close();
+  const shortcutContext = await browser.newContext();
+  const shortcutPage = await shortcutContext.newPage();
+  await shortcutPage.goto(base);
+  await shortcutPage.getByRole("link", { name: "Room" }).click();
+  await shortcutPage.locator("[data-room]").waitFor();
+  await shortcutPage.goto(base);
+  await shortcutPage.getByRole("link", { name: "Website" }).click();
+  await shortcutPage.locator("[data-prologue-black-hole]").waitFor({ state: "detached" });
+  assert.equal(await shortcutPage.locator("#hero-title").count(), 1);
+  report.checks.push("Black-hole shortcuts open the room or website without leaving the site");
+  await shortcutContext.close();
   const missing = await page.goto(`${base}/missing-page-release-check`);
   assert.equal(missing.status(), 404);
   await page.getByRole("link", { name: "Open the portfolio" }).click();

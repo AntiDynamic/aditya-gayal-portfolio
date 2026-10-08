@@ -1,5 +1,7 @@
 # Production release — 2026-10-09
 
+This records the previous production release. The later soundtrack, mobile-room and depth changes are documented in `docs/depth-performance-pass.md`; measurements and music timing below describe that earlier release, not the current working tree.
+
 ## Deployment
 
 Public production: https://aditya-gayal-portfolio.vercel.app/

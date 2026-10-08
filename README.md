@@ -15,13 +15,14 @@ pnpm dev
 - `http://localhost:3000/#work` — selected work, bypassing the prologue.
 - `http://localhost:3000/lab/event-horizon` — black-hole renderer review.
 
-The root URL starts at the black hole on every visit. `?portfolio` and direct section links bypass the prologue. The portfolio hero offers **Watch the intro** to restart it. Reduced motion keeps the black-hole opening while shortening its animation and guiding the room; `?room=1` opens the guided room directly. Keyboard access, Escape, WebGL fallback, and content without JavaScript remain available.
+The root URL starts at the black hole on every visit. Small **Room** and **Website** links in the opening let visitors choose their path immediately. `?portfolio` and direct section links bypass the prologue. The portfolio hero offers **Watch the intro** to restart it. On touch-only phones, the room uses swipeable guided viewpoints and **Look closer** rather than desktop pointer lock/WASD; `?room=1` opens it directly. Reduced motion shortens the opening and also uses guided room views. Keyboard access, Escape, WebGL fallback, and content without JavaScript remain available.
 
 ## Current implementation
 
 Next.js App Router, React, TypeScript, Tailwind CSS, Three.js, and Web Audio. Native scrolling drives scene targets. Animation uses refs and shader uniforms; there is no per-frame React state. Hidden and offscreen scenes stop rendering. The portfolio remains semantic HTML.
 
 The black-hole renderer, first-person room, and monitor transition are documented in [black-hole references](docs/event-horizon-references.md), [room prologue](docs/room-prologue.md), and [prologue polish](docs/prologue-lock.md). The actual website is documented in [editorial portfolio](docs/editorial-portfolio.md), its [depth pass](docs/editorial-depth.md), and [everyday motion and activation](docs/editorial-fluidity.md). Technical references and asset rights are in [animation references](docs/animation-references.md). Project provenance is in [content sources](docs/portfolio-content-sources.md).
+The latest phone, motion, and performance changes are recorded in [depth and performance pass](docs/depth-performance-pass.md).
 
 ## Assets and sound
 
