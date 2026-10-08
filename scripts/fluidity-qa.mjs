@@ -12,8 +12,7 @@ try {
     const context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, reducedMotion: mode === "reduced" || mode === "explicit-full" ? "reduce" : "no-preference" });
     const page = await context.newPage();
     page.on("pageerror", error => report.errors.push(error.message));
-    if (mode === "session") await page.addInitScript(() => sessionStorage.setItem("aditya-room-complete-v1", "true"));
-    await page.goto(`${base}/${mode === "session" ? "" : mode === "skip" ? "?room=1" : mode === "explicit-full" ? "?portfolio&motion=full" : "?portfolio"}`);
+    await page.goto(`${base}/${mode === "skip" ? "?room=1" : mode === "explicit-full" ? "?portfolio&motion=full" : "?portfolio"}`);
     if (mode === "skip") await page.getByRole("button", { name: "Skip prologue" }).click();
     await page.waitForSelector('[data-editorial][data-motion="true"][data-webgl="ready"]');
     await page.waitForSelector('[data-editorial-canvas][data-idle="true"]');

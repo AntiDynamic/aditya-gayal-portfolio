@@ -9,12 +9,13 @@ pnpm dev
 ```
 
 - `http://localhost:3000/?portfolio` — actual portfolio directly.
-- `http://localhost:3000/?replay=1&motion=full` — complete opening, even after a completed session.
+- `http://localhost:3000/` — complete opening on every visit.
+- `http://localhost:3000/?replay=1&motion=full` — explicit full-motion replay.
 - `http://localhost:3000/?room=1` — room directly.
 - `http://localhost:3000/#work` — selected work, bypassing the prologue.
 - `http://localhost:3000/lab/event-horizon` — black-hole renderer review.
 
-Completed sessions and `?portfolio` bypass the prologue. The portfolio hero offers **Watch the intro** to replay the full black-hole sequence. Reduced motion defaults to the guided room; choosing the full replay explicitly overrides that preference for this visit. Keyboard access, Escape, WebGL fallback, and content without JavaScript remain available.
+The root URL starts at the black hole on every visit. `?portfolio` and direct section links bypass the prologue. The portfolio hero offers **Watch the intro** to restart it. Reduced motion keeps the black-hole opening while shortening its animation and guiding the room; `?room=1` opens the guided room directly. Keyboard access, Escape, WebGL fallback, and content without JavaScript remain available.
 
 ## Current implementation
 

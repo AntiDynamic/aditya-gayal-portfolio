@@ -155,7 +155,7 @@ try {
     report.checks.push(`${test}: portfolio motion activates after monitor removal and responds to real ${test === "mobile" ? "touch" : "wheel"} input`);
     report.checks.push(`${test}: notebook, recovery, physical monitor DOM and final handoff work`);
     const audio = await saveRoomAudio(page, output, test, videoStarted);
-    await page.goto(base, { waitUntil: "networkidle" }); assert.equal(await page.locator("[data-room],[data-event-horizon]").count(), 0); report.checks.push(`${test}: completed session bypasses prologue`);
+    await page.goto(base, { waitUntil: "networkidle" }); await page.locator("[data-prologue-black-hole]").waitFor(); report.checks.push(`${test}: root visit starts the black hole again`);
     const video = page.video(); await context.close(); report.recordings.push({ test, path: await video.path(), audio });
   }
   for (const test of ["skip", "direct", "no-js", "webgl-failure"]) {
