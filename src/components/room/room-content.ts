@@ -1,12 +1,12 @@
 export type Discovery = "notebook" | "diagram" | "computer" | "shelf" | "drawer";
 export type Viewpoint = "desk" | "notebook" | "shelf" | "wall" | "computer";
 
-export const discoveries: Record<Discovery, { label: string; transcript: string }> = {
-  notebook: { label: "Notebook", transcript: "why is this behaving like that. tried the obvious fix. didn't work. this version is worse lol. maybe the problem is somewhere else. ask someone tomorrow. okay that actually helped. don't touch this part anymore. try the weird version. nope." },
-  diagram: { label: "Route drawing", transcript: "A black route is crossed out at a turn. A blue correction in another handwriting: this? A small reply in black: yeah. Other scraps show earlier versions." },
-  computer: { label: "Computer", transcript: "/home/aditya: notes, work, old, screenshots, misc. Some files are damaged. Recover work. Five folders: continuum, tracepilot, netranagar, video-editor, ai4browser. Open portfolio." },
-  shelf: { label: "Shelf", transcript: "A small cream street model, layered timeline strips, three stacked window frames, and an editing control repaired with tape. One label says: worked technically." },
-  drawer: { label: "Cable drawer", transcript: "A drawer labelled cables. Coiled adapters, two different plugs joined with an extension, and a note: worked yesterday." },
+export const discoveries: Record<Discovery, { label: string; note: string; transcript: string }> = {
+  notebook: { label: "Notebook", note: "The pen was left across the open page.", transcript: "why is this behaving like that. tried the obvious fix. didn't work. this version is worse lol. maybe the problem is somewhere else. ask someone tomorrow. okay that actually helped. don't touch this part anymore. try the weird version. nope." },
+  diagram: { label: "Route drawing", note: "Two inks, several routes, one small correction.", transcript: "A black route is crossed out at a turn. A blue correction in another handwriting: this? A small reply in black: yeah. Other scraps show earlier versions." },
+  computer: { label: "Computer", note: "An old drive is still plugged in beside it.", transcript: "/home/aditya: notes, work, old, screenshots, misc. Some files are damaged. Recover work. Five folders: continuum, tracepilot, netranagar, video-editor, ai4browser. Open portfolio." },
+  shelf: { label: "Shelf", note: "One block is missing from the model.", transcript: "A small cream street model, layered timeline strips, three stacked window frames, and an editing control repaired with tape. One label says: worked technically." },
+  drawer: { label: "Cable drawer", note: "The adapters never quite matched.", transcript: "A drawer labelled cables. Coiled adapters, two different plugs joined with an extension, and a note: worked yesterday." },
 };
 
 export const viewpointOrder: Viewpoint[] = ["desk", "notebook", "shelf", "wall", "computer"];

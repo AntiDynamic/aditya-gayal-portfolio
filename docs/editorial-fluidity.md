@@ -1,5 +1,7 @@
 # Everyday motion and main-route activation
 
+Later correction: the partial About-heading occlusion described below was removed because it clipped “I’m Aditya.” in a production screenshot. The whole heading now remains readable beside the photograph.
+
 This pass keeps the current editorial design and all prologue scene assets. The reference reviewed was `/home/anti/Videos/screenrecording-2026-10-08_22-04-19.mp4` (79.5 seconds). Its useful ordinary motion is sustained image travel, staggered masks, small perspective changes, responsive interaction, and clean settling. No reference artwork, camera shots, models, or code were copied.
 
 ## Activation
@@ -44,6 +46,6 @@ All four media handoffs pass forward/reverse alignment and release at 1440, 1024
 
 ## Remaining limits
 
-This improves the existing system's ordinary motion, not its entire art direction. The portrait-to-project wipe can still read as a collage. Work media is mostly static, so it lacks the independent internal motion of a well-produced product reel. Better real project footage would improve that more than another shader. Emulated mobile testing does not establish physical touch smoothness. Large text moving behind the portrait intentionally occludes a few characters during its spatial state; body copy remains unobstructed.
+This improves the existing system's ordinary motion, not its entire art direction. The portrait-to-project wipe can still read as a collage. Work media is mostly static, so it lacks the independent internal motion of a well-produced product reel. Better real project footage would improve that more than another shader. Emulated mobile testing does not establish physical touch smoothness.
 
 A cold direct load can briefly show the semantic hero before its enhanced masked entrance starts. The monitor path skips that entrance to preserve its exact visual handoff. Eliminating the direct-load enhancement flash without hiding fallback content is still a separate loading-choreography refinement.

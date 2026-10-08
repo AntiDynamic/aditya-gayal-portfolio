@@ -48,7 +48,7 @@ export class BlackHoleRenderer {
       defines:{MAX_STEPS:this.mobile?144:224,DISK_OCTAVES:this.mobile?3:4,HOT_REGIONS:this.mobile?2:3},depthTest:false,depthWrite:false,
       uniforms:{uResolution:{value:new Vector2()},uTime:{value:0},uPlasma:{value:this.plasma},uHotStrength:{value:this.hotStrength},uCamPos:{value:this.position},uCamMat:{value:this.basis},uTanHalfFov:{value:.43},
         uStepScale:{value:this.mobile?1.35:1.05},uDiskInner:{value:inner},uDiskOuter:{value:13},uDiskTemp:{value:6400},uTempNorm:{value:1/Math.pow((1-Math.sqrt(inner/peak))/peak**3,.25)},
-        uDiskBrightness:{value:1.3},uBeaming:{value:1},uOrbitDir:{value:1},uTimeScale:{value:2.2},uStarIntensity:{value:0},uExposure:{value:1},uToneMap:{value:1},uSpin:{value:0},uHorizon:{value:1},uViewMode:{value:0},uProgress:{value:0},uExterior:{value:0},uReduced:{value:0},uIdentity:{value:this.identityInk}}});
+        uDiskBrightness:{value:1.3},uBeaming:{value:1},uOrbitDir:{value:1},uTimeScale:{value:3.5},uStarIntensity:{value:0},uExposure:{value:1},uToneMap:{value:1},uSpin:{value:0},uHorizon:{value:1},uViewMode:{value:0},uProgress:{value:0},uExterior:{value:0},uReduced:{value:0},uIdentity:{value:this.identityInk}}});
     this.geometry.setAttribute("position",new Float32BufferAttribute([-1,-1,0,3,-1,0,-1,3,0],3));
     const triangle=new Mesh(this.geometry,this.material);triangle.frustumCulled=false;this.scene.add(triangle);
     this.gl.debug.onShaderError=()=>this.lost();

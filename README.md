@@ -15,7 +15,7 @@ pnpm dev
 - `http://localhost:3000/#work` — selected work, bypassing the prologue.
 - `http://localhost:3000/lab/event-horizon` — black-hole renderer review.
 
-The root URL starts at the black hole on every visit. Small **Room** and **Website** links in the opening let visitors choose their path immediately. `?portfolio` and direct section links bypass the prologue. The portfolio hero offers **Watch the intro** to restart it. On touch-only phones, the room uses swipeable guided viewpoints and **Look closer** rather than desktop pointer lock/WASD; `?room=1` opens it directly. Reduced motion shortens the opening and also uses guided room views. Keyboard access, Escape, WebGL fallback, and content without JavaScript remain available.
+The root URL starts at the black hole on every visit. Small **Room** and **Website** links in the opening let visitors choose their path immediately. `?portfolio` and direct section links bypass the prologue. The portfolio hero offers **Watch the intro** to restart it. On touch-only phones, the room starts with swipeable guided viewpoints and **Look closer**, with optional **Free roam** (hold to walk, drag to look); `?room=1` opens it directly. Reduced motion shortens the opening and uses guided room views, while an explicit full-motion link restores the cinematic sequence and desktop free roam. Keyboard access, Escape, WebGL fallback, and content without JavaScript remain available.
 
 ## Current implementation
 
@@ -23,6 +23,7 @@ Next.js App Router, React, TypeScript, Tailwind CSS, Three.js, and Web Audio. Na
 
 The black-hole renderer, first-person room, and monitor transition are documented in [black-hole references](docs/event-horizon-references.md), [room prologue](docs/room-prologue.md), and [prologue polish](docs/prologue-lock.md). The actual website is documented in [editorial portfolio](docs/editorial-portfolio.md), its [depth pass](docs/editorial-depth.md), and [everyday motion and activation](docs/editorial-fluidity.md). Technical references and asset rights are in [animation references](docs/animation-references.md). Project provenance is in [content sources](docs/portfolio-content-sources.md).
 The latest phone, motion, and performance changes are recorded in [depth and performance pass](docs/depth-performance-pass.md).
+The subsequent black-hole, room, and portfolio repair is recorded in [experience repair](docs/experience-repair.md).
 
 ## Assets and sound
 
@@ -39,9 +40,10 @@ pnpm start
 QA_URL=http://localhost:3000 node scripts/editorial-qa.mjs
 QA_URL=http://localhost:3000 node scripts/elevation-flow-qa.mjs
 QA_URL=http://localhost:3000 node scripts/room-walk-qa.mjs
+RECORD_OUTPUT=visual-qa/showcase-final node scripts/record-full-experience.mjs
 ```
 
-Current portfolio repair screenshots and recordings are in `visual-qa/repair/`; the review gallery is served locally at `http://localhost:3002/`. Earlier room, black-hole, and audio regression evidence remains in the corresponding `visual-qa/` directories. Chromium is required for browser QA; FFmpeg is required for recording conversion. Development and production builds explicitly use Webpack.
+The recording script captures the full production replay and site-only audio through a temporary PulseAudio sink, then exports an MP4. It requires Chromium, `pactl`, `parec`, and FFmpeg. Current portfolio repair screenshots and recordings are in `visual-qa/repair/`; the review gallery is served locally at `http://localhost:3002/`. Earlier room, black-hole, and audio regression evidence remains in the corresponding `visual-qa/` directories. Development and production builds explicitly use Webpack.
 
 ## Production
 

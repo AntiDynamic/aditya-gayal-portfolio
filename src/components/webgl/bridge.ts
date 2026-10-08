@@ -6,7 +6,7 @@ import { MediaFlow } from "./media-flow";
 import { SheetShadows } from "./sheet-shadows";
 import { NativeProjection } from "./native-projection";
 
-export type MediaLayer = { element: HTMLElement; image: HTMLImageElement; mesh: THREE.Mesh<THREE.PlaneGeometry, THREE.ShaderMaterial>; texture: THREE.Texture; ready: boolean; reveal: number; hover: number; source: string; depth: number; bounds: { left: number; right: number; top: number; bottom: number } };
+export type MediaLayer = { element: HTMLElement; image: HTMLImageElement; mesh: THREE.Mesh<THREE.PlaneGeometry, THREE.ShaderMaterial>; texture: THREE.Texture; ready: boolean; reveal: number; hover: number; source: string; depth: number };
 export type MotionFrame = { scroll: number; width: number; height: number; delta: number; velocity: number; pointerX: number; pointerY: number; inside: boolean; reduced: boolean; mobile: boolean; monitor: boolean };
 
 export class WebGLBridge {
@@ -20,7 +20,6 @@ export class WebGLBridge {
   private shadows: SheetShadows;
   private geometry: THREE.PlaneGeometry;
   private disposed = false;
-  private corner = new THREE.Vector3();
   private nativeProjection = new NativeProjection();
   constructor(private host: HTMLElement, elements: HTMLElement[], private wake: () => void, private fallback: () => void, private restore: () => void) {
     this.renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, powerPreference: "high-performance" });
@@ -50,7 +49,7 @@ export class WebGLBridge {
       mesh.material.uniforms.uAccent.value = this.accent;
       mesh.visible = false; mesh.frustumCulled = false;
       this.scene.add(mesh);
-      const layer: MediaLayer = { element, image, mesh, texture, ready: false, reveal: 1, hover: 0, source: "", depth: 0, bounds: { left: 0, right: 0, top: 0, bottom: 0 } };
+      const layer: MediaLayer = { element, image, mesh, texture, ready: false, reveal: 1, hover: 0, source: "", depth: 0 };
       this.layers.push(layer);
       image.addEventListener("load", this.loaded);
       if (image.complete && image.naturalWidth) this.prepare(layer);
@@ -98,7 +97,7 @@ export class WebGLBridge {
     layer.hover = damp(layer.hover, hoverTarget, 11, frame.delta);
     const progress = clamp((frame.height - top) / (frame.height + rect.height));
     const depthEnvelope = smooth(.08, .3, progress) * (1 - smooth(.6, .88, progress));
-    const depthTarget = frame.reduced || frame.monitor ? 0 : (depthEnvelope * (restingPhoto ? 18 : portrait ? 42 : 66) + layer.hover * (portrait ? 8 : 29)) * (frame.mobile ? .5 : 1);
+    const depthTarget = frame.reduced || frame.monitor ? 0 : (depthEnvelope * (restingPhoto ? 32 : portrait ? 75 : 112) + layer.hover * (portrait ? 15 : 42)) * (frame.mobile ? .42 : 1);
     layer.depth = damp(layer.depth, depthTarget, restingPhoto ? 2.8 : 5, frame.delta);
     const entrance = clamp((frame.height - top) / Math.min(rect.height * .3, frame.height * .26));
     const revealTarget = frame.reduced || frame.monitor ? 1 : entrance;
@@ -108,8 +107,8 @@ export class WebGLBridge {
     mesh.scale.set(rect.width, rect.height, Math.max(rect.width, rect.height));
     mesh.rotation.set(0, 0, 0);
     if (!frame.reduced && !frame.monitor) {
-      mesh.rotation.y = (localX - .5) * layer.hover * .048 + depthEnvelope * (portrait ? -.036 : .072) * (frame.mobile ? .45 : 1);
-      mesh.rotation.x = (localY - .5) * layer.hover * .032 + depthEnvelope * (portrait ? .018 : -.039) * (frame.mobile ? .45 : 1);
+      mesh.rotation.y = (localX - .5) * layer.hover * .07 + depthEnvelope * (portrait ? -.05 : .09) * (frame.mobile ? .4 : 1);
+      mesh.rotation.x = (localY - .5) * layer.hover * .045 + depthEnvelope * (portrait ? .025 : -.05) * (frame.mobile ? .4 : 1);
     }
     const aspect = layer.image.naturalWidth / layer.image.naturalHeight;
     const targetAspect = rect.width / rect.height;
@@ -124,15 +123,6 @@ export class WebGLBridge {
     layer.element.dataset.depth = layer.depth.toFixed(2);
     mesh.updateMatrixWorld(true);
     this.nativeProjection.update(layer.image, mesh, this.camera, rect, frame.scroll, frame.width, frame.height);
-    const bounds = layer.bounds;
-    bounds.left = Infinity; bounds.right = -Infinity; bounds.top = Infinity; bounds.bottom = -Infinity;
-    for (let index = 0; index < 4; index++) {
-      this.corner.set(index % 2 ? .5 : -.5, index > 1 ? .5 : -.5, 0).applyMatrix4(mesh.matrixWorld).project(this.camera);
-      const horizontal = (this.corner.x + 1) * frame.width * .5;
-      const vertical = (1 - this.corner.y) * frame.height * .5;
-      bounds.left = Math.min(bounds.left, horizontal); bounds.right = Math.max(bounds.right, horizontal);
-      bounds.top = Math.min(bounds.top, vertical); bounds.bottom = Math.max(bounds.bottom, vertical);
-    }
     if (layer.depth < .04 && layer.hover < .001 && layer.reveal > .999 && frame.velocity < .001) { mesh.visible = false; delete layer.element.dataset.gl; }
     return Math.abs(layer.hover - hoverTarget) > .001 || Math.abs(layer.depth - depthTarget) > .03 || Math.abs(layer.reveal - revealTarget) > .003;
   }

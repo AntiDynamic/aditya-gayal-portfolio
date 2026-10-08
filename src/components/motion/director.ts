@@ -16,7 +16,6 @@ export class MotionDirector {
   private anchors: HTMLElement[];
   private letters: HTMLElement[];
   private reveals: Reveal[];
-  private occlusions: HTMLElement[];
   private reduced = matchMedia("(prefers-reduced-motion: reduce)");
   private fullMotion = new URLSearchParams(location.search).get("motion") === "full";
   private get reducedMotion() { return this.reduced.matches && !this.fullMotion; }
@@ -52,8 +51,7 @@ export class MotionDirector {
     this.anchors = Array.from(root.querySelectorAll<HTMLElement>("[data-red-anchor]"));
     this.letters = Array.from(root.querySelectorAll<HTMLElement>("[data-letter]"));
     this.reveals = Array.from(root.querySelectorAll<HTMLElement>("[data-reveal]")).map(element => ({ element, value: 0, hoverOffset: 0, lines: Array.from(element.querySelectorAll<HTMLElement>("[data-line-content]")), entered: false }));
-    this.occlusions = Array.from(root.querySelectorAll<HTMLElement>("[data-occlude]"));
-    this.sampler = new RectSampler([...this.media, ...this.chapters, ...this.anchors, ...this.occlusions, ...this.reveals.map(reveal => reveal.element)], this.wake);
+    this.sampler = new RectSampler([...this.media, ...this.chapters, ...this.anchors, ...this.reveals.map(reveal => reveal.element)], this.wake);
     addEventListener("scroll", this.wake, { passive: true });
     addEventListener("pointermove", this.pointer, { passive: true });
     addEventListener("resize", this.resize);
@@ -124,7 +122,6 @@ export class MotionDirector {
     delete this.root.dataset.mediaFlow;
     this.atmosphere.reset();
     this.cursor.dispose();
-    for (const element of this.occlusions) { element.style.removeProperty("transform"); element.style.removeProperty("clip-path"); delete element.dataset.occlusionOffset; }
     for (const letter of this.letters) { letter.style.removeProperty("transform"); letter.style.removeProperty("opacity"); letter.parentElement!.style.removeProperty("clip-path"); }
     for (const reveal of this.reveals) {
       reveal.element.style.removeProperty("--reveal"); reveal.element.style.removeProperty("--reveal-y"); reveal.element.style.removeProperty("--hover-x");
@@ -163,20 +160,6 @@ export class MotionDirector {
       letter.parentElement!.style.clipPath = entrance < .999 ? `inset(0 0 ${((1 - entrance) * 100).toFixed(2)}% 0)` : "none";
     }
     this.root.dataset.heroDepth = this.frame.reduced ? "0" : (spatial * 88).toFixed(1);
-  }
-  private updateOcclusion() {
-    for (const element of this.occlusions) {
-      const layer = this.bridge?.layers.find(layer => layer.element.dataset.media === element.dataset.occlude);
-      const rect = this.sampler.get(element);
-      const active = layer && layer.mesh.visible && !layer.element.dataset.flow && !this.frame.reduced && !this.frame.mobile;
-      const travel = active ? Math.min(120, layer.depth * 4) : 0;
-      element.style.transform = `translate3d(${-travel.toFixed(2)}px,0,0)`;
-      const top = rect.top - this.frame.scroll;
-      const overlaps = active && top < layer.bounds.bottom && top + rect.height > layer.bounds.top;
-      const cut = overlaps ? Math.max(0, layer.bounds.right - rect.left + travel) : 0;
-      element.style.clipPath = cut ? `inset(0 0 0 ${cut.toFixed(2)}px)` : "none";
-      element.dataset.occlusionOffset = travel.toFixed(2);
-    }
   }
   private updateReveals() {
     let settling = false;
@@ -286,7 +269,6 @@ export class MotionDirector {
       this.bridge.flow.update(this.bridge.layers, this.getRect, this.frame, this.bridge.camera);
       this.root.dataset.mediaFlow = String(this.bridge.flow.mesh.visible);
       this.atmosphere.sweep(this.bridge.flow.mesh, this.bridge.flow.mesh.visible, this.frame.mobile);
-      this.updateOcclusion();
       settling = this.updateRule() || settling;
       this.bridge.render();
     }
@@ -324,6 +306,5 @@ export class MotionDirector {
     delete this.root.dataset.mediaFlow;
     for (const letter of this.letters) { letter.style.removeProperty("transform"); letter.style.removeProperty("opacity"); letter.parentElement!.style.removeProperty("clip-path"); }
     for (const reveal of this.reveals) { reveal.element.style.removeProperty("--reveal"); reveal.element.style.removeProperty("--reveal-y"); reveal.element.style.removeProperty("--hover-x"); for (const line of reveal.lines) line.style.removeProperty("--line-y"); }
-    for (const element of this.occlusions) { element.style.removeProperty("transform"); element.style.removeProperty("clip-path"); delete element.dataset.occlusionOffset; }
   }
 }

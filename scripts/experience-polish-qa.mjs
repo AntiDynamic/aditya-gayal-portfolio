@@ -1,0 +1,87 @@
+import { chromium } from "playwright";
+import assert from "node:assert/strict";
+import { mkdir, writeFile } from "node:fs/promises";
+
+const base = process.env.QA_URL || "http://localhost:3004";
+const output = process.env.QA_OUTPUT || "visual-qa/experience-polish";
+await mkdir(output, { recursive: true });
+const browser = await chromium.launch({ executablePath: "/usr/bin/chromium", args: ["--no-sandbox", "--enable-gpu", "--use-gl=angle", "--use-angle=gl"] });
+const report = { checks: [], errors: [] };
+try {
+  const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+  page.on("pageerror", error => report.errors.push(error.message));
+  await page.goto(base);
+  const hole = page.locator("[data-event-horizon]");
+  await hole.waitFor();
+  await page.waitForFunction(() => Number(document.querySelector("[data-event-horizon]")?.dataset.draws) > 1);
+  const initial = Number(await hole.getAttribute("data-observer-distance"));
+  for (let step = 1; step <= 4; step++) {
+    await page.mouse.wheel(0, 1100);
+    await page.waitForTimeout(750);
+    await page.screenshot({ path: `${output}/black-hole-${step}.png` });
+    assert.equal(await hole.evaluate(element => getComputedStyle(element.querySelector("[class*='viewport']")).position), "fixed");
+  }
+  const progressed = Number(await hole.getAttribute("data-progress"));
+  const distance = Number(await hole.getAttribute("data-observer-distance"));
+  assert.ok(progressed > .3 && progressed < .9, `Expected gradual entry, got ${progressed}`);
+  assert.ok(distance < initial * .4, `Expected physical approach, got ${initial} to ${distance}`);
+  assert.ok(Number(await hole.getAttribute("data-draws")) > 100);
+  report.checks.push("Black-hole viewport stays fixed; repeated wheel input approaches the rendered disk gradually");
+  await page.getByRole("link", { name: "Website" }).click();
+  await page.locator("[data-editorial][data-ready='true']").waitFor();
+  await page.locator("#about").scrollIntoViewIfNeeded();
+  await page.getByRole("button", { name: "View a larger photograph of Aditya", exact: true }).click();
+  await page.locator("[data-portfolio-viewer][open]").waitFor();
+  assert.equal(await page.locator("[data-portfolio-viewer] img").count(), 1);
+  await page.getByRole("button", { name: "Close" }).click();
+  await page.locator("[data-portfolio-viewer][open]").waitFor({ state: "detached" });
+  await page.getByRole("button", { name: "View a larger photograph of Aditya outside" }).click();
+  await page.locator("[data-portfolio-viewer][open]").waitFor();
+  await page.screenshot({ path: `${output}/second-photo-open.png` });
+  assert.match(await page.locator("[data-portfolio-viewer] img").getAttribute("alt"), /dark jacket/);
+  report.checks.push("Both actual photographs open in a reversible full-screen view");
+  await page.close();
+
+  const reduced = await browser.newPage({ viewport: { width: 1440, height: 900 }, reducedMotion: "reduce" });
+  await reduced.goto(base);
+  await reduced.getByRole("link", { name: "Play full-motion intro" }).click();
+  await reduced.locator("[data-event-horizon][data-reduced='false']").waitFor();
+  assert.match(reduced.url(), /motion=full/);
+  await reduced.goto(`${base}/?room=1`);
+  await reduced.locator("[data-room][data-guided='true']").waitFor();
+  await reduced.getByRole("link", { name: "Use free roam" }).click();
+  await reduced.locator("[data-room][data-guided='false']").waitFor();
+  assert.match(reduced.url(), /motion=full/);
+  report.checks.push("Reduced-motion visitors can explicitly choose full animation and desktop free roam");
+  await reduced.close();
+  const mobile = await browser.newPage({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true, deviceScaleFactor: 3 });
+  mobile.on("pageerror", error => report.errors.push(error.message));
+  await mobile.goto(`${base}/?room=1&motion=full`);
+  await mobile.locator("[data-room][data-ready='true']").waitFor();
+  await mobile.getByRole("button", { name: "Enter room" }).click();
+  await mobile.getByRole("button", { name: "Free roam" }).click();
+  await mobile.locator("[data-room][data-guided='false']").waitFor();
+  await mobile.waitForTimeout(2400);
+  const before = await mobile.locator("[data-room]").getAttribute("data-camera");
+  const session = await mobile.context().newCDPSession(mobile);
+  const walk = await mobile.getByRole("button", { name: "Hold to walk" }).boundingBox();
+  const point = { x: walk.x + walk.width / 2, y: walk.y + walk.height / 2 };
+  await session.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [point] });
+  await mobile.waitForTimeout(1300);
+  await session.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
+  const after = await mobile.locator("[data-room]").getAttribute("data-camera");
+  assert.notEqual(after, before, "Touch free roam should move the camera");
+  const lookBefore = await mobile.locator("[data-room]").getAttribute("data-look");
+  await session.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [{ x: 300, y: 400 }] });
+  await session.send("Input.dispatchTouchEvent", { type: "touchMove", touchPoints: [{ x: 210, y: 400 }] });
+  await session.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
+  await mobile.waitForTimeout(300);
+  assert.notEqual(await mobile.locator("[data-room]").getAttribute("data-look"), lookBefore);
+  await mobile.screenshot({ path: `${output}/mobile-free-roam.png` });
+  await mobile.getByRole("button", { name: "Guided views" }).click();
+  await mobile.locator("[data-room][data-guided='true']").waitFor();
+  report.checks.push("Touch room offers optional forward/back movement, drag look, and return to guided views");
+  await mobile.close();
+  assert.deepEqual(report.errors, []);
+} catch (error) { report.failure = error.stack; process.exitCode = 1; }
+finally { await browser.close(); await writeFile(`${output}/report.json`, JSON.stringify(report, null, 2)); console.log(report); }

@@ -16,7 +16,7 @@ export class RectSampler {
     if (!this.dirty) return;
     for (const entry of this.entries.values()) {
       const bounds = entry.element.getBoundingClientRect();
-      entry.left = bounds.left + (Number(entry.element.dataset.occlusionOffset) || 0);
+      entry.left = bounds.left;
       let translation = 0;
       let ancestor: HTMLElement | null = entry.element;
       while (ancestor) {

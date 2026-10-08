@@ -33,14 +33,15 @@ export class MediaFlow {
   }
   private release(layer?: MediaLayer) { if (layer) { delete layer.element.dataset.flow; delete layer.element.dataset.gl; delete layer.element.dataset.flowProgress; layer.image.style.removeProperty("opacity"); } }
   update(layers: MediaLayer[], getRect: (element: HTMLElement) => CachedRect, frame: MotionFrame, camera: THREE.Camera) {
-    if (frame.reduced || frame.monitor) return;
+    if (frame.reduced || frame.monitor || frame.mobile) return;
     for (let index = 0; index < layers.length - 1; index++) {
       const source = layers[index]; const destination = layers[index + 1];
-      if (!source.ready || !destination.ready) continue;
       const first = getRect(source.element); const second = getRect(destination.element);
       const start = Math.max(first.top + first.height - frame.height * .58, index > 0 ? first.top - frame.height * .13 : -Infinity);
       const end = second.top - frame.height * .25;
+      if (frame.scroll > first.top - frame.height * 1.5 && destination.image.loading === "lazy") destination.image.loading = "eager";
       if (frame.scroll <= start) this.armed[index] = true;
+      if (!source.ready || !destination.ready) continue;
       if (!this.armed[index]) continue;
       if (end <= start + 80 || frame.scroll <= start || frame.scroll >= end) continue;
       const progress = smooth(start, end, frame.scroll);

@@ -17,6 +17,16 @@ try {
     await page.evaluate(() => scrollTo(0,document.body.scrollHeight)); await page.waitForTimeout(1500);
     await page.evaluate(() => scrollTo(0,0)); await page.waitForTimeout(1500);
     const rects = await page.locator('[data-media]').evaluateAll(elements => elements.map(element => { const rect = element.getBoundingClientRect(); return { top: rect.top + scrollY, height: rect.height }; }));
+    if (width === 390) {
+      for (const media of await page.locator('[data-media]').all()) {
+        await media.scrollIntoViewIfNeeded(); await page.waitForTimeout(400);
+        assert.equal(await page.locator('[data-flow=true]').count(), 0);
+        assert.ok(await media.locator('img').evaluate(image => image.complete && image.naturalWidth > 0));
+      }
+      report.checks.push('390: each image remains readable without the collapsing traveling-media effect');
+      const video = page.video(); await context.close(); await video.saveAs(`${output}/${width}.webm`); await video.delete();
+      continue;
+    }
     for (let index=0; index<4; index++) {
       const start = Math.max(rects[index].top + rects[index].height - 580,index>0?rects[index].top-130:-Infinity);
       const end = rects[index+1].top - 250;
@@ -35,8 +45,8 @@ try {
     await page.emulateMedia({ reducedMotion:"reduce" });
     await page.evaluate(top=>scrollTo(0,top),(rects[0].top+rects[0].height-580+rects[1].top-250)/2); await page.waitForTimeout(700);
     assert.equal(await page.locator('[data-flow=true]').count(),0);
-    assert.equal(await page.locator('[data-occlude]').evaluate(element=>element.style.clipPath),"none");
-    report.checks.push(`${width}: reduced motion disables traveling media and text masking`);
+    assert.match(await page.locator('#about h2').innerText(), /I’m Aditya/);
+    report.checks.push(`${width}: reduced motion disables traveling media and keeps About text readable`);
     const video = page.video(); await context.close(); await video.saveAs(`${output}/${width}.webm`); await video.delete();
   }
   assert.deepEqual(report.errors,[]);

@@ -40,7 +40,7 @@ export function preloadRoomAssets() {
 }
 
 type CameraPose = { position: THREE.Vector3; rotation: THREE.Quaternion; fov: number };
-type CameraMove = { from: CameraPose; to: CameraPose; elapsed: number; duration: number; complete?: () => void };
+type CameraMove = { from: CameraPose; to: CameraPose; via?: THREE.Vector3; elapsed: number; duration: number; complete?: () => void };
 export type RoomStatus = { phase: "wake" | "ready" | "explore" | "inspect" | "handoff"; target: Discovery | null; inspection: Discovery | null; locked: boolean; recovered: boolean; recovering?: boolean; viewpoint: Viewpoint };
 type Callbacks = { status: (status: RoomStatus) => void; complete: () => void; failed: () => void; revealWebsite: () => HTMLElement | null; sound: (kind: "lamp" | "paper" | "drive" | "step" | "power" | "drawer" | "keyboard") => void; audioFrame: (position: readonly [number, number, number], forward: readonly [number, number, number], up: readonly [number, number, number], wake: number, handoff: number) => void };
 
@@ -81,6 +81,7 @@ export class RoomRenderer {
   private drawer?: THREE.Group;
   private fan?: THREE.Mesh;
   private dust?: THREE.Points;
+  private rain?: THREE.Texture;
   private css?: CSS3DRenderer;
   private cssScene?: THREE.Scene;
   private monitorSurface?: CSS3DObject;
@@ -109,6 +110,7 @@ export class RoomRenderer {
   private suppressClick = false;
   private restoreMouseLook = false;
   private lastInteraction = 0;
+  private touchRoam = false;
 
   constructor(private canvas: HTMLCanvasElement, private host: HTMLElement, private guided: boolean, private reduced: boolean, private callbacks: Callbacks) {
     RectAreaLightUniformsLib.init();
@@ -144,6 +146,7 @@ export class RoomRenderer {
     const paintFinish = finishTexture("paint"); this.ownedTextures.add(paintFinish);
     shell.traverse(item => {
       if (!(item instanceof THREE.Mesh)) return;
+      if (["room_city_plaster", "room_city_wall", "room_city_roof", "room_city_glass"].includes(item.name)) item.userData.discovery = "shelf";
       if (item.name === "room_paint") {
         const material = (item.material as THREE.MeshStandardMaterial).clone(); this.ownedMaterials.add(material);
         material.roughnessMap = paintFinish; material.normalMap = roomTextures.get("white_plaster_02-normal")!; material.normalScale.setScalar(0.06); item.material = material;
@@ -248,12 +251,15 @@ export class RoomRenderer {
     }
     const landscape = roomTextures.get("exterior")!;
     landscape.mapping = THREE.EquirectangularReflectionMapping; this.scene.background = landscape; this.scene.backgroundRotation.y = Math.PI; this.scene.backgroundIntensity = 0.85;
-    const rain = windowTexture(); this.ownedTextures.add(rain);
+    const rain = windowTexture(); rain.wrapT = THREE.RepeatWrapping; this.rain = rain; this.ownedTextures.add(rain);
     const glass = new THREE.MeshStandardMaterial({ map: rain, color: 0xc6d0cb, transparent: true, opacity: 0.20, roughness: 0.48 }); this.ownedMaterials.add(glass);
     this.box([0.014, 1.59, 2.86], [-3.20, 1.89, -0.05], glass);
     const exteriorLedge = this.material(0x899595, 0.97);
     this.box([0.53, 0.075, 3.08], [-3.42, 1.045, -0.05], exteriorLedge, this.scene, 0.008);
     this.box([0.045, 0.08, 3.10], [-3.67, 1.10, -0.05], this.material(0x4a5859, 0.73, 0.25), this.scene, 0.004);
+    const weathered = this.material(0x536160, 0.92, 0.08);
+    this.box([0.035, 0.035, 2.52], [-4.08, 1.33, -0.05], weathered, this.scene, 0.004);
+    for (const depth of [-1.25, -.43, .49, 1.20]) this.box([0.035, 0.46, 0.035], [-4.08, 1.13, depth], weathered, this.scene, 0.003);
     for (const depth of [0.63, 0.79]) {
       const material = new THREE.MeshStandardMaterial({ color: 0xeeefdc, emissive: 0xe0eddf, emissiveIntensity: 3.3, roughness: 0.35 }); this.ownedMaterials.add(material); this.tubeMaterials.push(material);
       const geometry = new THREE.CylinderGeometry(0.022, 0.022, 1.31, 16); this.ownedGeometries.add(geometry);
@@ -437,23 +443,29 @@ export class RoomRenderer {
   }
 
   private capture(): CameraPose { return { position: this.camera.position.clone(), rotation: this.camera.quaternion.clone(), fov: this.camera.fov }; }
-  private move(pose: CameraPose, duration: number, complete?: () => void) {
+  private move(pose: CameraPose, duration: number, complete?: () => void, via?: THREE.Vector3) {
     this.velocity.set(0, 0, 0); this.keys.clear();
     this.targetPosition.set(Infinity, Infinity, Infinity);
     if (this.reduced) {
       this.cameraMove = undefined; this.camera.position.copy(pose.position); this.camera.quaternion.copy(pose.rotation); this.camera.fov = pose.fov; this.camera.updateProjectionMatrix(); this.synchronizeAngles(); complete?.();
-    } else this.cameraMove = { from: this.capture(), to: pose, elapsed: 0, duration, complete };
+    } else this.cameraMove = { from: this.capture(), to: pose, via, elapsed: 0, duration, complete };
     this.wake();
   }
 
-  walk(held: boolean) { if (held && this.status.phase === "explore") this.keys.add("KeyW"); else this.keys.delete("KeyW"); }
+  walk(held: boolean, direction: "KeyW" | "KeyS" = "KeyW") { if (held && this.status.phase === "explore") this.keys.add(direction); else this.keys.delete(direction); this.wake(); }
+  setTouchRoam(enabled: boolean) {
+    this.touchRoam = enabled; this.guided = !enabled;
+    this.host.dataset.guided = String(!enabled);
+    this.keys.clear(); this.velocity.set(0, 0, 0); this.drag = undefined;
+    this.lastInteraction = this.clock; this.wake();
+  }
   exit() { this.finishHandoff(); }
 
   enter() {
     if (this.status.phase !== "ready" && this.status.phase !== "explore") return;
     this.status.phase = "explore"; this.canvas.tabIndex = -1; this.canvas.focus({ preventScroll: true }); this.emit();
     this.lastInteraction = this.clock;
-    if (!this.guided && !this.reduced) {
+    if (!this.guided && !this.reduced && !this.touchRoam) {
       try { const lock = this.canvas.requestPointerLock(); if (lock) void lock.catch(this.pointerError); } catch { this.pointerError(); }
     }
     this.wake();
@@ -470,7 +482,9 @@ export class RoomRenderer {
       wall: this.pose([0.91, 1.55, -0.40], [0.86, 1.64, -2.71]),
       computer: this.pose([-0.51, 1.50, -0.65], [-0.5, 1.20, -2.07]),
     };
-    this.move(poses[viewpoint], 1.25); this.emit();
+    const distance = this.camera.position.distanceTo(poses[viewpoint].position);
+    const via = distance > 1.3 ? this.camera.position.clone().add(poses[viewpoint].position).multiplyScalar(.5).lerp(new THREE.Vector3(0, 1.65, .35), .45) : undefined;
+    this.move(poses[viewpoint], Math.min(2.5, 1 + distance * .42), undefined, via); this.emit();
   }
 
   inspect(discovery: Discovery | null = this.status.target) {
@@ -568,14 +582,14 @@ export class RoomRenderer {
   private synchronizeAngles() { this.lookEuler.setFromQuaternion(this.camera.quaternion, "YXZ"); this.yaw = this.lookYaw = this.lookEuler.y; this.pitch = this.lookPitch = this.lookEuler.x; }
 
   private updateLook(delta: number) {
-    if (this.status.phase !== "explore" || this.cameraMove || !this.status.locked) return;
+    if (this.status.phase !== "explore" || this.cameraMove || !(this.status.locked || this.touchRoam)) return;
     this.lookYaw = THREE.MathUtils.damp(this.lookYaw, this.yaw, 35, delta);
     this.lookPitch = THREE.MathUtils.damp(this.lookPitch, this.pitch, 35, delta);
     this.camera.quaternion.setFromEuler(this.lookEuler.set(this.lookPitch, this.lookYaw, 0));
   }
 
   private updateMovement(delta: number) {
-    if (this.status.phase !== "explore" || this.cameraMove || !this.status.locked || this.host.dataset.guided === "true") return;
+    if (this.status.phase !== "explore" || this.cameraMove || !(this.status.locked || this.touchRoam) || this.host.dataset.guided === "true") return;
     const horizontal = Number(this.keys.has("KeyD") || this.keys.has("ArrowRight")) - Number(this.keys.has("KeyA") || this.keys.has("ArrowLeft"));
     const forward = Number(this.keys.has("KeyW") || this.keys.has("ArrowUp")) - Number(this.keys.has("KeyS") || this.keys.has("ArrowDown"));
     this.direction.set(horizontal, 0, -forward).normalize().applyAxisAngle(THREE.Object3D.DEFAULT_UP, this.lookYaw).multiplyScalar(1.32);
@@ -650,7 +664,9 @@ export class RoomRenderer {
     }
     if (this.cameraMove) {
       const move = this.cameraMove; move.elapsed += delta; const progress = ease(move.elapsed / move.duration);
-      this.camera.position.lerpVectors(move.from.position, move.to.position, progress); this.camera.quaternion.slerpQuaternions(move.from.rotation, move.to.rotation, progress); this.camera.fov = THREE.MathUtils.lerp(move.from.fov, move.to.fov, progress); this.camera.updateProjectionMatrix();
+      if (move.via) this.camera.position.copy(move.from.position).multiplyScalar((1 - progress) ** 2).addScaledVector(move.via, 2 * (1 - progress) * progress).addScaledVector(move.to.position, progress ** 2);
+      else this.camera.position.lerpVectors(move.from.position, move.to.position, progress);
+      this.camera.quaternion.slerpQuaternions(move.from.rotation, move.to.rotation, progress); this.camera.fov = THREE.MathUtils.lerp(move.from.fov, move.to.fov, progress); this.camera.updateProjectionMatrix();
       if (move.elapsed >= move.duration) { this.cameraMove = undefined; this.synchronizeAngles(); move.complete?.(); if (this.disposed) return; }
     }
     this.updateLook(delta); this.updateMovement(delta); this.updateTarget();
@@ -677,6 +693,7 @@ export class RoomRenderer {
     if (this.fan && this.status.recovered) this.fan.rotation.y += delta * (this.reduced ? 0.5 : 12);
     if (this.drawer) this.drawer.position.z += ((this.status.inspection === "drawer" ? 0.95 : 1.28) - this.drawer.position.z) * (1 - Math.exp(-delta * 4));
     if (this.dust && !this.reduced) this.dust.position.x = Math.sin(this.clock * 0.06) * 0.10;
+    if (this.rain && !this.reduced) this.rain.offset.y = -this.clock * 0.002;
     if (this.clock - this.audioTime >= 1 / 30) {
       this.audioTime = this.clock;
       this.camera.getWorldDirection(this.audioForward); this.audioUp.set(0, 1, 0).applyQuaternion(this.camera.quaternion);
@@ -759,11 +776,11 @@ export class RoomRenderer {
   }
   private click = (event: MouseEvent) => {
     if (this.suppressClick) { this.suppressClick = false; return; }
-    if (this.status.phase === "explore" && !this.guided && !this.reduced && !this.status.locked) { this.enter(); return; }
+    if (this.status.phase === "explore" && !this.guided && !this.reduced && !this.status.locked && !this.touchRoam) { this.enter(); return; }
     if (this.monitorActionAt(event.clientX, event.clientY)) { if (this.status.recovered) this.openPortfolio(); else this.recover(); }
     else if (this.status.phase === "explore" && this.status.target) this.inspect();
   };
-  private pointerDown = (event: PointerEvent) => { this.suppressClick = false; this.dragDistance = 0; if (this.host.dataset.guided === "true" && this.status.phase === "explore") { this.drag = { horizontal: event.clientX, vertical: event.clientY, origin: event.clientX }; this.canvas.setPointerCapture(event.pointerId); } };
+  private pointerDown = (event: PointerEvent) => { this.suppressClick = false; this.dragDistance = 0; if ((this.guided || this.touchRoam) && this.status.phase === "explore") { this.drag = { horizontal: event.clientX, vertical: event.clientY, origin: event.clientX }; this.canvas.setPointerCapture(event.pointerId); } };
   private pointerUp = () => {
     if (this.drag && this.dragDistance > 4) this.suppressClick = true;
     if (this.drag && this.host.dataset.guided === "true" && Math.abs(this.drag.horizontal - this.drag.origin) > 55 && !this.cameraMove) {

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { discoveries, viewpointOrder, viewpointDiscovery, type Viewpoint } from "./room-content";
 import type { RoomRenderer, RoomStatus } from "./room-renderer";
 import styles from "./room.module.css";
@@ -17,6 +18,8 @@ export function RoomPrologue({ complete, website }: { complete: () => void; webs
   const [status, setStatus] = useState(initialStatus);
   const [touch, setTouch] = useState(false);
   const [guided, setGuided] = useState(false);
+  const [freeRoam, setFreeRoam] = useState(false);
+  const [allowsTouchRoam, setAllowsTouchRoam] = useState(false);
   const audio = useRef<RoomAudio | null>(null);
   const [showEscape, setShowEscape] = useState(false);
   const showedEscape = useRef(false);
@@ -56,6 +59,7 @@ export function RoomPrologue({ complete, website }: { complete: () => void; webs
       if (disposed) return;
       setTouch(useTouch);
       setGuided(useTouch || reduced);
+      setAllowsTouchRoam(useTouch && !reduced);
       try {
         const instance = new module.RoomRenderer(target, node, useTouch, reduced, { status: setStatus, complete: () => completion.current(), failed: () => completion.current(), revealWebsite: () => reveal.current(), sound: kind => { if (kind === "power") roomAudio.powered(); else roomAudio.effect(kind); }, audioFrame: (position, forward, up, wake, handoff) => roomAudio.frame(position, forward, up, wake, handoff) });
         renderer.current = instance;
@@ -81,21 +85,28 @@ export function RoomPrologue({ complete, website }: { complete: () => void; webs
     {status.phase === "ready" && <div className={styles.entry}>
       <button ref={enterButton} type="button" onClick={() => { renderer.current?.enter(); if (guided) renderer.current?.guide("desk"); }}>Enter room <span aria-hidden="true">↗</span></button>
       <p>{guided ? "Choose a view or swipe across the room · tap Look closer" : "WASD to move · mouse to look · E to inspect · Esc to release"}</p>
+      {guided && !touch && <Link className={styles.fullRoom} href="/?room=1&motion=full" prefetch={false} onClick={event => { if (event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) { event.preventDefault(); history.pushState(null, "", "/?room=1&motion=full"); location.reload(); } }}>Use free roam ↗</Link>}
     </div>}
-    {status.phase === "explore" && !guided && !status.locked && <div className={styles.resume}>
+    {status.phase === "explore" && !guided && !touch && !status.locked && <div className={styles.resume}>
       <button type="button" data-resume-room aria-label="Resume mouse look" onClick={() => renderer.current?.enter()}>Mouse look ↗</button>
     </div>}
     {status.phase === "explore" && <div className={styles.reticle} aria-hidden="true"><span>·</span>{status.target && !touch && <span className={styles.target}>E</span>}</div>}
     {guided && status.phase === "explore" && <nav className={styles.viewpoints} aria-label="Room viewpoints">
       {viewpointOrder.map((viewpoint: Viewpoint) => <button key={viewpoint} type="button" aria-current={status.viewpoint === viewpoint ? "location" : undefined} onClick={() => renderer.current?.guide(viewpoint)}>{viewpoint === "wall" ? "Drawing" : viewpoint[0].toUpperCase() + viewpoint.slice(1)}</button>)}
       <button className={styles.inspectButton} type="button" disabled={!viewpointDiscovery[status.viewpoint]} onClick={() => renderer.current?.inspect(viewpointDiscovery[status.viewpoint])}>Look closer</button>
+      {allowsTouchRoam && <button type="button" onClick={() => { renderer.current?.setTouchRoam(true); setGuided(false); setFreeRoam(true); }}>Free roam ↗</button>}
     </nav>}
+    {freeRoam && status.phase === "explore" && <div className={styles.touchControls} data-touch-roam>
+      <div><button type="button" onPointerDown={event => { event.currentTarget.setPointerCapture(event.pointerId); renderer.current?.walk(true); }} onPointerUp={() => renderer.current?.walk(false)} onPointerCancel={() => renderer.current?.walk(false)}>Hold to walk ↑</button><button type="button" onPointerDown={event => { event.currentTarget.setPointerCapture(event.pointerId); renderer.current?.walk(true, "KeyS"); }} onPointerUp={() => renderer.current?.walk(false, "KeyS")} onPointerCancel={() => renderer.current?.walk(false, "KeyS")}>Back ↓</button></div>
+      <div><span>Drag to look</span><button type="button" onClick={() => { renderer.current?.setTouchRoam(false); renderer.current?.guide("desk"); setGuided(true); setFreeRoam(false); }}>Guided views ↗</button></div>
+    </div>}
     {status.phase === "inspect" && status.inspection && <div className={styles.inspection} role="dialog" aria-modal="false" aria-label={discoveries[status.inspection].label} onKeyDown={event => { if (event.key === "Escape" || event.code === "KeyE") { event.preventDefault(); renderer.current?.closeInspection(); } }}>
       <p className={styles.srOnly}>{discoveries[status.inspection].transcript}</p>
       {status.inspection === "notebook" && <button type="button" onClick={() => renderer.current?.turnNotebookPage()}>Other page</button>}
       {status.inspection === "computer" && <button type="button" disabled={status.recovering} onClick={() => status.recovered ? renderer.current?.openPortfolio() : renderer.current?.recover()}>{status.recovered ? "Open portfolio ↗" : status.recovering ? "Reading files…" : "Recover files"}</button>}
       <button ref={inspectionBack} type="button" onClick={() => renderer.current?.closeInspection()}>Back <span aria-hidden="true">/ Esc</span></button>
     </div>}
+    {status.phase === "inspect" && status.inspection && <p className={styles.observation}>{discoveries[status.inspection].note}</p>}
     <p className={styles.srOnly} aria-live="polite">{status.recovering ? "Reading local archive." : status.recovered && status.inspection === "computer" ? "Five project folders recovered. Open portfolio is available at the computer." : status.inspection ? discoveries[status.inspection].label : status.phase === "ready" ? "The fluorescent light has settled. You are standing in a small work room. Enter the room or skip to the portfolio." : ""}</p>
   </section>;
 }

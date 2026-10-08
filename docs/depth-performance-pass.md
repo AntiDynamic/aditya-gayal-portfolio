@@ -1,5 +1,7 @@
 # Depth and performance pass — 2026-10-09
 
+This is the earlier pass. Later fixes, including optional touch free roam, are recorded in `docs/experience-repair.md`.
+
 The black-hole and room compositions are unchanged. The black-hole opening now exposes restrained Room and Website shortcuts. Desktop room inspection restores pointer lock from the same Back/E interaction that closes the object; Escape still releases it. The touch-only room remains an authored, swipeable set of viewpoints with tap-to-inspect controls, **not** free walking. Phone asset preparation is allowed up to 30 seconds before falling back to the accessible website; desktop allows 20 seconds.
 
 The room renderer stops requesting frames when a guided view is settled, waking for view changes, inspection, recovery, and handoff. The portfolio defers below-the-fold image loading and only waits for eager media at first readiness. Work media and selected headings gain restrained perspective and depth; semantic DOM content and native image backing remain intact. Reduced-motion mode disables these depth movements.

@@ -36,6 +36,7 @@ export function ExperienceGate({ children, blackHole }: { children: ReactNode; b
       document.documentElement.dataset.prologue = next;
       dispatchEvent(new CustomEvent("prologue-stage", { detail: next }));
       delete document.documentElement.dataset.prologuePending;
+      if (next === "black-hole") scrollTo({ top: 0, behavior: "instant" });
       if (next === "room") { document.body.style.overflow = "hidden"; scrollTo({ top: 0, behavior: "instant" }); }
     };
     const query = new URLSearchParams(location.search);

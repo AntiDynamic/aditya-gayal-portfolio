@@ -5,7 +5,7 @@ import type { MotionFrame } from "../webgl/bridge";
 
 type RGB = [number, number, number];
 const cream: RGB = [242, 237, 227];
-const charcoal: RGB = [37, 39, 36];
+const workOrange: RGB = [218, 134, 77];
 const luminance = (color: RGB) => color.reduce((total, channel, index) => {
   const value = channel / 255;
   return total + (value <= .04045 ? value / 12.92 : Math.pow((value + .055) / 1.055, 2.4)) * [.2126, .7152, .0722][index];
@@ -14,7 +14,7 @@ const contrast = (first: RGB, second: RGB) => (Math.max(luminance(first), lumina
 const blend = (first: RGB, second: RGB, progress: number) => first.map((channel, index) => Math.round(mix(channel, second[index], progress))) as RGB;
 const css = (color: RGB) => `rgb(${color.join(" ")})`;
 const palettes = Array.from({ length: 101 }, (_, index) => {
-  const paper = blend(cream, charcoal, index / 100);
+  const paper = blend(cream, workOrange, index / 100);
   const light = luminance(paper);
   const ink: RGB = light > .285 ? [41, 40, 36] : light > .179 ? [0, 0, 0] : light > .14 ? [255, 255, 255] : cream;
   let muted = blend(ink, paper, .25);

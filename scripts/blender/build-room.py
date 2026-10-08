@@ -6,7 +6,7 @@ from mathutils import Vector
 bpy.ops.wm.read_factory_settings(use_empty=True)
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 materials = {}
-for name, color in {"plaster": (0.57, 0.56, 0.51, 1), "paint": (0.17, 0.26, 0.28, 1), "floor": (0.24, 0.25, 0.23, 1), "trim": (0.30, 0.32, 0.30, 1), "steel": (0.18, 0.20, 0.19, 1), "cream": (0.74, 0.70, 0.58, 1), "rubber": (0.045, 0.048, 0.04, 1), "wood": (0.37, 0.28, 0.18, 1), "diffuser": (0.82, 0.83, 0.79, 1)}.items():
+for name, color in {"plaster": (0.57, 0.56, 0.51, 1), "paint": (0.17, 0.26, 0.28, 1), "floor": (0.24, 0.25, 0.23, 1), "trim": (0.30, 0.32, 0.30, 1), "steel": (0.18, 0.20, 0.19, 1), "cream": (0.58, 0.55, 0.47, 1), "city_plaster": (0.40, 0.38, 0.33, 1), "city_roof": (0.16, 0.19, 0.18, 1), "city_wall": (0.31, 0.33, 0.29, 1), "city_glass": (0.07, 0.13, 0.14, 1), "rubber": (0.045, 0.048, 0.04, 1), "wood": (0.37, 0.28, 0.18, 1), "diffuser": (0.82, 0.83, 0.79, 1)}.items():
     material = bpy.data.materials.new(name)
     material.diffuse_color = color
     material.use_nodes = True
@@ -84,10 +84,17 @@ for row in range(4):
         if (row, column) in [(1, 2), (2, 2), (0, 4)]:
             continue
         height = 0.027 + ((row * 3 + column * 7) % 5) * 0.019
-        box("city_building", (2.49 + column * 0.086, 1.4065 + height / 2, -1.42 + row * 0.076), (0.056, height, 0.052), "cream", 0.002)
+        horizontal = 2.49 + column * 0.086
+        depth = -1.42 + row * 0.076
+        box("city_building", (horizontal, 1.4065 + height / 2, depth), (0.056, height, 0.052), "city_wall" if (row + column) % 4 == 0 else "city_plaster", 0.002)
+        box("city_roof", (horizontal, 1.408 + height, depth), (0.057, 0.003, 0.053), "city_roof", 0.001)
+        if height > 0.06:
+            box("city_window", (horizontal + 0.029, 1.407 + height * 0.55, depth), (0.001, 0.014, 0.028), "city_glass", 0)
 box("dock", (2.87, 1.411, -1.22), (0.06, 0.008, 0.05), "steel", 0.001)
 for column in range(4):
     box("street", (2.532 + column * 0.086, 1.4065, -1.30), (0.009, 0.001, 0.28), "trim", 0)
+for row in range(3):
+    box("street_mark", (2.70, 1.4072, -1.382 + row * 0.077), (0.028, 0.0005, 0.002), "city_roof", 0)
 box("prototype_base", (2.63, 0.7285, -1.25), (0.37, 0.027, 0.22), "steel")
 for offset in range(4):
     box("timeline_layer", (2.51 + offset * 0.069, 0.7485 + offset * 0.009, -1.25), (0.035, 0.013, 0.19), "cream", 0.002)

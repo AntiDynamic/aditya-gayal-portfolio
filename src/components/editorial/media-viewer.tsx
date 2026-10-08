@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import styles from "./interactions.module.css";
 
-type Media = { src: string; alt: string; title: string; href: string; bounds: DOMRect };
+type Media = { src: string; alt: string; title: string; href?: string; bounds: DOMRect; width: number; height: number };
 
 export function MediaViewer() {
   const dialog = useRef<HTMLDialogElement>(null);
@@ -19,7 +19,10 @@ export function MediaViewer() {
     const finish = () => { dialog.current?.close(); opener.current?.focus({ preventScroll: true }); closing.current = false; };
     if (reduced()) finish();
     else {
-      const animation = dialog.current.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 180, easing: "ease-out" });
+      const target = image.current?.getBoundingClientRect();
+      const bounds = media?.bounds;
+      const translation = target && bounds ? `translate(${bounds.x + bounds.width / 2 - target.x - target.width / 2}px,${bounds.y + bounds.height / 2 - target.y - target.height / 2}px) scale(${bounds.width / target.width},${bounds.height / target.height})` : "none";
+      const animation = image.current?.animate([{ transform: "none", opacity: 1 }, { transform: translation, opacity: 0.35 }], { duration: 420, easing: "cubic-bezier(.4,0,.2,1)" }) ?? dialog.current.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 180, easing: "ease-out" });
       void animation.finished.then(finish).catch(finish);
     }
   };
@@ -29,12 +32,12 @@ export function MediaViewer() {
     const open = (event: Event) => {
       const click = event as MouseEvent;
       if (click.defaultPrevented || click.button !== 0 || click.ctrlKey || click.metaKey || click.shiftKey || click.altKey) return;
-      const target = click.target instanceof Element ? click.target.closest<HTMLAnchorElement>("[data-project] a:has([data-media])") : null;
-      const source = target?.querySelector<HTMLImageElement>("img");
+      const target = click.target instanceof Element ? click.target.closest<HTMLElement>("[data-project] a:has([data-media]), [data-photo-zoom]") : null;
+      const source = target?.matches("[data-photo-zoom]") ? target.closest("figure")?.querySelector<HTMLImageElement>("img") : target?.querySelector<HTMLImageElement>("img");
       if (!source || !source.complete || !source.naturalWidth || !target) return;
       click.preventDefault();
       opener.current = target;
-      setMedia({ src: source.currentSrc, alt: source.alt, title: target.closest("[data-project]")?.querySelector("h3")?.textContent || "Project", href: target.href, bounds: source.getBoundingClientRect() });
+      setMedia({ src: source.currentSrc, alt: source.alt, title: target.closest("[data-project]")?.querySelector("h3")?.textContent || "Photograph", href: target instanceof HTMLAnchorElement ? target.href : undefined, bounds: source.getBoundingClientRect(), width: source.naturalWidth, height: source.naturalHeight });
     };
     root.addEventListener("click", open);
     return () => root.removeEventListener("click", open);
@@ -54,7 +57,7 @@ export function MediaViewer() {
   }, [media]);
   return <dialog ref={dialog} className={styles.viewer} data-portfolio-viewer data-lenis-prevent aria-labelledby="media-viewer-title" onCancel={event => { event.preventDefault(); close(); }} onClick={event => { if (event.target === dialog.current) close(); }}>
     <div className={styles.viewerBar}><h2 id="media-viewer-title">{media?.title}</h2><button type="button" onClick={close} autoFocus>Close ×</button></div>
-    {media && <Image unoptimized ref={image} src={media.src} alt={media.alt} width={1440} height={1000} />}
-    <div className={styles.viewerFoot}><span>Escape to go back</span><a href={media?.href} target="_blank" rel="noreferrer">Explore the repository ↗</a></div>
+    {media && <Image unoptimized ref={image} src={media.src} alt={media.alt} width={media.width} height={media.height} />}
+    <div className={styles.viewerFoot}><span>Escape to go back</span>{media?.href && <a href={media.href} target="_blank" rel="noreferrer">Explore the repository ↗</a>}</div>
   </dialog>;
 }

@@ -4,7 +4,7 @@ Current continuity improvements and critique: [editorial elevation](editorial-el
 
 ## Direction implemented
 
-Cream, charcoal, deep red; oversized real typography, two approved photographs and three replaceable work entries. No sculpture, ribbon, ring or new narrative world. The sequence is Hero → About → Selected Work → personal photograph → Lately → Contact. The existing black hole, room rendering and audio were not redesigned.
+Cream, warm orange through Selected Work, deep red, and near-black type; oversized real typography, two approved photographs and three replaceable work entries. No sculpture, ribbon, ring or new narrative world. The sequence is Hero → About → Selected Work → personal interests and photograph → Lately → Contact. The interests text is based on Aditya's stated enjoyment of games, anime, films, and making new projects. The existing black hole, room rendering and audio were not redesigned by the editorial pass.
 
 ## Motion architecture
 
@@ -14,7 +14,7 @@ Cream, charcoal, deep red; oversized real typography, two approved photographs a
 
 `WebGLBridge` uses one transparent, non-interactive canvas and one pixel-unit perspective camera. DOM owns dimensions, links and alt text. Each image has a shared subdivided plane, one texture and a small original shader. Ready images enter spatial depth, edge deformation and a directional hover sheen; settled media return to native DOM. Portrait centers stay stable. Texture decode failure leaves the native image visible. Loss of the WebGL context restores DOM immediately; restoration rebuilds textures.
 
-Typography uses the actual DOM font with staggered masks and CSS perspective; there is no mismatched rasterized font twin. Foreground/back typography layers straddle the canvas. This is selective spatial treatment, not a claim that every letter is a WebGL mesh.
+Typography uses the actual DOM font with staggered masks and CSS perspective; there is no mismatched rasterized font twin. The About heading stays fully readable beside the portrait rather than clipping its first word. This is selective spatial treatment, not a claim that every letter is a WebGL mesh.
 
 The red rule interpolates length, angle and destination between actual layout anchors. It becomes a photograph edge, project rule and final underline. It does not become a wandering spline. Idle/hidden animation sleeps; input, image decode, resize and scroll wake the director.
 

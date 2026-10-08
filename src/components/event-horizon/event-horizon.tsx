@@ -1,5 +1,6 @@
 import { EventHorizonScroll } from "./event-horizon-scroll";
 import Link from "next/link";
+import { ReplayIntroLink } from "../room/replay-intro-link";
 import styles from "./event-horizon.module.css";
 
 export function EventHorizon({bridge=false}:{bridge?:boolean}){return <main className={styles.experience} data-event-horizon data-bridge={bridge || undefined}>
@@ -9,6 +10,7 @@ export function EventHorizon({bridge=false}:{bridge?:boolean}){return <main clas
     <nav className={styles.controls} aria-label="Introduction">
       {bridge ? <><Link href="/?room=1" prefetch={false} data-room-shortcut>Room <span aria-hidden="true">↗</span></Link><Link href="/?portfolio" prefetch={false} data-website-shortcut>Website <span aria-hidden="true">↗</span></Link></> : <a href="#identity" data-skip-intro>Skip intro <span aria-hidden="true">↗</span></a>}
     </nav>
+    {bridge && <ReplayIntroLink className={styles.fullMotion}>Play full-motion intro ↗</ReplayIntroLink>}
     <section className={styles.identity} aria-labelledby="identity-title" data-identity aria-hidden={bridge || undefined} inert={bridge}>
       <span className={styles.rule} data-reform="0" aria-hidden="true" />
       <p className={styles.name} data-reform="1">ADITYA GAYAL</p>
